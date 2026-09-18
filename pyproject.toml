@@ -1,0 +1,32 @@
+[project]
+name = "net-sci"
+version = "0.1.0"
+description = "Ciência das redes para análise de séries temporais epidemiológicas agregadas em regiões geográficas."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Vinícius", email = "viniciusnvcosta47@gmail.com" },
+]
+requires-python = ">=3.11.13"
+dependencies = [
+    "matplotlib>=3.11.2",
+    "numpy>=2.4.6",
+    "pandas>=3.0.6",
+    "pmdarima>=2.1.1",
+    "scikit-learn>=1.9.1",
+    "seaborn>=0.13.2",
+    "statsmodels>=0.15.0",
+    "networkx>=3.4", # construção e features do grafo L0 (S, A, M, Φ)
+    "geopandas", # geometrias e operações espaciais (camada A)
+    "libpysal", # contiguidade espacial (queen/rook)
+    "geobr", # download das malhas oficiais do IBGE
+    "openpyxl", # leitura das tabelas REGIC (.xlsx)
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.3.0",
+    "jupyter>=1.1.1",
+    "python-igraph",
+    "pymnet",
+]
