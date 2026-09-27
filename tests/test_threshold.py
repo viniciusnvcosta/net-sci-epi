@@ -98,3 +98,10 @@ def test_degenerate_tail_is_reported():
     report = calibration_report(np.r_[np.zeros(5900), np.ones(100)], 1 / 60)
     assert report.method == "empirical_degenerate_tail"
     assert report.achieved_far <= 1 / 60
+
+
+def test_far_bound_survives_floating_point_budget_rounding():
+    target = np.nextafter(0.1, 0.0)
+    report = calibration_report(np.arange(50.0), target)
+    assert report.achieved_far <= target
+    assert report.threshold == 45.0

@@ -86,6 +86,9 @@ def calibration_report(null_scores: np.ndarray, target_far: float) -> Calibratio
     if not 0 < target_far < 1:
         raise ValueError("target_far must be in (0, 1)")
     allowed = int(np.floor(target_far * len(scores)))
+    # Multiplication can round a sub-integer budget up to an integer.
+    if allowed / len(scores) > target_far:
+        allowed -= 1
     empirical = float(np.sort(scores)[len(scores) - allowed - 1])
     threshold, method = empirical, "evt_gpd"
     try:
