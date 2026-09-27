@@ -19,7 +19,7 @@
 - “Fixed false-alarm rate.”
 - Python ≥ 3.12; FAR = 1/60 por região-mês; 13 regiões; 132 meses; 30 placebos.
 - “3 ruídos × 3 níveis de ε × (500 T + 500 N) = 9.000 simulações de 13 × 132.”
-- “|ΔAUC-PR| ≤ 0.01 per task and the same method ranking.” E0 contém 14 tarefas. Uma saída B1* exige decisão D-G0 explícita e mantém E0 inconclusivo; ela não está selecionada.
+- “|ΔAUC-PR| ≤ 0.01 per task and the same method ranking.” E0 contém 14 tarefas. D-G0 (27/09) escolheu a saída (i): E0 inconclusivo, B1\* autorizado, gate E0\* antes do E1′.
 - Ordem de porte: `data → reconcile → detectors → threshold → select → evaluate → stats`.
 - Sem Hydra/OmegaConf, MLflow, DVC, just, Factory/Registry ou Quarto no novo pacote; sem expansão de escopo para resgatar resultado negativo.
 - Uma seed raiz, `SeedSequence(root).spawn(n)`, `numpy.random.Generator`; registrar seeds.
@@ -101,13 +101,14 @@ Camada1 (injeção epidêmica+nulos paramétricos) tem prioridade sobre todos os
 
 ## Checklist de execução e encerramento
 
-- [ ] Executar P0 e decidir G0/D1–D7 até 29/09; se E0 inviável, escolher explicitamente B1* ou bloqueio total, sem trocar SHA e sem resolver D5 por omissão.
-- [ ] Executar P1–P3 na ordem de porte; verificar testes, MIGRATION e E0.
+- [x] Executar P0 e decidir G0: saída (i) em 27/09, E0 inconclusivo e B1\* autorizado; D2, D3, D5 e D6 decididos ([registro](../../protocol-decisions.md)).
+- [ ] D-G0a: documentar a proveniência dos resultados apresentados do CDADE v1 em `docs/reference-provenance.md` até 29/09 (somente leitura sobre o original).
+- [ ] Executar P1–P3 na ordem de porte; verificar testes e MIGRATION; implementar `inject_original_bounded` e o gate E0\*.
 - [ ] Executar P4–P6; verificar validação single-region antes de acoplar.
-- [ ] Aprovar e congelar as decisões científicas da spec §7 antes de P7/P8.
-- [ ] Executar piloto ~02/10 após detectores+acoplamento; registrar gatilho, custo medido/pendente e eventual escada D-COST antes de observar efeitos.
+- [ ] Fixar a faixa de R0 e o perfil do simulador (D-GT2/D-GT4) antes da camada 1; demais decisões da spec §7 congeladas em 27/09.
+- [ ] Registrar o hardware (CPU, núcleos, RAM, WSL) em `docs/reference-provenance.md`; executar piloto ~02/10 após detectores+acoplamento; aplicar os gatilhos de 48 h e 96 h da D-COST antes de observar efeitos.
 - [ ] Verificar alcance D-REACH antes dos braços; células sem poder não contam como evidência negativa.
-- [ ] Executar camadas 0/1/2 e nulos paramétricos com FAR e seeds disjuntas; separar paridade, não-inferioridade e evidência de propagação.
+- [ ] Avaliar o E0\* na camada 0 antes de qualquer resultado do E1′; executar camadas 0/1/2 e nulos NB2 com FAR e seeds disjuntas; separar E0\*, não-inferioridade e evidência de propagação.
 - [ ] Executar P7–P8 com FAR e seeds disjuntas; verificar comparabilidade antes de interpretar lead time.
 - [ ] Executar P9; reportar resultados negativos sem expandir o grafo.
 - [ ] Em cada componente: teste público, paridade ou comportamento, ruff/format/pytest, config por nome e artefatos pelo runner.

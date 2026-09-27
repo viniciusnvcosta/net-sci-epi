@@ -98,6 +98,8 @@ assert np.median(cv_t) > np.median(cv_n)
 
 **Interfaces:** Consome `DataBundle.counts[:,:60]`, W e SimConfig. Produz `EndemicCalibration(nu: tuple[float,...], targets: tuple[float,...], training_months: int, parameters_hash: str)` e `calibrate_endemic(train_counts: np.ndarray,cfg: SimConfig,rng: np.random.Generator) -> EndemicCalibration`; estende `simulate` sem mudar assinatura. O motor compartilhado deve disponibilizar fluxo/casos importados observados por região e mês para o adaptador da camada 1, sem mudar SimResult ou os onsets da camada 2 silenciosamente. `onset` é -1 para N e regiões sem excesso; não usar zeros como sentinel de ausência.
 
+**Fluxos local e importado ([D-GT2](../../protocol-decisions.md), 27/09):** o motor mantém, por região, dois fluxos de infecção separados: **local**, βᵢ(t)·Cᵢᵢ·Iᵢ/Nᵢ, e **importado**, βᵢ(t)·Σⱼ≠ᵢ Cᵢⱼ·Iⱼ/Nⱼ, que somam λᵢ. `EpidemicFlows(local: np.ndarray, imported: np.ndarray, observed: np.ndarray, observed_imported: np.ndarray)` congelada, eixos `[n_regions,132]`, é exposta pelo motor e consumida por `simulate` e pelo adaptador da camada 1. A observação binomial com taxa θ é aplicada **uma única vez** ao total; a parcela importada observada é obtida condicionalmente a ela (proposta: hipergeométrica com o mesmo uniforme comum), sem segunda aplicação de θ. Testes adicionais: `test_flows_sum_to_incidence`, `test_zero_coupling_has_no_imported_flow` (ε = 0 → importado identicamente zero), `test_observed_imported_bounded` (0 ≤ importado observado ≤ observado) e `test_theta_applied_once`.
+
 - [ ] **Step 1: Escrever `test_zero_coupling_isolates_seed`, `test_twin_uses_same_innovations`, `test_seed_onset_crossing`, `test_neighbor_onset_exceeds_frozen_sd`, `test_endemic_fit_uses_only_training`, `test_rng_reproducibility`.** Fixture de excesso/SD testa fronteira estrita >2SD; SD=0 usa >0, documentando sensibilidadade.
 
 ```python
@@ -121,9 +123,11 @@ Também testar C identidade em ε=0, linhas somam 1 e orientação de W com graf
 
 **Files:** Create `src/headd_l0/features.py`, `tests/test_features.py`; Modify `MIGRATION.md`.
 
-**Interfaces:** `FeatureBatch` da spec; `local_features(counts: np.ndarray) -> FeatureBatch`; `hierarchy_features(counts: np.ndarray,S: np.ndarray) -> FeatureBatch`; `neighbor_features(counts: np.ndarray,W: np.ndarray,window: int=12) -> FeatureBatch`; `rolling_ews(series: np.ndarray,window: int) -> tuple[np.ndarray,np.ndarray]` retorna indicadores `[time,5]` e máscara de validade mesma shape. `FEATURES` chaves local/hierarchy/neighbors. Não escalar com dados do teste; escalador de detector aprende no fit.
+**Entrada ([D5](../../protocol-decisions.md), 27/09):** as features operam sobre **resíduos padronizados** `[n_nodes,time]` produzidos pela E0 Task 3: resíduos base y − μ̂ para B0 e resíduos reconciliados y − P·μ̂ para B1\* e B2, ambos divididos pelo desvio-padrão de treino. A hierarquia entra pela reconciliação; não há features de contraste PA.
 
-- [ ] **Step 1: Escrever `test_neighbor_hand_calculation`, `test_prefix_invariance`, `test_constant_series_finite_with_invalid_mask`, `test_node_and_feature_axes`, `test_local_moran_hand_calculation`, `test_hierarchy_features_count_units`.**
+**Interfaces:** `FeatureBatch` da spec; `local_features(residuals: np.ndarray) -> FeatureBatch`; `neighbor_features(residuals: np.ndarray,W: np.ndarray,window: int=12) -> FeatureBatch`; `rolling_ews(series: np.ndarray,window: int) -> tuple[np.ndarray,np.ndarray]` retorna indicadores `[time,5]` e máscara de validade mesma shape. `FEATURES` chaves local/neighbors. Não escalar com dados do teste; escalador de detector aprende no fit.
+
+- [ ] **Step 1: Escrever `test_neighbor_hand_calculation`, `test_prefix_invariance`, `test_constant_series_finite_with_invalid_mask`, `test_node_and_feature_axes`, `test_local_moran_hand_calculation`, `test_residual_inputs_only`.** O último verifica que o fit não recebe contagens brutas: os mesmos resíduos produzem as mesmas features, independentemente da escala das contagens de origem.
 
 ```python
 x = np.array([[1., 2., 3.], [10., 20., 30.]])
@@ -140,9 +144,9 @@ assert np.isfinite(ews).all() and not valid[:, 1:3].any()
 Alterar x[:,90:] → features até 89 idênticas; warmup só usa passado e possui validade, nunca backfill.
 
 - [ ] **Step 2:** `uv run pytest tests/test_features.py -v` → FAIL.
-- [ ] **Step 3: Implementar.** Local: `(x_t,x_(t−1),x_t−x_(t−1))`; hierarquia: mesmos três mais `(PA_t, x_i−PA_t/13)` nas folhas e zeros para contraste agregado, eixos `[14,time,5]`. É representação de contagens, não definição da posição de MinT (D5 permanece gate). Vizinhos somente 13 folhas; runner acrescenta zeros relacionais à linha PA. Moran instantâneo `z_i*(W@z)_i/m2`, z centrado espacialmente e m2=mean(z²), depois média dos últimos 12 valores; m2 zero →0. EWS SD ddof=1, CV=SD/mean, AR1 Pearson defasada, skewness e kurtosis Pearson (normal=3); constantes →zero com máscara falsa para estatística indefinida. Lag inicial =0 e warmup excluído. Todas as features em t usam ≤t.
+- [ ] **Step 3: Implementar.** Local: `(e_t,e_(t−1),e_t−e_(t−1))` sobre resíduos padronizados, eixos `[14,time,3]`. Vizinhos: `W·e_t`, `W·e_(t−1)`, `e_t−W·e_t` e Moran local, somente nas 13 folhas; runner acrescenta zeros relacionais à linha PA. Moran instantâneo `z_i*(W@z)_i/m2`, z centrado espacialmente e m2=mean(z²), depois média dos últimos 12 valores; m2 zero →0. EWS SD ddof=1, CV=SD/mean, AR1 Pearson defasada, skewness e kurtosis Pearson (normal=3); constantes →zero com máscara falsa para estatística indefinida. Lag inicial =0 e warmup excluído. Todas as features em t usam ≤t.
 - [ ] **Step 4:** Testes/checks → PASS; substituir W real por placebo só muda valores, não shape, nomes ou janelas. Nomes de colunas estáveis são gravados no manifest.
-- [ ] **Step 5:** `git add src/headd_l0/features.py tests/test_features.py MIGRATION.md` e `git commit -m "feat: add causal hierarchy and neighborhood features"`.
+- [ ] **Step 5:** `git add src/headd_l0/features.py tests/test_features.py MIGRATION.md` e `git commit -m "feat: add causal residual and neighborhood features"`.
 
 ## Critério de saída
 

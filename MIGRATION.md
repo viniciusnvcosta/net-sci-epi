@@ -24,6 +24,10 @@ the original `.venv` interpreter as a read-only runtime. Pinned hashes live in
 `tests/reference/manifest.json`; `.npz` container bytes vary between exports,
 the per-array hashes do not.
 
+Accepted operational choices (D-OPS, 2026-09-27): the second helper script
+`scripts/_reference_primitives.py` and the `*.md` exclusion in
+`[tool.ruff.format]`, which keeps ruff 0.16 from reformatting plan snippets.
+
 Result on 2026-09-26: **exit 2, reference insufficient for E0**. Installed
 reference packages match `uv.lock`; original HEAD, status and raw hashes were
 unchanged by the run.
