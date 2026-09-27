@@ -102,3 +102,21 @@ training data uses Euclidean deviation from the training mean; partial constant
 features are excluded. This is explicit behavior outside legacy parity.
 Features retain their D5 scale; PCA's own standardization fits only on training.
 The existing negative-forecast diagnostic is unchanged (D2 forbids clipping).
+
+## EVT/FAR (Task 5, 2026-09-27)
+
+`threshold.py` ports the functioning `_fit_gpd` primitive from
+`cdade/baselines/reconciliation_evt.py` (pinned SHA, Apache-2.0), not the
+broken two-parameter unpack in `reconciliation/evt.py`. `tests/reference/evt.npz`
+is copied unchanged from the audit; all array hashes match the existing manifest.
+Parameter parity uses the original absolute residuals only in the fixture,
+rtol=1e-7/atol=1e-9. Production scores retain their signed anomaly orientation.
+
+Calibration uses the observed strict-exceedance fraction in the unconditional
+GPD quantile, then raises the threshold if necessary to enforce calibration
+FAR <= target under `score > threshold`. Fewer than20 exceedances, degenerate
+fits or a target outside the fitted tail use named empirical fallbacks.
+`Calibration` records method, size, target and achieved calibration FAR;
+unseen-null FAR is measured independently, not promised equal. Tests include
+independent SeedSequence streams, ties, shift invariance and missing/nonfinite
+inputs. Registry name is `evt_gpd`; runner/config artifact wiring remains Task9.
