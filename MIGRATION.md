@@ -120,3 +120,27 @@ fits or a target outside the fitted tail use named empirical fallbacks.
 unseen-null FAR is measured independently, not promised equal. Tests include
 independent SeedSequence streams, ties, shift invariance and missing/nonfinite
 inputs. Registry name is `evt_gpd`; runner/config artifact wiring remains Task9.
+
+## Causal selection (D6, Task 6, 2026-09-27)
+
+`select.py` ports Q-statistic and exhaustive subset scoring from pinned CDADE
+`selection/diversity.py` and `selection/selector.py` (Apache-2.0), dropping
+greedy/top-k, true labels and forward-looking window assignment. Added river
+0.26.1 via `uv add river`. Original `select.npz` arrays are copied unchanged
+and verified against the manifest. Q/subset parity tolerance is1e-12;
+the fixed ADWIN signal matches exported flags across the library versions.
+That last check is dependency compatibility, not whole-stream legacy parity.
+
+The corrected flow learns min/max and per-detector .95 vote cutoffs on training
+only. Constant training columns normalize to zero. Majority vote is strict
+(>half); ties are negative. Competence is mean precision/recall over the previous
+window, or negative agreement if that window has no positive pseudo-labels.
+The blend is the mean normalized score of selected detectors. ADWIN observes
+mean competence after the current decision; a flag at t clears history and
+uses competence .5 with the first lexicographic subset at t+1. Subsequent
+windows rebuild from t+1; no past output changes. Training scores are NaN to
+mark warmup outside evaluation, with deterministic active indices.
+
+Tests cover future suffix changes, actual prefix truncation, hand-computed
+competence, drift/reset and training-only normalization. Registry `meta_des`
+will be wired and serialized by Task9; no E0* gate is declared here.
