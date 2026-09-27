@@ -52,6 +52,7 @@ recomputes. Recurrent `b6`–`b8` were not rerun.
 
 | Component | Original path | New path | Parity check | Dropped and why |
 |---|---|---|---|---|
+| data | `cdade/data/sivep.py` (`load_raw`, `prepare_counts`, `prepare_state_counts`, `_LEAVES`) | `src/headd_l0/data.py` | `tests/test_data.py::test_counts_match_original_exactly`: counts, PA series, test totals, leaf order and months equal the pinned export, tolerance zero | Registry/plugin loader, canonical `entity/timestamp/level/value` layer and Hydra config (replaced by `configs/data.toml`). Added: missing region-months, regions or months and PA/regional mismatches raise instead of being filled with zeros |
 
 ## Not ported
 
