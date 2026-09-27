@@ -75,3 +75,30 @@ MinT on the real SIVEP data (2026-09-27, diagnostic only): all 14 NB2 fits conve
 | `ensemble/` | DVC stage whose output `evaluate` does not read |
 | `selection`: `NaiveTopKSelector`, `generate_windowed_labels`, `windowed_diversity`, `scan_for_drift`, Page-Hinkley | no caller in the pipeline |
 | `reconciliation/identity.py`, `reconciliation/evt.py` | no caller in the default pipeline; `evt.fit` raises (D4) |
+
+## Corrected detector pool (D3, 2026-09-27)
+
+`src/headd_l0/detectors.py` replaces `cdade/detectors/{pca,lof,knn,hbos,iforest,mcd}.py`
+from the pinned SHA. Added dependency: PyOD 3.6.6 via `uv add pyod`.
+LOF/KNN/HBOS omit the invalid `random_state`; PCA retains the positive PyOD
+score rather than the original wrapper's inversion. IF/PCA library seeds are
+derived from `SeedSequence`; FAST-MCD uses `Generator`. The original's audit
+arrays remain unchanged. `test_detector_reference` compares the functioning
+IF/PCA numerical primitives in the installed environment (PCA with corrected
+sign), rtol=1e-7/atol=1e-9; this is not end-to-end legacy parity.
+
+MCD is independent NumPy/SciPy code: 50 starts without replacement,
+h=floor((n+p+1)/2), at most 50 C-steps, logdet tolerance 1e-7, fixed ridge
+1e-8*max(mean(training variances),1). It applies Gaussian consistency
+alpha/F_chi2(p+2)(q_chi2(p)(alpha)) at raw support fraction h/n and after
+reweighting at chi2(.975). Reference: [MCD and extensions](https://arxiv.org/abs/1709.07045);
+[sklearn reference algorithm](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/covariance/_robust_covariance.py).
+No sklearn MCD is imported in production. Behavior tests compare covariance
+(relative error <=.15) and score Spearman correlation (>=.95) with MinCovDet,
+and check C-step descent, contamination, singular geometry and determinism.
+
+All detectors freeze their training constant-feature mask. Fully constant
+training data uses Euclidean deviation from the training mean; partial constant
+features are excluded. This is explicit behavior outside legacy parity.
+Features retain their D5 scale; PCA's own standardization fits only on training.
+The existing negative-forecast diagnostic is unchanged (D2 forbids clipping).

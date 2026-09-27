@@ -23,6 +23,7 @@ dependencies = [
     "openpyxl", # leitura das tabelas REGIC (.xlsx)
     "scipy>=1.18.1",
     "pyarrow>=25.0.1",
+    "pyod>=3.6.6",
 ]
 
 [dependency-groups]
