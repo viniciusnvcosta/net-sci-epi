@@ -19,7 +19,7 @@
 - “Fixed false-alarm rate.”
 - Python ≥ 3.12; FAR = 1/60 por região-mês; 13 regiões; 132 meses; 30 placebos.
 - “3 ruídos × 3 níveis de ε × (500 T + 500 N) = 9.000 simulações de 13 × 132.”
-- “|ΔAUC-PR| ≤ 0.01 per task and the same method ranking.” E0 contém 14 tarefas.
+- “|ΔAUC-PR| ≤ 0.01 per task and the same method ranking.” E0 contém 14 tarefas. Uma saída B1* exige decisão D-G0 explícita e mantém E0 inconclusivo; ela não está selecionada.
 - Ordem de porte: `data → reconcile → detectors → threshold → select → evaluate → stats`.
 - Sem Hydra/OmegaConf, MLflow, DVC, just, Factory/Registry ou Quarto no novo pacote; sem expansão de escopo para resgatar resultado negativo.
 - Uma seed raiz, `SeedSequence(root).spawn(n)`, `numpy.random.Generator`; registrar seeds.
@@ -70,41 +70,44 @@ As trilhas independentes permitem alternar trabalho durante bloqueios; não auto
 
 ## Sequência global e critérios de avanço
 
-| Etapa | Plano executável | Saída verificável | Gate |
-|---|---|---|---|
-| P0 | [Baseline/E0](2026-09-26-headd-l0-e0.md), tarefa 1 | Inventário do SHA, dependências, dados, execução mínima e divergências | G0: referência suficiente e decisões de baseline explícitas |
-| P1 | Baseline/E0, tarefa 2 | Longa, ordem canônica, coerência exata 13→1, hashes | G1: positivos e testes somam ao PA em 132 meses |
-| P2 | Baseline/E0, tarefas 3–8 | Componentes mínimos com testes de paridade/comportamento e MIGRATION | Não chamar correções de paridade |
-| P3 | Baseline/E0, tarefa 9 | Tabela de 14 tarefas, AP por método, ranking e proveniência | G2: E0 conforme AGENTS; falha bloqueia interpretação E1 |
-| P4 | [L0 e simulação](2026-09-26-headd-l0-graph-simulation.md), tarefa 1 | A/W, mapa, GEXF, 30 grafos válidos e manifest | G3: nomes, graus e conectividade |
-| P5 | L0 e simulação, tarefas 2–3 | Separação T/N em uma região; CRN e onsets em 13 regiões | G4: validação por ruído e isolamento ε=0 |
-| P6 | L0 e simulação, tarefa 4 | Representações local/S/vizinhos causais | G5: invariância de prefixo e mesma representação nos placebos |
-| P7 | [Experimentos](2026-09-26-headd-l0-experiments.md), tarefas 1–2 | Runner TOML, smoke, FAR calibrada em N independente | G6: seeds/partições e única variável por braço |
-| P8 | Experimentos, tarefas 3–4 | 9.000 avaliações sintéticas, semi-real, inferência pré-registrada | G7: protocolo completo, ou conclusão negativa/inconclusiva explícita |
-| P9 | Experimentos, tarefa 5 | Notebooks, figuras, tabelas e README reproduzíveis | Entrega da disciplina |
+| Etapa | Plano executável                                                    | Saída verificável                                                      | Gate                                                                 |
+| ----- | ------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| P0    | [Baseline/E0](2026-09-26-headd-l0-e0.md), tarefa 1                  | Inventário do SHA, dependências, dados, execução mínima e divergências | G0: referência suficiente e decisões de baseline explícitas          |
+| P1    | Baseline/E0, tarefa 2                                               | Longa, ordem canônica, coerência exata 13→1, hashes                    | G1: positivos e testes somam ao PA em 132 meses                      |
+| P2    | Baseline/E0, tarefas 3–8                                            | Componentes mínimos com testes de paridade/comportamento e MIGRATION   | Não chamar correções de paridade                                     |
+| P3    | Baseline/E0, tarefa 9                                               | Tabela de 14 tarefas, AP por método, ranking e proveniência            | G2: E0 conforme AGENTS, ou decisão explícita D-G0 por B1* com E0 inconclusivo; sem decisão, interpretação bloqueada              |
+| P4    | [L0 e simulação](2026-09-26-headd-l0-graph-simulation.md), tarefa 1 | A/W, mapa, GEXF, 30 grafos válidos e manifest                          | G3: nomes, graus e conectividade                                     |
+| P5    | L0 e simulação, tarefas 2–3                                         | Separação T/N em uma região; CRN e onsets em 13 regiões                | G4: validação por ruído, isolamento ε=0 e alcance D-REACH antes dos braços                             |
+| P6    | L0 e simulação, tarefa 4                                            | Representações local/S/vizinhos causais                                | G5: invariância de prefixo e mesma representação nos placebos        |
+| P7    | [Experimentos](2026-09-26-headd-l0-experiments.md), tarefas 1–2     | Runner TOML, smoke, FAR calibrada em N independente                    | G6: seeds/partições e única variável por braço                       |
+| P8    | Experimentos, tarefas 3–4                                           | Camadas 0/1/2, nulos paramétricos, dimensão D-COST registrada e inferência pré-registrada      | G7: protocolo completo, ou conclusão negativa/inconclusiva explícita |
+| P9    | Experimentos, tarefa 5                                              | Notebooks, figuras, tabelas e README reproduzíveis                     | Entrega da disciplina                                                |
 
 ## Agenda de execução e cortes de escopo
 
-| Período | Prioridade | Evidência ao encerrar |
-|---|---|---|
-| 26–27/09 | G0 e dados; abrir decisões incompatíveis imediatamente | Relatório de auditoria e coerência; não consumir a semana tentando ajustar E0 |
-| 28/09–01/10 | S/A/placebos e simulador de uma região; porte sequencial dos componentes liberados | Testes de grafo e validação single-region |
-| 02–06/10 | Concluir componentes, G2, acoplamento e features | E0 demonstrado ou bloqueio formal; G4/G5 |
-| 07–08/10 | Smoke, calibração e piloto de custo | Tempo/memória medidos; projeção para 9.000 réplicas × 33 braços |
-| 09–11/10 | Bancadas sintética e semi-real | Manifests completos, FAR observada e métricas sem seleção de runs |
-| 12–13/10 | Bootstrap, placebos, estatística real, centralidade | ICs e tabelas; gates científicos respeitados |
-| 14–16/10 | Redação e reprodução final | Metodologia, resultados/limitações, figuras e comandos |
+| Período     | Prioridade                                                                         | Evidência ao encerrar                                                         |
+| ----------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| 26–27/09    | G0 e dados; deliberar D1–D7 até 29/09, com saída D-G0 explícita                             | Relatório de auditoria e coerência; não consumir a semana tentando ajustar E0 |
+| 28/09–01/10 | S/A/placebos e simulador de uma região; porte sequencial dos componentes liberados | Testes de grafo e validação single-region                                     |
+| 02–06/10    | Piloto ~02/10 após detectores+acoplamento; concluir componentes, G2 e features                                   | E0 aprovado ou decisão D-G0 explícita por B1* com E0 inconclusivo; sem rota, interpretação bloqueada; D5 e G4/G5 válidos antes da inferência                                      |
+| 07–08/10    | Smoke, calibração independente e confirmação dos custos ainda não medidos                                                | Tempo/memória medidos; projeção para 9.000 réplicas × 33 braços               |
+| 09–11/10    | Bancadas sintética e semi-real                                                     | Manifests completos, FAR observada e métricas sem seleção de runs             |
+| 12–13/10    | Bootstrap, placebos, estatística real, centralidade                                | ICs e tabelas; gates científicos respeitados                                  |
+| 14–16/10    | Redação e reprodução final                                                         | Metodologia, resultados/limitações, figuras e comandos                        |
 
-33 braços = B0+B1+B2+30 placebos. Reutilizar dados simulados e ajustes compartilháveis; não simular novamente por braço. Se o piloto mostrar custo incompatível, reduzir somente o smoke ou adiar opcionais; alterar a bancada principal exige revisão explícita, antes de comparar resultados.
+33 braços = B0+B1+B2+30 placebos. Reutilizar dados simulados e ajustes compartilháveis; não simular novamente por braço. Pré-registrar hardware/gatilho de custo e aplicar D-COST antes dos efeitos: (a) placebos em 100T fixas/célula, comparando B2 no mesmo subconjunto e preservando N; (b) 200T+200N/célula; (c) cortar opcionais. Não comparar B2 completo com placebos de um subconjunto nem ocultar o tamanho efetivo.
 
-Opcionais, em ordem depois da entrega principal: Φ/B3 real, B-Gao, SEIRS de robustez. Nenhum deles justifica atrasar E0, controles, análise ou redação. Não desenvolver implementações vazias desses braços agora. Novas specs/planos delimitados são produzidos se houver tempo e priorização; isso não os torna parte do caminho obrigatório.
+Camada1 (injeção epidêmica+nulos paramétricos) tem prioridade sobre todos os opcionais. Camada0 (não-inferioridade) não é cortada. Camada3 é qualitativa. Opcionais, em ordem depois da entrega principal: Φ/B3 real, B-Gao, SEIRS de robustez. Nenhum deles justifica atrasar E0, controles, análise ou redação. Não desenvolver implementações vazias desses braços agora. Novas specs/planos delimitados são produzidos se houver tempo e priorização; isso não os torna parte do caminho obrigatório.
 
 ## Checklist de execução e encerramento
 
-- [ ] Executar P0; verificar relatório de referência e resolver decisões G0/D5.
+- [ ] Executar P0 e decidir G0/D1–D7 até 29/09; se E0 inviável, escolher explicitamente B1* ou bloqueio total, sem trocar SHA e sem resolver D5 por omissão.
 - [ ] Executar P1–P3 na ordem de porte; verificar testes, MIGRATION e E0.
 - [ ] Executar P4–P6; verificar validação single-region antes de acoplar.
 - [ ] Aprovar e congelar as decisões científicas da spec §7 antes de P7/P8.
+- [ ] Executar piloto ~02/10 após detectores+acoplamento; registrar gatilho, custo medido/pendente e eventual escada D-COST antes de observar efeitos.
+- [ ] Verificar alcance D-REACH antes dos braços; células sem poder não contam como evidência negativa.
+- [ ] Executar camadas 0/1/2 e nulos paramétricos com FAR e seeds disjuntas; separar paridade, não-inferioridade e evidência de propagação.
 - [ ] Executar P7–P8 com FAR e seeds disjuntas; verificar comparabilidade antes de interpretar lead time.
 - [ ] Executar P9; reportar resultados negativos sem expandir o grafo.
 - [ ] Em cada componente: teste público, paridade ou comportamento, ruff/format/pytest, config por nome e artefatos pelo runner.

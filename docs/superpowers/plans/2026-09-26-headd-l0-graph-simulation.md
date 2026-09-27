@@ -59,6 +59,7 @@ with pytest.raises(ValueError):
 ```
 
 Grafo completo/estrela sem alternativas deve levantar RuntimeError dentro do orçamento, não retornar cópias de A. Exportar/reler GEXF deve manter 13 nomes/arestas; centralidades de ciclo têm grau uniforme.
+
 - [ ] **Step 2:** `uv run pytest tests/test_graph.py -v` → FAIL, módulo ausente.
 - [ ] **Step 3: Implementar.** Obter `geobr.read_health_region(code_state="PA",geometry_level="micro",year=2013)` somente após confirmar suporte na versão resolvida; 2013 é proposta explícita de vintage. Verificar os 13 códigos, dissolver municípios por código quando necessário, mapear nomes canônicos por tabela auditável. Validar ausência de geometrias vazias; registrar reparos topológicos. Construir Queen com libpysal e reordenar A pela ordem de data, nunca por ordem de download. Primária desconexa gera erro/diagnóstico; não aplicar fallback k-NN silencioso.
 - [ ] **Step 4: Implementar placebos.** Trocas duplas rejeitando self-loop, duplicação e desconexão; 10×|E| trocas aceitas antes de registrar cada candidato, máximo 1.000×|E| tentativas por candidato e 10.000 candidatos no total. Valores propostos devem constar no manifesto. Rejeitar duplicatas/original, conservar graus por identidade do nó. Sem promessa de mistura uniforme; registrar distância de arestas a A e diversidade entre draws.
@@ -67,9 +68,9 @@ Grafo completo/estrela sem alternativas deve levantar RuntimeError dentro do or�
 
 ### Task 2: Uma região e observação mensal — think
 
-**Files:** Create `src/headd_l0/simulate.py`, `tests/test_simulate.py`, `configs/sim_single.toml`, `tests/reference/gao_single.npz`, `tests/reference/gao_manifest.json`, `docs/protocol-decisions.md`; Modify `MIGRATION.md`.
+**Files:** Create `src/headd_l0/simulate.py`, `tests/test_simulate.py`, `configs/sim_single.toml`, `tests/reference/gao_single.npz`, `tests/reference/gao_manifest.json`; Modify `docs/protocol-decisions.md`, `MIGRATION.md`.
 
-**Interfaces:** `SimConfig` congelada com campos obrigatórios `noise: str, label: str, months: int, start: str, populations: tuple[float,...], initial_infected: tuple[float,...], recovery: float, mortality: float, recruitment: tuple[float,...], beta_start: float, beta_end: float, ramp_start_week: int, ramp_end_week: int, sigma_s: float, sigma_i: float, testing_rate: float, epsilon: float, endemic: tuple[float,...], seasonal_amplitude: float, seasonal_phase: float, seed_region: int, train_months: int`. Sem defaults científicos ocultos. `SimResult` da spec; `simulate(cfg: SimConfig,W: np.ndarray,rng: np.random.Generator) -> SimResult`. Helpers numéricos internos recebem inovações explícitas para testes; etapa atual aceita n_regions=1/ε=0.
+**Interfaces:** `SimConfig` congelada com campos obrigatórios `noise: str, label: str, months: int, start: str, populations: tuple[float,...], initial_infected: tuple[float,...], recovery: float, mortality: float, recruitment: tuple[float,...], beta_start: float, beta_end: float, ramp_start_week: int, ramp_end_week: int, sigma_s: float, sigma_i: float, testing_rate: float, epsilon: float, endemic: tuple[float,...], seasonal_amplitude: float, seasonal_phase: float, seed_region: int, train_months: int`. Sem defaults científicos ocultos. `SimResult` da spec; `simulate(cfg: SimConfig,W: np.ndarray,rng: np.random.Generator) -> SimResult`. Helpers numéricos internos recebem inovações explícitas para testes; etapa atual aceita n_regions=1/ε=0. O componente interno será reutilizado por inject_epidemic na camada 1 com ν=0; não criar outro integrador. Perfil completo de simulação deve ser referenciado explicitamente, conforme D-GT4.
 
 - [ ] **Step 1: Fixar a parametrização antes de escrever o integrador.** Ler suplemento equações 1–3 e código oficial; registrar versão/hash, unidade temporal, parametrização β SI versus β SI/N, parâmetros T/N e janelas das figuras F–H em `gao_manifest.json`. Exportar pequenas trajetórias determinísticas de um passo e as estatísticas de referência. Registrar as escolhas para converter incidência contínua em contagem (proposta: arredondamento estocástico do fluxo acumulado) e para agregar calendário. Aprovar `docs/protocol-decisions.md`; se a fonte não definir um parâmetro, a tarefa encerra com bloqueio identificado, não com número inventado.
 - [ ] **Step 2: Escrever `test_sde_one_step_matches_reference`, `test_demographic_diffusion_covariance`, `test_weekly_calendar_conserves_incidence`, `test_binomial_observation_extremes`, `test_single_region_t_n_separation` (slow).** Helper interno do passo recebe gaussianas da fixture, tolerância `1e-10`. Difusão demográfica deve reproduzir a matriz de covariância da eq.3, não ruído aditivo independente. Forçar θ=0/1 e clipping.
@@ -85,6 +86,7 @@ assert np.median(cv_t) > np.median(cv_n)
 ```
 
 `repeated` é mesma chamada/seed; ar1/cv calculados no teste com fórmulas independentes e janelas pré-onset do manifesto. Parametrizar os três ruídos; não escolher seeds pela separação. Fixture de fluxo semanal constante deve conservar total ao atravessar mês/ano bissexto.
+
 - [ ] **Step 3:** `uv run pytest tests/test_simulate.py -m 'not slow' -v` → FAIL.
 - [ ] **Step 4: Implementar o SIR de uma região.** Euler–Maruyama com dt em unidades documentadas e `sqrt(dt)`; clipping em zero; integrar fluxos de infecção para casos, sem somar I como incidência. Verificar limites físicos e contabilizar projeções. Integração inclui intervalos parciais nas fronteiras do calendário. Observação binomial recebe inteiro não negativo; θ validado [0,1]. CLI lê `configs/sim_single.toml`, grava parâmetros, curvas e diagnósticos em results.
 - [ ] **Step 5:** Testes rápidos/checks → PASS; `uv run pytest -o addopts='' tests/test_simulate.py -m slow -v` e `uv run python -m headd_l0.simulate configs/sim_single.toml` → separação AR1/CV em **cada ruído**, tanto no observável usado para referência quanto diagnóstico da adaptação mensal. Se falhar, não acoplar/não ajustar parâmetros mirando o teste; reportar discrepância de observável/escala. Ainda não chamar isso de reprodução completa do artigo.
@@ -94,7 +96,7 @@ assert np.median(cv_t) > np.median(cv_n)
 
 **Files:** Modify `src/headd_l0/simulate.py`, `tests/test_simulate.py`, `docs/protocol-decisions.md`, `MIGRATION.md`; Create `configs/endemic.toml`.
 
-**Interfaces:** Consome `DataBundle.counts[:,:60]`, W e SimConfig. Produz `EndemicCalibration(nu: tuple[float,...], targets: tuple[float,...], training_months: int, parameters_hash: str)` e `calibrate_endemic(train_counts: np.ndarray,cfg: SimConfig,rng: np.random.Generator) -> EndemicCalibration`; estende `simulate` sem mudar assinatura. `onset` é -1 para N e regiões sem excesso; não usar zeros como sentinel de ausência.
+**Interfaces:** Consome `DataBundle.counts[:,:60]`, W e SimConfig. Produz `EndemicCalibration(nu: tuple[float,...], targets: tuple[float,...], training_months: int, parameters_hash: str)` e `calibrate_endemic(train_counts: np.ndarray,cfg: SimConfig,rng: np.random.Generator) -> EndemicCalibration`; estende `simulate` sem mudar assinatura. O motor compartilhado deve disponibilizar fluxo/casos importados observados por região e mês para o adaptador da camada 1, sem mudar SimResult ou os onsets da camada 2 silenciosamente. `onset` é -1 para N e regiões sem excesso; não usar zeros como sentinel de ausência.
 
 - [ ] **Step 1: Escrever `test_zero_coupling_isolates_seed`, `test_twin_uses_same_innovations`, `test_seed_onset_crossing`, `test_neighbor_onset_exceeds_frozen_sd`, `test_endemic_fit_uses_only_training`, `test_rng_reproducibility`.** Fixture de excesso/SD testa fronteira estrita >2SD; SD=0 usa >0, documentando sensibilidadade.
 
@@ -108,10 +110,11 @@ assert null_result.label == "N" and (null_result.onset == -1).all()
 ```
 
 Também testar C identidade em ε=0, linhas somam 1 e orientação de W com grafo assimétrico de teste; β só cresce na semente.
+
 - [ ] **Step 2:** `uv run pytest tests/test_simulate.py -k 'coupling or twin or onset or endemic' -v` → FAIL.
 - [ ] **Step 3: Implementar calibração condicional de ν.** Fixar Nᵢ/θ/demais parâmetros aprovados; resolver ν por região para aproximar mediana observada de treino com simulações N independentes e números comuns, tolerância proposta `max(1 caso, 10% da mediana)`; teto 30 iterações e diagnóstico se falhar. Não usar meses de avaliação. Registrar objetivo, erro, seed e parâmetros em processed; CLI `python -m headd_l0.simulate configs/endemic.toml` regenera. A não identificabilidade de ν/θ é descrita na spec.
 - [ ] **Step 4: Implementar extensão acoplada.** Aplicar fórmula de λ/C da spec e os parâmetros endêmicos; mesmas gaussianas/uniformes pré-geradas por canal/tempo/região nas duas trajetórias. Na observação, usar quantil binomial com mesmo uniforme, não duas chamadas binomiais cuja sequência dependa do n. Gêmea mantém β sem surto. Onset seed por R0; demais pelo excesso **observado** e SD de treino da gêmea congelada. Guardar SD/β/limiares em params. Não alimentar ground truth no pipeline de detecção.
-- [ ] **Step 5:** Tests/checks e validação single-region → PASS; relatório para ε=0/.05/.20 usa mesmas seeds por célula e inclui frequências de onsets ausentes, clipping e erro de calibração. Não exigir ganho B2 neste teste do gerador.
+- [ ] **Step 5:** Tests/checks e validação single-region → PASS; relatório para ε=0/.05/.20 usa mesmas seeds por célula e inclui frequências de onsets ausentes, clipping e erro de calibração. Antes de executar braços, medir D-REACH: fração de T com onset em ao menos um vizinho da semente, por ε/célula; mínimo proposto≥50% em ε=.20. Abaixo disso marcar sem poder, não negativo, sem tuning pós-avaliação. Esse diagnóstico precede o piloto/execução de braços. Não exigir ganho B2 neste teste do gerador. Para camada 1, testar que o modo ν=0 não cria casos espontâneos em regiões não-semente quando ε=0; usar a definição de onset própria dessa camada.
 - [ ] **Step 6:** `git add src/headd_l0/simulate.py tests/test_simulate.py configs/endemic.toml docs/protocol-decisions.md MIGRATION.md` e `git commit -m "feat: add coupled simulations with common-random-number twins"`.
 
 ### Task 4: Representações causais e indicadores — default / Moran think
@@ -135,6 +138,7 @@ assert np.isfinite(ews).all() and not valid[:, 1:3].any()
 ```
 
 Alterar x[:,90:] → features até 89 idênticas; warmup só usa passado e possui validade, nunca backfill.
+
 - [ ] **Step 2:** `uv run pytest tests/test_features.py -v` → FAIL.
 - [ ] **Step 3: Implementar.** Local: `(x_t,x_(t−1),x_t−x_(t−1))`; hierarquia: mesmos três mais `(PA_t, x_i−PA_t/13)` nas folhas e zeros para contraste agregado, eixos `[14,time,5]`. É representação de contagens, não definição da posição de MinT (D5 permanece gate). Vizinhos somente 13 folhas; runner acrescenta zeros relacionais à linha PA. Moran instantâneo `z_i*(W@z)_i/m2`, z centrado espacialmente e m2=mean(z²), depois média dos últimos 12 valores; m2 zero →0. EWS SD ddof=1, CV=SD/mean, AR1 Pearson defasada, skewness e kurtosis Pearson (normal=3); constantes →zero com máscara falsa para estatística indefinida. Lag inicial =0 e warmup excluído. Todas as features em t usam ≤t.
 - [ ] **Step 4:** Testes/checks → PASS; substituir W real por placebo só muda valores, não shape, nomes ou janelas. Nomes de colunas estáveis são gravados no manifest.
@@ -142,4 +146,4 @@ Alterar x[:,90:] → features até 89 idênticas; warmup só usa passado e possu
 
 ## Critério de saída
 
-A/W e 30 draws válidos, validação single-region, ε=0 isolado, onsets auditáveis e invariância de prefixo. Os dados sintéticos não são versionados; seeds/config e fixtures pequenas permitem regeneração. Se G0 estiver bloqueado, esses resultados são validação de infraestrutura, não evidência da RQ1′.
+A/W e 30 draws válidos, validação single-region, ε=0 isolado, onsets auditáveis e invariância de prefixo. Os dados sintéticos não são versionados; seeds/config e fixtures pequenas permitem regeneração. Sem saída válida de D-G0, esses resultados são validação de infraestrutura, não evidência da RQ1′. Autorização futura de B1* não substitui validação do simulador, D5, FAR ou alcance.
