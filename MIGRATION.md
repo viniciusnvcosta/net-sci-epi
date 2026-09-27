@@ -57,6 +57,10 @@ recomputes. Recurrent `b6`–`b8` were not rerun.
 | Component | Original path | New path | Parity check | Dropped and why |
 |---|---|---|---|---|
 | data | `cdade/data/sivep.py` (`load_raw`, `prepare_counts`, `prepare_state_counts`, `_LEAVES`) | `src/headd_l0/data.py` | `tests/test_data.py::test_counts_match_original_exactly`: counts, PA series, test totals, leaf order and months equal the pinned export, tolerance zero | Registry/plugin loader, canonical `entity/timestamp/level/value` layer and Hydra config (replaced by `configs/data.toml`). Added: missing region-months, regions or months and PA/regional mismatches raise instead of being filled with zeros |
+| reconcile | `cdade/reconciliation/summing_matrix.py`, `bottom_up.py` | `src/headd_l0/reconcile.py` | `tests/test_reconcile.py::test_s_matches_original` and `test_bottom_up_exact`: S equals the exported 14×13 matrix and bottom-up reproduces PA = leaf sum, tolerance zero | Registry classes and the 13×13 S inside `min_t.py`/`bottom_up.py` (the MinT one raised in the audit). MinT(Shrink) is new, per D2: diagonal target, Schäfer–Strimmer λ as in `hts::MinT`, solve-based projection, no clipping; it reconciles NB2 count forecasts, never scores (D5) |
+| forecast | none (new, D5/D-GT3) | `src/headd_l0/forecast.py` | Behaviour tests in `tests/test_forecast.py`: design by hand, parameter recovery, training-only fit, recorded non-convergence | NB2 with trend and two harmonic pairs, Poisson starting values, per series |
+
+MinT on the real SIVEP data (2026-09-27, diagnostic only): all 14 NB2 fits converge, λ̂ = 0.100. The independent PA forecast differs from the sum of regional forecasts by a median of 848 cases/month in months 60–131; MinT moves the PA forecast by a median of 26% and 409 of 1,848 reconciled means are negative (406 in months 60–131; CARAJAS, LAGO DE TUCURUI, MARAJO II, METROPOLITANA III, RIO CAETES, TOCANTINS, XINGU, MARAJO I, PA). Per D2 they are not clipped; residuals y − P·μ̂ stay coherent.
 
 ## Not ported
 
