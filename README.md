@@ -128,7 +128,7 @@ Entre B1* e B2 muda uma única coisa: a informação relacional disponível. Poo
 
 **Protocolo secundário real.** Manter Friedman→Wilcoxon/Bonferroni→Diebold-Mariano/HAC→Cliff/IC95%, interrompendo os testes seguintes se Friedman p>.05; não substituir por ele os critérios principais da camada 1.
 
-**Gates e conclusão.** D-G0 autorizou B1* corrigido com E0 inconclusivo. E0* e os outros gates continuam obrigatórios; seu estado executável está em [Task 9](docs/e0-task9-status.md). Critério científico não satisfeito com gates válidos é resultado negativo para a bancada; gate inválido ou alcance insuficiente é inconclusivo. Não expandir o grafo nem ajustar a baseline para resgatar a hipótese.
+**Gates e conclusão.** D-G0 autorizou B1* corrigido com E0 inconclusivo. E0* e os outros gates continuam obrigatórios; seu estado executável está em [guia de desenvolvimento](docs/development.md#preparação-da-camada-0-e-limite-científico). Critério científico não satisfeito com gates válidos é resultado negativo para a bancada; gate inválido ou alcance insuficiente é inconclusivo. Não expandir o grafo nem ajustar a baseline para resgatar a hipótese.
 
 ### 5.5 Análise de rede complementar
 
@@ -172,12 +172,9 @@ uv run pytest
 uv run python -m headd_l0.run configs/e0_star.toml  # pré-gate; exit 2 esperado
 ```
 
-Comandos executados com resultados: [pipeline verificada](docs/pipeline-commands.md).
-Configuração, caminhos e validação: [configuração de execução](docs/configuration.md).
-
-Estado executável e próximos passos: [Task 9 e ambiente L0](docs/e0-task9-status.md).
-O runner de bancada E1′ ainda pertence às próximas etapas; o pré-gate atual
-não autoriza interpretação científica.
+Comandos, configuração, artefatos e próximos passos estão no
+[guia de desenvolvimento](docs/development.md). O pré-gate atual não autoriza
+interpretação científica; o runner completo de E1′ pertence às próximas etapas.
 
 ## 8 · Ambiente e dependências
 
