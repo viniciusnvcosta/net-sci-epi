@@ -45,9 +45,9 @@ Não criar módulos adicionais preventivamente. Se run.py exceder 400 linhas, ex
 
 **Files:** Modify `src/headd_l0/run.py`, `tests/test_run.py`, `MIGRATION.md`; Create `configs/e1_smoke.toml`, `configs/e1_bench.toml`.
 
-**Interfaces:** Consome funções/tipos dos dois planos anteriores. Produz `ArmSpec(name: str,residuals: str,graph_id: str | None)`, com `residuals ∈ {"base","reconciled"}`, `ExperimentConfig(name: str,run_id: str,root_seed: int,raw_dir: Path,output_dir: Path,train_months: int,window: int,epsilon_levels: tuple[float,...],noise_types: tuple[str,...],n_transition: int,n_null: int,n_calibration: int,n_placebos: int,target_far: float,detectors: tuple[str,...],reconciliation: str,selector: str,threshold: str,simulation: SimConfig | None,injection: InjectionConfig | EpidemicInjectionConfig | None,real_null: RealNullConfig | None,layer: str,baseline_id: str)`, `RunResult(path: Path,status: str,metrics: pd.DataFrame)`; todas congeladas.
+**Interfaces:** Consome funções/tipos dos dois planos anteriores. Produz `ArmSpec(name: str,residuals: str,graph_id: str | None)`, com `residuals ∈ {"base","reconciled"}`, `ExperimentConfig(name: str,run_id: str,root_seed: int,raw_dir: Path,output_dir: Path,train_months: int,window: int,epsilon_levels: tuple[float,...],noise_types: tuple[str,...],n_transition: int,n_null: int,n_calibration: int,n_placebos: int,target_far: float,detectors: tuple[str,...],reconciliation: str,selector: str,threshold: str,simulation: SimConfig | None,injection: InjectionConfig | EpidemicInjectionConfig | None,layer: str,baseline_id: str)`, `RunResult(path: Path,status: str,metrics: pd.DataFrame)`; todas congeladas.
 
-`load_config(path: Path) -> ExperimentConfig`, `build_arms(n_placebos: int) -> tuple[ArmSpec,...]`, `run(cfg: ExperimentConfig) -> RunResult`, `main() -> int`. Entrada oficial: `uv run python -m headd_l0.run configs/e1_bench.toml`. Tipos de operação `name` são `e0_parity`, `e1_smoke`, `e1_bench`, `e1_real`, `e1_local`; nome não seleciona algoritmo oculto. Tipos da injeção/nulo são definidos na Task 4 e só exigidos nos modos correspondentes. `baseline_id` é `B1*` (D-G0); nenhum artefato usa `B1` ou "CDADE v1". Configs de preparação continuam nas CLIs de seus módulos.
+`load_config(path: Path) -> ExperimentConfig`, `build_arms(n_placebos: int) -> tuple[ArmSpec,...]`, `run(cfg: ExperimentConfig) -> RunResult`, `main() -> int`. Entrada oficial: `uv run python -m headd_l0.run configs/e1_bench.toml`. Tipos de operação `name` são `e0_parity`, `e1_smoke`, `e1_bench`, `e1_real`, `e1_local`; nome não seleciona algoritmo oculto. Tipos da injeção são definidos na Task 4 e só exigidos nos modos correspondentes; o nulo NB2 não introduz RealNullConfig. `baseline_id` é `B1*` (D-G0); nenhum artefato usa `B1` ou "CDADE v1". Configs de preparação continuam nas CLIs de seus módulos.
 
 - [ ] **Step 1: Escrever `test_config_rejects_unknown_components`, `test_manifest_is_complete`, `test_run_id_is_not_overwritten`, `test_reordering_arms_preserves_seeds`, `test_one_variable_per_arm`, `test_labels_never_reach_pipeline`, `test_gate_blocks_interpretation`.** Fixtures pequenas usam componentes determinísticos substituídos para isolar orquestração; smoke real é Step 4.
 
@@ -126,7 +126,7 @@ ROC-AUC T/N usa um score por réplica: máximo regional no prefixo monitorado 60
 
 **Files:** Modify `src/headd_l0/inject.py`, `tests/test_inject.py`, `src/headd_l0/run.py`, `tests/test_run.py`, `MIGRATION.md`; Create `configs/e1_real.toml`, `configs/e1_local.toml`. Reutiliza `simulate.py` e contratos de E0; não criar segundo simulador nem manter inject_propagated/pulso como sensibilidade.
 
-**Interfaces:** Preservar `InjectionConfig`, `InjectionResult`, `inject_original_bounded` da E0 Task 9. Acrescentar configuração congelada:
+**Interfaces:** Preservar `InjectionConfig`, `InjectionResult`, `inject_original_bounded` da E0 Task 9 (saída PA + folhas, `[14,132]`). O contrato futuro da camada 1 é separado: `EpidemicInjectionResult(counts: np.ndarray, mask: np.ndarray, onset: np.ndarray, seed_region: int)`, dataclass congelada em `inject.py`, contagens/máscaras `[13,132]` e onsets `[13]`; o runner calcula PA por soma/união. Não mudar silenciosamente o tipo da camada 0. Acrescentar configuração congelada:
 
 ```python
 @dataclass(frozen=True)
@@ -141,7 +141,7 @@ class EpidemicInjectionConfig:
 
 def inject_epidemic(counts: np.ndarray, W: np.ndarray,
                     rng: np.random.Generator,
-                    cfg: EpidemicInjectionConfig, k: float) -> InjectionResult: ...
+                    cfg: EpidemicInjectionConfig, k: float) -> EpidemicInjectionResult: ...
 ```
 
 Nulos ([D-GT3](../../protocol-decisions.md)): o modelo é fixo, NB2 com tendência e dois pares de harmônicos, ajustado por região nos meses 0–59. O ajuste reusa `forecast.fit_nb2`/`NB2Fit` da E0 Task 3 (mesmo modelo das previsões do MinT); acrescentar `sample_nb2(fit: NB2Fit, months: np.ndarray, n: int, rng: np.random.Generator) -> np.ndarray` em `forecast.py`, saída `[n,n_series,len(months)]` inteira não negativa. Sem `RealNullConfig`: não há escolhas de modelo em aberto. Não criar abstração de modelos nulos genéricos.

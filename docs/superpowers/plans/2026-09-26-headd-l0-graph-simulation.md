@@ -4,7 +4,7 @@
 
 **Goal:** Produzir A/W e 30 placebos, validar SIR de uma região e sua extensão para 13 regiões, e entregar features relacionais causais.
 
-**Architecture:** `graph.py` trata estrutura estática; `simulate.py` produz contagens e onsets, sem conhecer detectores; `features.py` recebe somente contagens observáveis e W. O simulador de uma região é gate obrigatório anterior ao acoplamento.
+**Architecture:** `graph.py` trata estrutura estática; `simulate.py` produz contagens e onsets, sem conhecer detectores; `features.py` recebe somente resíduos padronizados observáveis e W, conforme D5. O simulador de uma região é gate obrigatório anterior ao acoplamento.
 
 **Tech Stack:** Python ≥3.12, uv, numpy/scipy, pandas, networkx, geobr, geopandas, libpysal, pyarrow, pytest/ruff.
 

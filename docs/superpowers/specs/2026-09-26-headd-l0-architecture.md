@@ -4,7 +4,7 @@ Data: 26/09/2026. Revisão documental de ground truth aprovada; parâmetros cien
 
 ## 1. Objetivo, fontes e limites
 
-Construir a bancada E1′ do README §5, com CDADE reconstruído, S + A, controle ε = 0, FAR de 1/60 por região-mês e 30 placebos. O resultado pode ser negativo. O prazo é 16/10/2026.
+Construir a bancada E1′ do README §5, com baseline B1* corrigido sob D-G0/D-E0* (E0 inconclusivo), S + A, controle ε = 0, FAR de 1/60 por região-mês e 30 placebos. O resultado pode ser negativo. O prazo é 16/10/2026.
 
 Fontes locais lidas: `AGENTS.md`, `README.md` e `pyproject.toml`, incluindo suas alterações ainda não commitadas. SHA-256 dessas versões:
 
@@ -80,7 +80,7 @@ Manter o layout do AGENTS. `tests/test_<module>.py` espelha cada módulo. Não c
 - S `[14,13]`, primeira linha de uns; A/W `[13,13]`; contagens coerentes `S @ counts`. Amostras de detectores sempre `[n_samples,n_features]`, scores `[n_samples]`.
 - `FeatureBatch(values: np.ndarray, months: np.ndarray, names: tuple[str,...])`: values `[n_nodes,n_months,n_features]`. Scores do pool `[n_nodes,n_months,6]`. Jamais reinterpretar regiões como detectores.
 - `SimResult(counts, twin_counts, onset, seed_region, label, params)` congelada: counts/twin `[n_regions,132]`, onset `[n_regions]` inteiro; `-1` significa sem onset. Uma região só no gate de validação; produção tem 13. `params` serializável inclui parâmetros efetivos e hash do estado inicial do Generator; o runner associa esse resultado à entropy/spawn_key do manifesto, sem tentar recuperar uma seed a partir do Generator.
-- `InjectionResult` permanece compatível com a camada 0. A camada 1 recebe folhas `[13,132]`, retorna contagens/máscara regionais e onset `[13]`; o runner recalcula PA por soma. O componente reutilizado de `simulate.py` precisa expor casos importados observados por região/mês para derivar onsets; não inferi-los apenas da diferença entre séries. Perfil completo do simulador deve ser referenciado e hasheado, sem defaults escondidos no adaptador.
+- `InjectionResult` é o contrato atual da camada 0: contagens/máscaras `[14,132]`, PA primeiro, onset `[14]`, seed_region e events (`tuple[InjectionEvent, ...]`); a entrada tem 13 folhas. A camada 1 futura usa `EpidemicInjectionResult(counts, mask, onset, seed_region)`, dataclass congelada separada em `inject.py`: entrada e contagens/máscara `[13,132]`, onset `[13]`; o runner recalcula PA por soma/união. O componente reutilizado de `simulate.py` precisa expor casos importados observados por região/mês para derivar onsets; não inferi-los apenas da diferença entre séries. Perfil completo do simulador deve ser referenciado e hasheado, sem defaults escondidos no adaptador.
 - Ausência de espécie numa região-mês observada pode virar zero; ausência do mês inteiro ou de uma região é erro. Não interpolar silenciosamente. A tabela contém rótulos adicionais como `FG`, `F+FG`, `non falciparum`; o mapeamento Φ exige uma tabela documentada, não um teste de substring.
 
 Os CSVs foram encontrados no working tree de `hybrid-theory/data/raw/`, não como arquivos rastreados nesse SHA:

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Entregar uma implementação verificável de E1′ até 16/10/2026, preservando o gate de paridade CDADE e a comparação com FAR fixa.
+**Goal:** Entregar uma implementação verificável de E1′ até 16/10/2026, validando B1* sob D-G0/D-E0*, com E0 inconclusivo e comparação com FAR fixa.
 
 **Architecture:** Pacote plano `headd_l0`, componentes numéricos em memória, dataclasses congeladas e configuração TOML. A auditoria do HEAD original separa reprodução de correção metodológica. Grafo/simulador e baseline convergem somente após seus gates.
 
