@@ -1,6 +1,6 @@
 {
   "revision": "fbfa609bba6cb0b0f2a9e8d73be18022aec319b7",
-  "regenerate": "uv run python scripts/export_cdade_reference.py --repo /home/vinvs/projects/hybrid-theory --revision fbfa609bba6cb0b0f2a9e8d73be18022aec319b7 --output results/reference-audit",
+  "regenerate": "Restore scripts/ from HEADD commit 98187ee into a temporary directory, then run export_cdade_reference.py --repo <CDADE_REPO> --revision fbfa609bba6cb0b0f2a9e8d73be18022aec319b7 --output <AUDIT_DIR> using the preserved legacy environment.",
   "source_tree_sha256": "8271e7ea4e2d0c625b689215da948c2ea1595b4d7a33172e33f1b21700a06ba9",
   "raw_data_sha256": {
     "PA.csv": "ba437eff83a537addcdda93aca09401d5033804b83a0b767baa55788267041f5",
@@ -102,5 +102,6 @@
   "task_names": [
     "sivep"
   ],
-  "e0_passed": false
+  "e0_passed": false,
+  "exporter_revision": "98187ee"
 }

@@ -2,7 +2,9 @@
 
 Este registro acompanha a integração local dos componentes da branch
 `feat/headd-l0-e0-audit` em `develop` e, em seguida, em `main`.
-A execução completa do plano E0 ainda não terminou.
+Este quadro registra a integração das Tasks 1–8. A atualização da Task 9,
+seu diagnóstico e a preparação do ambiente estão em
+[e0-task9-status.md](e0-task9-status.md), que substitui as pendências abaixo.
 
 ## Componentes e evidências
 
