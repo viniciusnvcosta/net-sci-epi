@@ -150,3 +150,17 @@ def test_cliff_interval_resamples_paired_regions():
     ci = _cliff_interval(x, y, np.random.default_rng(17), n_boot=101)
     np.testing.assert_allclose([ci.low, ci.high], expected)
     assert ci.low < ci.high
+
+
+def test_constant_thirteen_region_delta_has_zero_width_interval():
+    ci = task_bootstrap(np.full(13, -0.01), np.random.default_rng(42))
+    np.testing.assert_allclose([ci.estimate, ci.low, ci.high], [-0.01] * 3, atol=1e-15)
+    assert ci.n_units == 13 and ci.low == ci.high
+
+
+def test_short_circular_blocks_match_hand_checked_draws():
+    delta = np.array([[1.0, 2.0, 4.0, 8.0, 16.0], [10.0, 20.0, 40.0, 80.0, 160.0]])
+    # Seed7 starts: [[4,3,3],[4,2,3]], [[4,1,0],[1,1,4]], [[4,0,2],[4,0,3]].
+    # Wrap modulo5 and truncate to5 months/region -> means41.9,30.4,30.4.
+    ci = block_bootstrap(delta, 2, np.random.default_rng(7), n_boot=3)
+    np.testing.assert_allclose([ci.estimate, ci.low, ci.high], [34.1, 30.4, 41.325])
