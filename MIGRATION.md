@@ -37,19 +37,19 @@ Result on 2026-09-26: **exit 2, reference insufficient for E0**. Installed
 reference packages match `uv.lock`; original HEAD, status and raw hashes were
 unchanged by the run.
 
-| Finding | Evidence (runtime unless noted) |
-|---|---|
-| `missing_14_tasks` | evaluation yields one task, `sivep`: labels are `mask.max(axis=1)`, shape (132,) (D7) |
-| `single_class_test_labels` | the 26 test months are all anomalous, so AP = 1.0 for every method and the ranking is all ties |
+| Finding                                       | Evidence (runtime unless noted)                                                                               |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `missing_14_tasks`                            | evaluation yields one task, `sivep`: labels are `mask.max(axis=1)`, shape (132,) (D7)                         |
+| `single_class_test_labels`                    | the 26 test months are all anomalous, so AP = 1.0 for every method and the ranking is all ties                |
 | `stage_failed:pipeline_detect_{lof,knn,hbos}` | wrappers pass `random_state` to PyOD 3.6.1, which rejects it; `run_detect`'s fallback then raises `TypeError` |
-| `stage_failed:pipeline_detect_mcd` | `X[indices]` on a DataFrame raises `KeyError` (D3) |
-| `stage_failed:pipeline_reconcile_min_t` | 13×13 S against the single `score` column raises `ValueError` in matmul (D1, D2) |
-| D3 | PCA wrapper negates PyOD's score: outliers score lower than inliers |
-| D4 | `EVTReconciler.fit` raises `ValueError: too many values to unpack` |
-| D5 | reconcile input is `leaf_forecasts.csv` with the single column `score` |
-| D6 | shifting scores from t = 90 changes blended scores at t = 80–84, 87, 89 |
-| D8 | with Friedman p = 0.32, DM and Cliff's δ still run; Wilcoxon stops |
-| D9 | NAB/F1 threshold is the median of evaluated scores (static) |
+| `stage_failed:pipeline_detect_mcd`            | `X[indices]` on a DataFrame raises `KeyError` (D3)                                                            |
+| `stage_failed:pipeline_reconcile_min_t`       | 13×13 S against the single `score` column raises `ValueError` in matmul (D1, D2)                              |
+| D3                                            | PCA wrapper negates PyOD's score: outliers score lower than inliers                                           |
+| D4                                            | `EVTReconciler.fit` raises `ValueError: too many values to unpack`                                            |
+| D5                                            | reconcile input is `leaf_forecasts.csv` with the single column `score`                                        |
+| D6                                            | shifting scores from t = 90 changes blended scores at t = 80–84, 87, 89                                       |
+| D8                                            | with Friedman p = 0.32, DM and Cliff's δ still run; Wilcoxon stops                                            |
+| D9                                            | NAB/F1 threshold is the median of evaluated scores (static)                                                   |
 
 Other observations: leaf sums equal the PA series in all 132 months; the
 default injection leaves 408 negative cells; `evaluate` uses 26 test months
@@ -59,27 +59,27 @@ recomputes. Recurrent `b6`–`b8` were not rerun.
 
 ## Ports
 
-| Component | Original path | New path | Parity check | Dropped and why |
-|---|---|---|---|---|
-| data | `cdade/data/sivep.py` (`load_raw`, `prepare_counts`, `prepare_state_counts`, `_LEAVES`) | `src/headd_l0/data.py` | `tests/test_data.py::test_counts_match_original_exactly`: counts, PA series, test totals, leaf order and months equal the pinned export, tolerance zero | Registry/plugin loader, canonical `entity/timestamp/level/value` layer and Hydra config (replaced by `configs/data.toml`). Added: missing region-months, regions or months and PA/regional mismatches raise instead of being filled with zeros |
-| reconcile | `cdade/reconciliation/summing_matrix.py`, `bottom_up.py` | `src/headd_l0/reconcile.py` | `tests/test_reconcile.py::test_s_matches_original` and `test_bottom_up_exact`: S equals the exported 14×13 matrix and bottom-up reproduces PA = leaf sum, tolerance zero | Registry classes and the 13×13 S inside `min_t.py`/`bottom_up.py` (the MinT one raised in the audit). MinT(Shrink) is new, per D2: diagonal target, Schäfer–Strimmer λ as in `hts::MinT`, solve-based projection, no clipping; it reconciles NB2 count forecasts, never scores (D5) |
-| forecast | none (new, D5/D-GT3) | `src/headd_l0/forecast.py` | Behaviour tests in `tests/test_forecast.py`: design by hand, parameter recovery, training-only fit, recorded non-convergence | NB2 with trend and two harmonic pairs, Poisson starting values, per series |
+| Component | Original path                                                                           | New path                    | Parity check                                                                                                                                                             | Dropped and why                                                                                                                                                                                                                                                                     |
+| --------- | --------------------------------------------------------------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| data      | `cdade/data/sivep.py` (`load_raw`, `prepare_counts`, `prepare_state_counts`, `_LEAVES`) | `src/headd_l0/data.py`      | `tests/test_data.py::test_counts_match_original_exactly`: counts, PA series, test totals, leaf order and months equal the pinned export, tolerance zero                  | Registry/plugin loader, canonical `entity/timestamp/level/value` layer and Hydra config (replaced by `configs/data.toml`). Added: missing region-months, regions or months and PA/regional mismatches raise instead of being filled with zeros                                      |
+| reconcile | `cdade/reconciliation/summing_matrix.py`, `bottom_up.py`                                | `src/headd_l0/reconcile.py` | `tests/test_reconcile.py::test_s_matches_original` and `test_bottom_up_exact`: S equals the exported 14×13 matrix and bottom-up reproduces PA = leaf sum, tolerance zero | Registry classes and the 13×13 S inside `min_t.py`/`bottom_up.py` (the MinT one raised in the audit). MinT(Shrink) is new, per D2: diagonal target, Schäfer–Strimmer λ as in `hts::MinT`, solve-based projection, no clipping; it reconciles NB2 count forecasts, never scores (D5) |
+| forecast  | none (new, D5/D-GT3)                                                                    | `src/headd_l0/forecast.py`  | Behaviour tests in `tests/test_forecast.py`: design by hand, parameter recovery, training-only fit, recorded non-convergence                                             | NB2 with trend and two harmonic pairs, Poisson starting values, per series                                                                                                                                                                                                          |
 
 MinT on the real SIVEP data (2026-09-27, diagnostic only): all 14 NB2 fits converge, λ̂ = 0.100. The independent PA forecast differs from the sum of regional forecasts by a median of 848 cases/month in months 60–131; MinT moves the PA forecast by a median of 26% and 409 of 1,848 reconciled means are negative (406 in months 60–131; CARAJAS, LAGO DE TUCURUI, MARAJO II, METROPOLITANA III, RIO CAETES, TOCANTINS, XINGU, MARAJO I, PA). Per D2 they are not clipped; residuals y − P·μ̂ stay coherent.
 
 ## Not ported
 
-| Original | Reason |
-|---|---|
-| `data/tycho.py`, `data/loaders/{tycho,uci_394,uci_501}.py` | Tycho/UCI out of scope |
-| `baselines/farrington.py` (`b1`) | Farrington excluded |
-| `baselines/static_topk.py` (`b4`) | Top-k Eze excluded |
-| `baselines/recurrent_baseline.py`, `models/recurrent.py` (`b6`–`b8`) | recurrent baselines excluded |
-| `detectors/{ocsvm,cblof,cof,sos}.py` | outside the six-detector pool |
+| Original                                                                                                                                                                                          | Reason                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `data/tycho.py`, `data/loaders/{tycho,uci_394,uci_501}.py`                                                                                                                                        | Tycho/UCI out of scope                                     |
+| `baselines/farrington.py` (`b1`)                                                                                                                                                                  | Farrington excluded                                        |
+| `baselines/static_topk.py` (`b4`)                                                                                                                                                                 | Top-k Eze excluded                                         |
+| `baselines/recurrent_baseline.py`, `models/recurrent.py` (`b6`–`b8`)                                                                                                                              | recurrent baselines excluded                               |
+| `detectors/{ocsvm,cblof,cof,sos}.py`                                                                                                                                                              | outside the six-detector pool                              |
 | `registry.py`, `data/{base,dataset_paths,prepare,validate_schema}.py`, Hydra `main`s, MLflow logging, `dvc.yaml`, `justfile`, `reporting/`, `ablation/`, `evaluation/{stats_cli,stats_matrix}.py` | glue replaced by TOML, `results/<run_id>/` and plain dicts |
-| `ensemble/` | DVC stage whose output `evaluate` does not read |
-| `selection`: `NaiveTopKSelector`, `generate_windowed_labels`, `windowed_diversity`, `scan_for_drift`, Page-Hinkley | no caller in the pipeline |
-| `reconciliation/identity.py`, `reconciliation/evt.py` | no caller in the default pipeline; `evt.fit` raises (D4) |
+| `ensemble/`                                                                                                                                                                                       | DVC stage whose output `evaluate` does not read            |
+| `selection`: `NaiveTopKSelector`, `generate_windowed_labels`, `windowed_diversity`, `scan_for_drift`, Page-Hinkley                                                                                | no caller in the pipeline                                  |
+| `reconciliation/identity.py`, `reconciliation/evt.py`                                                                                                                                             | no caller in the default pipeline; `evt.fit` raises (D4)   |
 
 ## Corrected detector pool (D3, 2026-09-27)
 
@@ -94,7 +94,7 @@ sign), rtol=1e-7/atol=1e-9; this is not end-to-end legacy parity.
 
 MCD is independent NumPy/SciPy code: 50 starts without replacement,
 h=floor((n+p+1)/2), at most 50 C-steps, logdet tolerance 1e-7, fixed ridge
-1e-8*max(mean(training variances),1). It applies Gaussian consistency
+1e-8\*max(mean(training variances),1). It applies Gaussian consistency
 alpha/F_chi2(p+2)(q_chi2(p)(alpha)) at raw support fraction h/n and after
 reweighting at chi2(.975). Reference: [MCD and extensions](https://arxiv.org/abs/1709.07045);
 [sklearn reference algorithm](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/covariance/_robust_covariance.py).
@@ -124,7 +124,7 @@ fits or a target outside the fitted tail use named empirical fallbacks.
 `Calibration` records method, size, target and achieved calibration FAR;
 unseen-null FAR is measured independently, not promised equal. Tests include
 independent SeedSequence streams, ties, shift invariance and missing/nonfinite
-inputs. Registry name is `evt_gpd`; runner/config artifact wiring remains Task9.
+inputs. Registry name is `evt_gpd`; complete experiment wiring belongs to the experiments plan.
 
 ## Causal selection (D6, Task 6, 2026-09-27)
 
@@ -148,7 +148,7 @@ mark warmup outside evaluation, with deterministic active indices.
 
 Tests cover future suffix changes, actual prefix truncation, hand-computed
 competence, drift/reset and training-only normalization. Registry `meta_des`
-will be wired and serialized by Task9; no E0* gate is declared here.
+will be wired and serialized by the experiment runner; component tests do not approve E0*.
 
 ## Evaluation (Task 7, 2026-09-27)
 
@@ -192,10 +192,7 @@ zero_hac_variance status. A regression covers decimal roundoff. No numerical
 fallback substitutes ordinary variance or fabricates significance.
 Reference: [Newey–West/Bartlett](https://www.statsmodels.org/dev/generated/statsmodels.stats.sandwich_covariance.cov_hac.html).
 
-The stale Task8 plan example using14tasks/pendingD-GT1 was aligned with the
-already approved13-region decision. No scientific criterion was newly chosen.
-
-## Task 9 — bounded injection and E0* preparation
+## Task 9 — bounded injection and E0\* preparation
 
 - `inject.py` ports `cdade/data/synthetic.py` types/magnitudes and random draw
   order; finite duration is drawn after direction, late onsets shifted left.
@@ -211,10 +208,9 @@ already approved13-region decision. No scientific criterion was newly chosen.
 - `configs/e0_star.toml` runs preparation, not the future scoring/calibration
   experiment. It writes coherent injection, event and class diagnostics and
   a manifest; exit2 means no interpretation. With seed42:110negative cells,
-  2adjusted onsets, E0inconclusive and E0*failed(single_class:PA).
+  2adjusted onsets, E0inconclusive and E0\*failed(single_class:PA).
 - Removed the3transient importer scripts and their subprocess tests; kept
   fixtures, raw hashes, original source SHA, descriptive results and a
   historical exporter commit. Local array integrity tests replace reimports.
-- Environment: uv0.12.19 via existing asdf; global Ruff0.12.3→0.16.9;
-  project Ruff remains0.16.9. `uv lock --upgrade-package ruff` refreshes lock
-  metadata; scientific dependency versions are unchanged.
+
+Execution commands and current gate limitations: [development guide](docs/development.md).

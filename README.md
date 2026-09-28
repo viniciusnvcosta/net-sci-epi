@@ -106,8 +106,8 @@ A camada 1 tem prioridade sobre B-Gao, Φ/B3 e SEIRS; a camada 0 não é cortada
 | Braço             | Descrição                                                                                                                                                |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **B0**            | séries independentes, sem S (piso)                                                                                                                       |
-| **B1***           | Baseline corrigido estilo CDADE: S + pool + reconciliação MinT + seleção dinâmica + limiar EVT/GPD                                                                              |
-| **B2**            | B1 + features de vizinhança em W: W·xₜ, W·xₜ₋₁, diferença entre a região e a média dos vizinhos, e I de Moran local em janela móvel                      |
+| **B1\***           | Baseline corrigido estilo CDADE: S + pool + reconciliação MinT + seleção dinâmica + limiar EVT/GPD                                                                              |
+| **B2**            | B1\* + features de vizinhança em W: W·xₜ, W·xₜ₋₁, diferença entre a região e a média dos vizinhos, e I de Moran local em janela móvel                      |
 | **B2-placebo**    | B2 com cada um dos 30 grafos placebo                                                                                                                     |
 | B-Gao (opcional)  | classificador GBM sobre os 5 indicadores de alerta precoce (SD, CV, AR1, assimetria, curtose), treinado na bancada e aplicado por região em janela móvel |
 | B3 (exploratório) | B2 + camadas de espécie Φ (só dados reais)                                                                                                               |
@@ -128,7 +128,7 @@ Entre B1* e B2 muda uma única coisa: a informação relacional disponível. Poo
 
 **Protocolo secundário real.** Manter Friedman→Wilcoxon/Bonferroni→Diebold-Mariano/HAC→Cliff/IC95%, interrompendo os testes seguintes se Friedman p>.05; não substituir por ele os critérios principais da camada 1.
 
-**Gates e conclusão.** D-G0 autorizou B1* corrigido com E0 inconclusivo. E0* e os outros gates continuam obrigatórios; seu estado executável está em [Task 9](docs/e0-task9-status.md). Critério científico não satisfeito com gates válidos é resultado negativo para a bancada; gate inválido ou alcance insuficiente é inconclusivo. Não expandir o grafo nem ajustar a baseline para resgatar a hipótese.
+**Gates e conclusão.** D-G0 autorizou B1* corrigido com E0 inconclusivo. E0* e os outros gates continuam obrigatórios; seu estado executável está em [guia de desenvolvimento](docs/development.md#preparação-da-camada-0-e-limite-científico). Critério científico não satisfeito com gates válidos é resultado negativo para a bancada; gate inválido ou alcance insuficiente é inconclusivo. Não expandir o grafo nem ajustar a baseline para resgatar a hipótese.
 
 ### 5.5 Análise de rede complementar
 
@@ -159,11 +159,11 @@ Liu et al. (2026) geraram um conjunto sintético com o modelo agent-based SEIRS+
 │   ├── raw/sivep/          # PA.csv, PASIVEPDailyPerHr.csv (imutáveis)
 │   └── processed/          # tabela longa região × mês × espécie (regenerável)
 ├── configs/                # um .toml por experimento (bancada, semi-real)
-├── src/headd_l0/           # ver CLAUDE.md para o mapa de módulos
+├── src/headd_l0/           # ver AGENTS.md para o mapa de módulos
 ├── tests/                  # espelha src/
 ├── results/                # parquet + manifesto JSON por execução
 ├── README.md
-└── CLAUDE.md
+└── AGENTS.md
 ```
 
 ```bash
@@ -172,11 +172,9 @@ uv run pytest
 uv run python -m headd_l0.run configs/e0_star.toml  # pré-gate; exit 2 esperado
 ```
 
-Comandos executados com resultados: [pipeline verificada](docs/pipeline-commands.md).
-
-Estado executável e próximos passos: [Task 9 e ambiente L0](docs/e0-task9-status.md).
-O runner de bancada E1′ ainda pertence às próximas etapas; o pré-gate atual
-não autoriza interpretação científica.
+Comandos, configuração, artefatos e próximos passos estão no
+[guia de desenvolvimento](docs/development.md). O pré-gate atual não autoriza
+interpretação científica; o runner completo de E1′ pertence às próximas etapas.
 
 ## 8 · Ambiente e dependências
 
@@ -205,7 +203,7 @@ Ferramentas externas: **Gephi** para as figuras do grafo (exportação via `nx.w
 | Período     | Entrega                                                                                                                                    |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | 25/09–01/10 | Contrato de dados e teste de coerência de S; construção de A e mapa; simulador de uma região validado contra Gao; extensão para 13 regiões |
-| 02/10–08/10 | Porte do baseline CDADE (ver `CLAUDE.md`); features de vizinhança; placebos; calibração nas réplicas nulas; execução de B0–B2-placebo      |
+| 02/10–08/10 | Porte do baseline CDADE (ver `AGENTS.md`); features de vizinhança; placebos; calibração nas réplicas nulas; execução de B0–B2-placebo      |
 | 09/10–13/10 | Bancada semi-real no SIVEP; bootstrap e análise de centralidade; B-Gao e B3 se houver tempo                                                |
 | 14/10–16/10 | Redação de Metodologia e Resultados Preliminares                                                                                           |
 

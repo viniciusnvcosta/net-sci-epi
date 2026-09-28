@@ -1,8 +1,9 @@
+# Paths are relative to the execution directory: run from the project root.
 # Preparation only. Scoring/calibration belongs to Experiments Task 4.
 # Exit 2 means E0* does not authorize E1 interpretation; inspect manifest.json.
 run_id = "e0-star-preflight"
 root_seed = 42
 baseline_id = "B1*"
 reference_sha = "fbfa609bba6cb0b0f2a9e8d73be18022aec319b7"
-raw_dir = "/home/vinvs/projects/hybrid-theory/data/raw"
+raw_dir = "../hybrid-theory/data/raw"
 output_dir = "results"

@@ -129,9 +129,11 @@ def load_sivep(raw_dir: Path) -> DataBundle:
     raw_dir = Path(raw_dir)
     long = _read_long(raw_dir)
     cells = long.groupby(["region", "month"]).size().unstack("month")
-    cells = cells.reindex(index=list(LEAVES), columns=MONTHS)
+    cells = pd.DataFrame(cells).reindex(index=list(LEAVES), columns=MONTHS)
     gaps = cells.isna().stack(future_stack=True)
-    missing = [(r, m.strftime("%Y-%m")) for r, m in gaps[gaps].index]
+    missing = [
+        (r, m.strftime("%Y-%m")) for r, m in gaps[gaps.to_numpy(dtype=bool)].index
+    ]
     if missing:
         raise ValueError(f"missing region-months ({len(missing)}): {missing[:5]}")
     counts = _grid(long[long["species"] != NEGATIVE])
@@ -195,7 +197,7 @@ def prepare(raw_dir: Path, output_dir: Path) -> DataBundle:
 
 def load_config(path: Path) -> DataConfig:
     """Read a data TOML file into a :class:`DataConfig`."""
-    values = tomllib.loads(Path(path).read_text())
+    values = tomllib.loads(Path(path).read_text(encoding="utf-8"))
     return DataConfig(**{key: Path(value) for key, value in values.items()})
 
 

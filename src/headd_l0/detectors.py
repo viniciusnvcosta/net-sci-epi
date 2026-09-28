@@ -7,7 +7,7 @@ B1* behavior, not a claim of parity with the defective original pipeline.
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Self
+from typing import Protocol, Self, cast
 
 import numpy as np
 from pyod.models.hbos import HBOS
@@ -26,6 +26,10 @@ class DetectorConfig:
     contamination: float = 0.05
 
 
+class _Scorer(Protocol):
+    def decision_function(self, X: np.ndarray) -> np.ndarray: ...
+
+
 def _matrix(X: np.ndarray) -> np.ndarray:
     X = np.asarray(X, dtype=float)
     if X.ndim != 2 or min(X.shape) == 0 or not np.isfinite(X).all():
@@ -36,6 +40,9 @@ def _matrix(X: np.ndarray) -> np.ndarray:
 class _Detector:
     def __init__(self, cfg: DetectorConfig):
         self.cfg = cfg
+        self.mean_: np.ndarray | None = None
+        self.mask_: np.ndarray | None = None
+        self.model_: _Scorer | None = None
 
     def fit(self, X: np.ndarray) -> Self:
         """Fit on training samples; freeze the constant-feature mask.
@@ -61,14 +68,24 @@ class _Detector:
             X: Samples in the same feature order used for training.
         """
         X = _matrix(X)
-        if X.shape[1] != len(self.mean_):
+        mean = self.mean_
+        mask = self.mask_
+        if mean is None or mask is None:
+            raise ValueError("detector must be fitted before scoring")
+        if X.shape[1] != len(mean):
             raise ValueError("feature dimension differs from training")
-        if not self.mask_.any():
-            return np.linalg.norm(X - self.mean_, axis=1)
-        return self._score(X[:, self.mask_])
+        if not mask.any():
+            return np.linalg.norm(X - mean, axis=1)
+        return self._score(X[:, mask])
+
+    def _fit(self, X: np.ndarray) -> None:
+        raise NotImplementedError("subclasses must implement _fit")
 
     def _score(self, X: np.ndarray) -> np.ndarray:
-        return self.model_.decision_function(X)
+        model = self.model_
+        if model is None:
+            raise ValueError("detector model is not fitted")
+        return model.decision_function(X)
 
     def _seed(self) -> int:
         return int(np.random.SeedSequence(self.cfg.seed).generate_state(1)[0])
@@ -86,12 +103,13 @@ class PCADetector(_Detector):
 
 
 class LOFDetector(_Detector):
-    """Local outlier factor with 20 neighbours."""
+    """Local outlier factor scores with 20 neighbours."""
 
     def _fit(self, X: np.ndarray) -> None:
         if len(X) <= 20:
             raise ValueError("LOF requires more than 20 training samples")
-        self.model_ = LOF(n_neighbors=20, contamination=self.cfg.contamination).fit(X)
+        model = LOF(n_neighbors=20, contamination=self.cfg.contamination).fit(X)
+        self.model_ = cast(_Scorer, model)
 
 
 class KNNDetector(_Detector):
@@ -107,18 +125,21 @@ class HBOSDetector(_Detector):
     """Histogram outlier scores using ten bins per feature."""
 
     def _fit(self, X: np.ndarray) -> None:
-        self.model_ = HBOS(n_bins=10, contamination=self.cfg.contamination).fit(X)
+        model = HBOS(n_bins=10, contamination=self.cfg.contamination).fit(X)
+        self.model_ = cast(_Scorer, model)
 
 
 class IFDetector(_Detector):
     """Isolation forest with 100 trees and a derived library seed."""
 
     def _fit(self, X: np.ndarray) -> None:
-        self.model_ = IForest(
+        model = IForest(
             n_estimators=100,
             contamination=self.cfg.contamination,
             random_state=self._seed(),
         ).fit(X)
+
+        self.model_ = cast(_Scorer, model)
 
 
 def _estimate(X: np.ndarray, floor: float) -> tuple[np.ndarray, np.ndarray]:
@@ -165,17 +186,24 @@ class MCDDetector(_Detector):
     distances determine supports; score returns their nonnegative square root.
     """
 
+    def __init__(self, cfg: DetectorConfig):
+        super().__init__(cfg)
+        self.location_: np.ndarray | None = None
+        self.covariance_: np.ndarray | None = None
+        self.logdet_history_: list[float] = []
+
     def _fit(self, X: np.ndarray) -> None:
         n, p = X.shape
         if n <= p:
             raise ValueError("MCD needs more samples than retained features")
         h = (n + p + 1) // 2
         rng = np.random.default_rng(self.cfg.seed)
-        best = None
+        best: tuple[np.ndarray, np.ndarray, list[float]] | None = None
         for _ in range(50):
             candidate = _c_steps(X, rng.choice(n, size=h, replace=False), h)
             if best is None or candidate[2][-1] < best[2][-1]:
                 best = candidate
+        assert best is not None
         location, covariance, self.logdet_history_ = best
         fraction = h / n
         covariance *= fraction / chi2.cdf(chi2.ppf(fraction, p), p + 2)
@@ -187,7 +215,11 @@ class MCDDetector(_Detector):
         self.location_, self.covariance_ = location, covariance
 
     def _score(self, X: np.ndarray) -> np.ndarray:
-        return np.sqrt(np.maximum(_distances(X, self.location_, self.covariance_), 0))
+        location = self.location_
+        covariance = self.covariance_
+        if location is None or covariance is None:
+            raise ValueError("detector must be fitted before scoring")
+        return np.sqrt(np.maximum(_distances(X, location, covariance), 0))
 
 
 DETECTORS: dict[str, Callable[[DetectorConfig], _Detector]] = {

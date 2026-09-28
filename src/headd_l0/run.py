@@ -1,14 +1,23 @@
 """E0* sanity gate and local experiment entry point."""
 
-from dataclasses import dataclass
-from datetime import UTC
+import argparse
+import hashlib
+import json
+import subprocess
+import tomllib
+from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from headd_l0.data import hierarchy
+from headd_l0.data import hierarchy, load_sivep
+from headd_l0.inject import InjectionConfig, inject_original_bounded
 from headd_l0.stats import task_bootstrap
+
+BASELINE_ID = "B1*"
+REFERENCE_SHA = "fbfa609bba6cb0b0f2a9e8d73be18022aec319b7"
 
 
 @dataclass(frozen=True)
@@ -74,50 +83,58 @@ def check_e0_star(
 class E0Config:
     """Layer-0 preparation; the experiment runner later supplies scored tasks."""
 
-    run_id: str = "e0-star-preflight"
-    root_seed: int = 42
-    raw_dir: str = "/home/vinvs/projects/hybrid-theory/data/raw"
-    output_dir: str = "results"
-    baseline_id: str = "B1*"
-    reference_sha: str = "fbfa609bba6cb0b0f2a9e8d73be18022aec319b7"
+    run_id: str
+    root_seed: int
+    raw_dir: Path
+    output_dir: Path
+    baseline_id: str = BASELINE_ID
+    reference_sha: str = REFERENCE_SHA
+
+    def __post_init__(self) -> None:
+        """Validate every construction path and normalize strings to Paths.
+
+        Relative paths remain relative to the execution directory; ``~`` expands
+        to the current user's home. No filesystem writes occur during validation.
+        """
+        if self.baseline_id != BASELINE_ID or self.reference_sha != REFERENCE_SHA:
+            raise ValueError("E0* requires the approved baseline and pinned reference")
+        if (
+            not isinstance(self.run_id, str)
+            or not self.run_id.strip()
+            or Path(self.run_id).name != self.run_id
+            or self.run_id in {".", ".."}
+            or "\\" in self.run_id
+        ):
+            raise ValueError("run_id must be a directory name")
+        if type(self.root_seed) is not int or self.root_seed < 0:
+            raise ValueError("root_seed must be a nonnegative integer")
+        for name in ("raw_dir", "output_dir"):
+            value = getattr(self, name)
+            if not isinstance(value, (str, Path)) or not str(value).strip():
+                raise ValueError(f"{name} must be a nonempty path")
+            object.__setattr__(self, name, Path(value).expanduser())
 
 
-def load_config(path: "Path") -> E0Config:
-    """Read the E0 preparation TOML; reject changed baseline identity or SHA."""
-    import tomllib
-    from pathlib import Path
-
+def load_config(path: Path) -> E0Config:
+    """Read TOML; execution fields are required and validated by E0Config."""
     with Path(path).open("rb") as handle:
-        cfg = E0Config(**tomllib.load(handle))
-    if cfg.baseline_id != "B1*" or cfg.reference_sha != E0Config.reference_sha:
-        raise ValueError("E0* requires the approved baseline and pinned reference")
-    if (
-        not cfg.run_id
-        or Path(cfg.run_id).name != cfg.run_id
-        or cfg.run_id in {".", ".."}
-    ):
-        raise ValueError("run_id must be a directory name")
-    return cfg
+        values = tomllib.load(handle)
+    try:
+        return E0Config(**values)
+    except TypeError as exc:
+        raise ValueError(f"invalid E0 configuration: {exc}") from exc
 
 
-def run_preflight(cfg: E0Config, counts: np.ndarray) -> "Path":
+def run_preflight(cfg: E0Config, counts: np.ndarray) -> Path:
     """Persist coherent injection and class diagnostics before detector execution.
 
     No component/performance gate is inferred from preparation. A single-class
     task fails E0* immediately; otherwise the performance gate remains pending
     until Experiments Task 4 calls check_e0_star with evaluated model outputs.
     """
-    import hashlib
-    import json
-    import subprocess
-    from dataclasses import asdict
-    from datetime import datetime
-    from pathlib import Path
-
-    from headd_l0.inject import InjectionConfig, inject_original_bounded
 
     seed = np.random.SeedSequence(cfg.root_seed)
-    # Layer 0 retains the explicit seed42 stream; later calibration/evaluation
+    # Layer 0 uses the configured root stream; later calibration/evaluation
     # must spawn disjoint streams under the experiment runner's contract.
     result = inject_original_bounded(
         counts, np.random.default_rng(seed), InjectionConfig()
@@ -143,6 +160,7 @@ def run_preflight(cfg: E0Config, counts: np.ndarray) -> "Path":
         path / "events.parquet", index=False
     )
     invalid = tasks.loc[(tasks.n_positive == 0) | (tasks.n_negative == 0), "task"]
+    git = ["git", "-C", str(Path(__file__).resolve().parent)]
     manifest = {
         "config": {
             k: str(v) if isinstance(v, Path) else v for k, v in asdict(cfg).items()
@@ -150,10 +168,10 @@ def run_preflight(cfg: E0Config, counts: np.ndarray) -> "Path":
         "baseline_id": cfg.baseline_id,
         "reference_sha": cfg.reference_sha,
         "git_sha": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True
+            [*git, "rev-parse", "HEAD"], text=True
         ).strip(),
         "git_dirty": bool(
-            subprocess.check_output(["git", "status", "--porcelain"], text=True).strip()
+            subprocess.check_output([*git, "status", "--porcelain"], text=True).strip()
         ),
         "timestamp": datetime.now(UTC).isoformat(),
         "seed": {"entropy": seed.entropy, "spawn_key": list(seed.spawn_key)},
@@ -182,10 +200,6 @@ def run_preflight(cfg: E0Config, counts: np.ndarray) -> "Path":
 
 def main() -> int:
     """Prepare layer 0; exit 2 while E0* cannot authorize E1 interpretation."""
-    import argparse
-    from pathlib import Path
-
-    from headd_l0.data import load_sivep
 
     parser = argparse.ArgumentParser(
         description="Prepare E0* injection and class diagnostics"
