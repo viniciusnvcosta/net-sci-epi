@@ -114,3 +114,18 @@ def test_mcd_contamination_and_degenerate_geometry(samples):
     ).all()
     with pytest.raises(ValueError):
         MCDDetector(DetectorConfig(seed=42)).fit(np.arange(12).reshape(3, 4))
+
+
+def test_rolling_zscore_is_causal():
+    from headd_l0.detectors import rolling_zscore
+
+    counts = np.tile(np.arange(132, dtype=float), (2, 1))
+    scores = rolling_zscore(counts)
+    # Month 12 sees only months 0..11: mean=5.5, sample variance=13.
+    np.testing.assert_allclose(scores[:, 12], 6.5 / np.sqrt(13))
+    assert np.isnan(scores[:, :12]).all()
+    counts[:, 90:] += 1e5
+    np.testing.assert_array_equal(scores[:, :90], rolling_zscore(counts)[:, :90])
+    constant = np.ones((1, 15))
+    constant[0, 14] = 4
+    np.testing.assert_allclose(rolling_zscore(constant)[0, 12:], [0, 0, 3])
