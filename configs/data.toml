@@ -1,0 +1,5 @@
+# SIVEP-Malária Pará data preparation: `uv run python -m headd_l0.data configs/data.toml`.
+# raw_dir is the original repository's working tree, read only (see spec §5).
+raw_dir = "/home/vinvs/projects/hybrid-theory/data/raw"
+processed_dir = "data/processed/sivep"
+results_dir = "results/data"

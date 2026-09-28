@@ -44,7 +44,7 @@ Estas são observações de código, não resultados de uma reprodução executa
 | D8 | `evaluation/stats.py` continua DM/Cliff após Friedman não significativo, contém resultados substitutos e fallback HAC sem pesos Bartlett; bootstrap usa RandomState. | Portar rotinas válidas separadamente; fluxo científico, HAC e Generator requerem testes e registro de desvio. |
 | D9 | `evaluation/metrics.py` usa AP como AUC-PR e um NAB simplificado com mediana dos scores avaliados. | AP mantém essa definição. NAB legado é apenas caracterização; E1 usa alarmes do limiar calibrado, sem mediana do teste. |
 
-**Gate G0:** produzir `reference_audit.json` com reprodução, fontes, exceções e cobertura das 14 tarefas. Manter E0 bloqueado enquanto D1–D7 impedirem satisfazer simultaneamente referência, causalidade e contratos. Não criar um modo legado no pacote de produção para contornar o gate. Deliberar G0/D1–D7 até 29/09/2026. Se o HEAD não sustentar E0, registrar escolha explícita entre E0 inconclusivo com B1* corrigido e autorizado, ou bloqueio total da interpretação E1′. Nenhuma saída está escolhida. B1* deve aparecer em todos os artefatos e textos; não transforma discrepância em paridade nem resolve D5 automaticamente. A auditoria e componentes independentes continuam úteis enquanto isso.
+**Gate G0:** produzir `reference_audit.json` com reprodução, fontes, exceções e cobertura das 14 tarefas. Manter E0 bloqueado enquanto D1–D7 impedirem satisfazer simultaneamente referência, causalidade e contratos. Não criar um modo legado no pacote de produção para contornar o gate. Deliberar G0/D1–D7 até 29/09/2026. Se o HEAD não sustentar E0, registrar escolha explícita entre E0 inconclusivo com B1* corrigido e autorizado, ou bloqueio total da interpretação E1′. Decisão de 27/09: saída (i), E0 inconclusivo com B1\* autorizado e gate E0\* ([registro](../../protocol-decisions.md)). B1* deve aparecer em todos os artefatos e textos; não transforma discrepância em paridade nem resolve D5 automaticamente. A auditoria e componentes independentes continuam úteis enquanto isso.
 
 ## 4. Mapa de código e responsabilidade
 
@@ -117,45 +117,45 @@ flowchart LR
   SEL -->|scores para aplicar limiar| FAR[EVT e calibração em N independentes]
   FAR --> EVAL[Métricas por região e réplica]
   EVAL --> STAT[Bootstrap e placebos]
-  G0[Auditoria de referência] --> E0[Gate E0]
-  E0 --> STAT
-  G0 --> ROUTE[Alternativa B1* somente se autorizada e documentada]
-  ROUTE --> STAT
+  G0[Auditoria de referência] --> E0[E0 inconclusivo]
+  G0 --> ROUTE[B1* autorizado, D-G0 saída i]
+  ROUTE --> E0S[Gate E0*]
+  E0S --> STAT
 ```
 
-Os nulos começam como contagens e passam pela mesma representação, pool e seleção do respectivo braço antes de gerar scores para o limiar. N de calibração e N de avaliação são independentes; esta última mede FAR observada. O diagrama não fixa a posição de MinT: **D5 bloqueia essa conexão**. A entrada de `reconcile` é uma quantidade em unidades de contagem e seus erros de treino. Se a única entrada forem as próprias contagens já coerentes, MinT deve ser identidade nessa entrada; não alegar uma etapa de previsão inexistente. A auditoria deve apresentar esse fato e obter uma definição de baseline executável antes da integração B1. Componentes numéricos podem ser construídos/testados independentemente.
+Os nulos começam como contagens e passam pela mesma representação, pool e seleção do respectivo braço antes de gerar scores para o limiar. N de calibração e N de avaliação são independentes; esta última mede FAR observada. Posição de MinT ([D5](../../protocol-decisions.md), 27/09): um previsor NB2 com tendência e dois pares de harmônicos, ajustado por série nos meses 0–59, produz previsões de contagem um passo à frente μ̂ₜ; MinT(Shrink) reconcilia μ̂ₜ com Ŵ estimada dos erros de treino; os detectores consomem resíduos y − μ̂ (B0) ou y − P·μ̂ (B1\*, B2), padronizados pelo desvio-padrão de treino. Scores nunca são reconciliados.
 
-Se a saída B1* for posteriormente autorizada, registrar `baseline_id="B1*"` e a decisão correspondente em todos os braços/artefatos, mantendo E0 inconclusivo. Até essa decisão, a interpretação continua bloqueada.
+A saída B1\* foi autorizada (D-G0, 27/09): `baseline_id="B1*"` e a decisão constam em todos os braços/artefatos, com E0 inconclusivo; a interpretação do E1′ depende do E0\*.
 
-`ArmSpec(name, use_hierarchy, graph_id)` define: B0 `(false,None)`, B1 `(true,None)`, B2 `(true,"observed")`, B2-placebo `(true,"placebo_00"..."placebo_29")`. `arm="B1"` permanece identificador interno estável; `baseline_id` guarda B1 ou B1* segundo a rota autorizada e é exibido em cada texto, tabela e legenda. B0 usa modelos independentes por região. B1/B2/placebos compartilham arquitetura, algoritmos, hiperparâmetros, partições e seeds; parâmetros aprendidos e limiares numéricos podem diferir porque as representações diferem. Não exigir o mesmo valor numérico de threshold.
+`ArmSpec(name, residuals, graph_id)` define: B0 `("base",None)`, B1\* `("reconciled",None)`, B2 `("reconciled","observed")`, B2-placebo `("reconciled","placebo_00"..."placebo_29")`. O braço se chama `B1*` em identificadores, textos, tabelas e legendas. B0 usa modelos independentes por região. B1\*/B2/placebos compartilham arquitetura, algoritmos, hiperparâmetros, partições e seeds; parâmetros aprendidos e limiares numéricos podem diferir porque as representações diferem. Não exigir o mesmo valor numérico de threshold.
 
 Fit de detector, escalador, covariância e calibração ocorre só em treino/calibração independente. Seleção em t usa exclusivamente scores até t−1 e pseudo-rótulos, nunca onset/máscara; reset atualiza o estado a partir daquele instante, sem revisar o passado. Features contemporâneas `W·x_t` são permitidas pelo contrato ≤t; adicionar teste de invariância a qualquer sufixo futuro.
 
-Representação local proposta: contagem t, t−1 e diferença temporal; S disponibiliza agregado PA e contraste `x_i−PA/13`, ambos em unidades de contagem. A posição de MinT depende de D5. Evitar divisões por contagem regional e proporções reconciliadas. Extensão de vizinhança: `W·x_t`, `W·x_(t−1)`, `x_t−W·x_t`, Moran local por mês suavizado por janela causal de 12 meses. B1 não recebe essas quatro colunas; B2 e placebo têm nomes/dimensões idênticos. Sem vizinhos para PA: suas colunas relacionais recebem zero em todos os braços com S.
+Representação local: resíduo padronizado em t, t−1 e diferença temporal; a hierarquia entra pela reconciliação (D5). Reconciliação sempre sobre contagens previstas, nunca proporções. Extensão de vizinhança sobre os mesmos resíduos: `W·e_t`, `W·e_(t−1)`, `e_t−W·e_t`, Moran local por mês suavizado por janela causal de 12 meses. B1\* não recebe essas quatro colunas; B2 e placebo têm nomes/dimensões idênticos. Sem vizinhos para PA: suas colunas relacionais recebem zero em todos os braços com S.
 
 ## 7. Decisões experimentais propostas para revisão
 
-As decisões D-GT1–D-GT4, D-G0, D-COST e D-REACH constam no [registro de decisões](../../protocol-decisions.md). A aprovação documental não resolve as pendências científicas ali enumeradas.
+As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). Continuam pendentes a faixa de R0 e o perfil do simulador (D-GT2/D-GT4), o hardware do piloto (D-COST) e os eventos da camada 3 (D-L3).
 
 | Camada | Ground truth / uso | Regra |
 |---|---|---|
-| 0 | `inject_original` intacta: paridade E0 e não-inferioridade B2−baseline nas 14 tarefas | E0 separado; margem proposta −0,02 e IC95% pareado sobre tarefas; regra média/limite inferior pendente |
+| 0 | `inject_original_bounded`: tipos, magnitudes e ordem aleatória do original; shifts/drifts de 3–6 meses; onset em 60–131. O `inject_original` literal só caracteriza o defeito, em `tests/` | E0 inconclusivo; E0\* (sanidade de B1\* contra z-score móvel causal) antes de tudo; não-inferioridade: limite inferior do IC 95% da média de ΔAUC-PR(B2 − B1\*) ≥ −0,02, bootstrap sobre as 13 regiões, PA à parte |
 | 1 | Componente epidêmico de `simulate.py`, ν=0, somado ao SIVEP; A gera propagação por C | Evidência semi-real principal: IC>0 em ε>0, equivalência em ε=0, rank>.95; gates próprios |
 | 2 | Metapopulação totalmente sintética | Protocolo científico preservado; dimensionamento sujeito somente à escada pré-registrada D-COST |
-| Nulos reais | 200 séries binomiais negativas por região, harmônicos/tendência estimados nos meses 0–59 | FAR1/60, tolerância proposta1/300; avaliação N independente; bootstrap em blocos diagnóstico |
+| Nulos reais | NB2 com tendência e dois pares de harmônicos (`forecast.py`, o mesmo modelo das previsões do MinT), ajustado nos meses 0–59; 200 séries de calibração + 200 de avaliação por região, disjuntas | FAR 1/60, tolerância 1/300; ajuste sem convergência → bootstrap em blocos do treino, marcado; nas demais regiões, blocos só diagnóstico |
 | 3 | Eventos documentados com fonte verificada no notebook 02 | Checagem qualitativa, sem critério formal |
 
 O pulso de 3SD/atraso1 mês/amplitude0,5 é removido, sem sensibilidade paralela. Nas camadas 1/2 B2 é um oráculo porque o gerador usa A; a evidência central inclui comparação com placebos e padrão em ε. A soma epidêmica supõe ausência de interação com o fundo endêmico, inclusive depleção de suscetíveis compartilhados.
 
-Na camada 1, tamanho-alvo=k×mediana mensal de treino da semente, k proposto=(1,3,6); introdução uniforme72–118 inclusive, θ igual à bancada. Onset semente=introdução; demais=primeiro mês com casos importados observados≥1, ausência=−1. Domínio/expectativa do tamanho, mediana zero, truncamento, faixa R0 e perfil SimConfig são pendências bloqueantes. Onsets da camada 2 continuam R0/2SD.
+Na camada 1, tamanho-alvo=k×mediana mensal de treino da semente, k proposto=(1,3,6); introdução uniforme72–118 inclusive, θ igual à bancada. Onset semente=introdução; demais=primeiro mês com casos importados observados≥1, ausência=−1. Tamanho = casos observados em excesso na semente, alvo k × max(mediana, 1), com o realizado sempre reportado; truncamento no mês 131 permitido e contado (D-GT4). Pendências bloqueantes: faixa de R0 e perfil SimConfig. Onsets da camada 2 continuam R0/2SD.
 
-Antes de rodar braços, D-REACH mede fraçãoT com onset em ao menos um vizinho por ε/célula; mínimo proposto≥50% em ε=.20. Abaixo disso, reportar sem poder, não resultado negativo; não ajustar o gerador olhando avaliação.
+Antes de rodar braços, D-REACH mede fraçãoT com onset em ao menos um vizinho por ε/célula; mínimo ≥ 50% em ε = 0,20, por tipo de ruído (D-REACH). Abaixo disso, reportar sem poder, não resultado negativo; não ajustar o gerador olhando avaliação.
 
 Os valores fixados por README/AGENTS são obrigatórios, salvo revisão explícita registrada como D-G0/D-COST. Os seguintes complementos são **propostas**, não valores recuperados do CDADE nem escolhas já pré-registradas. Registrar a aprovação em `docs/protocol-decisions.md` antes de rodar a bancada final.
 
 | Decisão | Proposta concreta | Motivo / teste |
 |---|---|---|
-| Lead time | Publicar `delay = alarm−onset` e `lead = onset−alarm`; Δ principal é `lead_B2−lead_B1`. | Resolver a ambiguidade do texto: Δ positivo significa detecção mais cedo. |
+| Lead time | Publicar `delay = alarm−onset` e `lead = onset−alarm`; Δ principal é `lead_B2−lead_B1*`. | Resolver a ambiguidade do texto: Δ positivo significa detecção mais cedo. |
 | Janela / censura | Janela `[onset−12,onset+12]`, limitada à observação; primeiro alarme nela. Sem alarme: `detected=false`, tempo censurado no fim+1; usar esse tempo restrito no bootstrap e publicar probabilidade de detecção separadamente. | Não descartar falhas nem transformar ausência de onset em surto perdido. |
 | ε e janela de treino | ε = `[0.0,0.05,0.20]`; meses 0–59 de treino; monitoramento 60–131; surto sem cruzamento durante treino. | Baixo/alto não são numericamente fixados no README. Valores só mudam por revisão prévia, nunca pelo efeito observado. |
 | Amostragem | Planejamento inicial: 500 T + 500 N de avaliação por ruído×ε = 9.000; **mais** 200 N de calibração por célula = 1.800, com seeds disjuntas. | As gêmeas T não são réplicas N independentes; não reutilizar calibração na estimativa de FAR. |
@@ -166,7 +166,7 @@ Os valores fixados por README/AGENTS são obrigatórios, salvo revisão explíci
 | FAR | Um alarme = um mês-região acima do limiar; sem cooldown implícito. Ajustar por braço/região em N de calibração; alvo 1/60. | Avaliação N separada: reportar FAR e IC por blocos, incluindo desvio do alvo; bloquear interpretação se comparabilidade falhar. |
 | Geografia | Queen é primária. Se desconexa, falhar e produzir diagnóstico; k-NN simétrico de centróides é variante identificada e exige pré-registro. | Não ligar ilhas arbitrariamente nem chamar grafo corrigido de queen puro. |
 
-D-COST antecipa o piloto para ~02/10 após detectores+simulador acoplado, sem inverter a ordem de porte. Fixar hardware/gatilho quantitativo antes do piloto. Escada: 30 placebos em 100T fixas/célula (rank compara B2 no mesmo subconjunto e preserva N); depois 200T+200N/célula; depois opcionais. IDs e parâmetros são congelados antes dos efeitos. Se seleção ainda não existe, declarar custo não medido; não certificar pipeline completo. Camada1 precede B-Gao/Φ/SEIRS; camada 0 não é cortada.
+D-COST antecipa o piloto para ~02/10 após detectores+simulador acoplado, sem inverter a ordem de porte. Registrar o hardware antes do piloto; gatilhos sobre a projeção da execução completa: > 48 h → degrau (a), > 96 h → degrau (b). Escada: 30 placebos em 100T fixas/célula (rank compara B2 no mesmo subconjunto e preserva N); depois 200T+200N/célula; depois opcionais. IDs e parâmetros são congelados antes dos efeitos. Se seleção ainda não existe, declarar custo não medido; não certificar pipeline completo. Camada1 precede B-Gao/Φ/SEIRS; camada 0 não é cortada.
 
 Definir, no mesmo registro antes da implementação metapopulacional, Nᵢ (populações efetivas, não inferidas só de casos), θ, β₀/β₁, µ/γ, intensidade de cada ruído, sazonalidade e SD usada no onset. Proposta para a SD: desvio-padrão da série observada da gêmea nos 60 meses de treino, congelado; não SD do excesso pré-surto (que pode ser identicamente zero com números comuns). Estimar νᵢ só das medianas de treino, condicionado aos parâmetros fixados; ν e θ não são identificáveis separadamente por essas medianas. Essa definição quantitativa é um gate de desenho, com fonte e teste, não um default escondido no código.
 
