@@ -1,0 +1,107 @@
+{
+  "revision": "fbfa609bba6cb0b0f2a9e8d73be18022aec319b7",
+  "regenerate": "Restore scripts/ from HEADD commit 98187ee into a temporary directory, then run export_cdade_reference.py --repo <CDADE_REPO> --revision fbfa609bba6cb0b0f2a9e8d73be18022aec319b7 --output <AUDIT_DIR> using the preserved legacy environment.",
+  "source_tree_sha256": "8271e7ea4e2d0c625b689215da948c2ea1595b4d7a33172e33f1b21700a06ba9",
+  "raw_data_sha256": {
+    "PA.csv": "ba437eff83a537addcdda93aca09401d5033804b83a0b767baa55788267041f5",
+    "PASIVEPDailyPerHr.csv": "ad61c77c8c187713cd47e72bb5f028eda1203e3f5e4962c5970d41abd9ae7188"
+  },
+  "reference_environment": {
+    "python": "3.11.13",
+    "packages": {
+      "numpy": "2.3.5",
+      "pandas": "2.3.3",
+      "scipy": "1.17.1",
+      "scikit-learn": "1.9.0",
+      "pyod": "3.6.1",
+      "river": "0.25.0",
+      "hydra-core": "1.3.3",
+      "pyarrow": "21.0.0"
+    },
+    "lock_mismatches": {}
+  },
+  "array_sha256": {
+    "data": {
+      "counts": "3d472eab262e66c19939ad86f71766fe3382121c8ff0ad9bae310d38529534f2",
+      "state": "e123e3753aafd9d52c459f20c1ce98df17fe46958b36d6b2b98d3739e7e0c8b4",
+      "state_total_tests": "276c84a6f392a0a8103cdc222d90948d911c6c418cf8ec8aa76d8b1fb5f7c95a",
+      "state_negatives": "071d6e83b3abca378c4a3b8a7e49058c2c27ee996b875adf56c6c234b0af6b47",
+      "leaves": "906e483a4d792008f4e2a5e5ad1973eb0910805369bc26a4e58b5f2ee0b204fe",
+      "dates": "7e4ec7b9083aae859ee927498f111cd89973e6f7c750052612903ce1dcb41045",
+      "summing_matrix": "8f97c7429ffaecaa8dbe981f3a569157ade75d78edb11973cfe95a09f64a42c9"
+    },
+    "detect": {
+      "pca": "2f0f216eb8ff7333c6e1d3d57105fa13bb76bf9f5989705553037bc88d5f8921",
+      "iforest": "e64115d45ec21025e6c20035b7ce4ba985ae2e2fdbcb2e5595518460beec1d08"
+    },
+    "detectors": {
+      "x_train": "e49ff3ab3fc8bdbdf07343a83021ef70bdc10675766035b1f6af0cdc7b6ae9bd",
+      "x_test": "3b6804ae3174f8515e1a5dcdb0c9cc531e76bd2c63474ecc30f033be8f2b1e92",
+      "pca": "afcc69d75088c42bc41a72409b2852bf6a09815193fa2458677e36f529995d39",
+      "mcd": "50abddea9010d8ecaf882115f4017eac889ad6b840da6011b87bc12d91b4185b",
+      "iforest": "ed19a9f8b9903d6c9792ac740b5d94d29b2b38b59683f6ba28663009949e9f46",
+      "sklearn_mcd_covariance": "c9f0a261f7ce4e1ca0f566695286abc5247c1a2c922ddaf5a665bf010dfcf515"
+    },
+    "evaluate": {
+      "y_true": "83a0f3c9862978274f2eabee706f10d028fa2c2afd02b4e5c7e0f7682aae8bb4",
+      "cdade_test": "e03cd0e2603a3979e9c8be8260a59cd37de57db7ee83a3255d3a189b22929f0a",
+      "b1": "47e93e76daec4eab4a278d80f3a4616510c1706a6a1ef47a7dc8aca7b9ac1565",
+      "b2": "df5581b83644ce9d4b2e60cb24246f21c389b928a5fa8a550389efd2fb71a3b2",
+      "b3": "8390530ba1202b6cf555c33db4f9bb448d8a15ddbb0a2002bc6859ced8393ef5",
+      "b4": "e68ccad272dc2065675b7411cbe0ef61c85b311a9a8a8295325ce1dce2af15d0",
+      "b5": "ae11a4fb688710697c2991f5909ceba65360926323b59918a5c98c0d5501ac6e"
+    },
+    "evt": {
+      "residuals": "941a7ebcf9d08cf258c5b1697b112b2915292bef23f35e8eb8907c894fb31fec",
+      "gpd": "aaedd8fb38f1c553f886010a9ae9695bbea4b60a8de2e7ee9203a091e22e0480",
+      "grid": "11dc3d00e26d96c6e9871a62bf42d901334e5c7462e81bc1a99e67df274e2843",
+      "survival": "48177cf90b573b04726a2f2ef381ce56fe00e591553926b87d27fbf92a997459"
+    },
+    "inject": {
+      "counts_injected": "d8bc965641f2fc5c5dc19fe5e003b36d71d2d151316fc494dc90f6b180540dd5",
+      "counts_mask": "e2bd673075ccaa0ec931490ff2def2db5890f2a0fea464291a292990edb7e210",
+      "state_injected": "9d5d695ec0d7ebffd14746029c983e13064447a6c48f5f5364378fd6450780ca",
+      "state_mask": "89d1984bc61bf2cbe817aac0ef3a50b2e949b257928990264036f33f75c1640d",
+      "processed_counts": "3d472eab262e66c19939ad86f71766fe3382121c8ff0ad9bae310d38529534f2"
+    },
+    "metrics": {
+      "labels": "1515933b08b31f73e6432d03eb2df1bf85601a434be7f6435d7257fa7f0f920d",
+      "scores": "976f498a8e8167c8a601a2838aecf6e179ac1989fab2a2752ca33436d6c4f514",
+      "metrics": "5c01d89be7c35bdf7df38f8f48380903bb0c6910b889c7a6cbd568e65f01c20d"
+    },
+    "select": {
+      "predictions": "f76c6f0776876b7e5e9abf9ea34242c558e92594d779e81970069635d9b57384",
+      "labels": "012a7a176c99ec316c26ef03d180ae49acbdf48b083c74654fe322f80753f72d",
+      "q_pairs": "89c12ad7c37e3bd8f7b6815f307b4160ddb74e6974a847553bf5ecd5ee5642da",
+      "diversity": "c7300c5d385b7925c818ae2cc5f2c9037590e95f5cf529c9c1e8e2cfa402b350",
+      "competence": "68ce95b0ac1b939ce3abaaf193108f896152f0c8b1dfeb459db1371b3bf9d58f",
+      "selected": "125ba491dda3e70cac1e47d5e4db4ff49d91a499c472427690938e48d9cbd9ba",
+      "drift_signal": "e4ad42d9f5b0ccaa9f40081c08e5a6b8dab7d058c6912ac3324271e46e0db83d",
+      "drift_flags": "df9a8ad5b2e01b02a3ff59bdd47b880602bb0bbe691f0a81ccb25b235d230d37"
+    },
+    "stats": {
+      "auc_pr": "25de6f9702c8bf00a121a4a734b5f36f452ffb3913fff7835217bab4cb197ccc",
+      "y_true": "60c54b173cf82bd6de091b98209ec52e5e9abcbb47174e8df799694969bdfe30",
+      "a": "b60ab9abb56b7fc15dd4c9b3c095be3e091a06319f9125dd692ce2d5aa22e463",
+      "b": "c106c4258768b1166b91cb8dcc2c301b42cc81be49c0539dadb7038be20b623a",
+      "cliffs": "fd42c7e9dd401025bdd1dcb1039b2139d2dd71bc651b6da92a79e706e3991c1b",
+      "dm": "7a2f245b19d4a1638ca7646ba31b0c30b5c51d0016aad040bacd6b7e9e63f366"
+    }
+  },
+  "array_hash_rule": "sha256(dtype.str + '|' + str(shape) + '|' + C-contiguous bytes)",
+  "audit_exit": 2,
+  "blocking_findings": [
+    "missing_14_tasks",
+    "stage_failed:pipeline_detect_lof",
+    "stage_failed:pipeline_detect_knn",
+    "stage_failed:pipeline_detect_hbos",
+    "stage_failed:pipeline_detect_mcd",
+    "stage_failed:pipeline_reconcile_min_t",
+    "single_class_test_labels"
+  ],
+  "task_names": [
+    "sivep"
+  ],
+  "e0_passed": false,
+  "exporter_revision": "98187ee"
+}

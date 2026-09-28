@@ -1,5 +1,5 @@
 [project]
-name = "net-sci"
+name = "net-sci-epi"
 version = "0.1.0"
 description = "Ciência das redes para análise de séries temporais epidemiológicas agregadas em regiões geográficas."
 readme = "README.md"
@@ -7,7 +7,7 @@ license = { text = "MIT" }
 authors = [
     { name = "Vinícius", email = "viniciusnvcosta47@gmail.com" },
 ]
-requires-python = ">=3.11.13"
+requires-python = ">=3.12"
 dependencies = [
     "matplotlib>=3.11.2",
     "numpy>=2.4.6",
@@ -21,6 +21,10 @@ dependencies = [
     "libpysal", # contiguidade espacial (queen/rook)
     "geobr", # download das malhas oficiais do IBGE
     "openpyxl", # leitura das tabelas REGIC (.xlsx)
+    "scipy>=1.18.1",
+    "pyarrow>=25.0.1",
+    "pyod>=3.6.6",
+    "river>=0.26.1",
 ]
 
 [dependency-groups]
@@ -29,4 +33,34 @@ dev = [
     "jupyter>=1.1.1",
     "python-igraph",
     "pymnet",
+    "pytest>=9.1.1",
+    "ruff>=0.16.9",
+    "hatchling>=1.32.4",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/headd_l0"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+addopts = "-m 'not slow and not reference and not integration'"
+markers = [
+    "slow: scientific gates and expensive checks",
+    "reference: requires the external pinned CDADE reference",
+    "integration: exercises external environments",
+]
+
+[tool.ruff.format]
+# Plan and spec Markdown keeps compact illustrative snippets; format code only.
+exclude = ["*.md"]
+
+[tool.ruff.lint]
+extend-select = ["PLC0415"]
+
+[tool.ruff.lint.per-file-ignores]
+# Test-local imports are useful for optional reference dependencies and fixtures.
+"tests/**" = ["PLC0415"]
