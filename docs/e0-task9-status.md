@@ -23,6 +23,8 @@ com ambas as classes. Há110células negativas e2onsets ajustados; sem clipping.
 E0 segue inconclusivo; a comparação com z-score não foi executada. Nenhum
 resultado E1′ está autorizado para interpretação.
 
+Comandos executados na pasta original e resultados: [pipeline-commands.md](pipeline-commands.md).
+
 ## Próximas etapas
 
 1. Construir A/W e placebos conforme o plano de grafo/simulação.

@@ -172,6 +172,8 @@ uv run pytest
 uv run python -m headd_l0.run configs/e0_star.toml  # pré-gate; exit 2 esperado
 ```
 
+Comandos executados com resultados: [pipeline verificada](docs/pipeline-commands.md).
+
 Estado executável e próximos passos: [Task 9 e ambiente L0](docs/e0-task9-status.md).
 O runner de bancada E1′ ainda pertence às próximas etapas; o pré-gate atual
 não autoriza interpretação científica.
