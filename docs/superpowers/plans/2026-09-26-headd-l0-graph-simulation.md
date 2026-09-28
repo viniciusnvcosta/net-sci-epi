@@ -20,6 +20,11 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 ## Global Constraints
 
+- Comparação regional B1*/z-score selada até revisão de D-E0*: nenhuma execução
+  diagnóstica; decisão datada deve preceder o primeiro commit de integração E0*.
+- Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
+  a [decisão pendente PA](2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
+
 - “Validate a single region first”; ruídos `white`, `env`, `dem`.
 - “ε = 0 must yield zero spread from the seed beyond the endemic background”.
 - `C = (1 − ε)·I + ε·W`; `λᵢ = βᵢ(t) · Σⱼ Cᵢⱼ Iⱼ/Nⱼ`.

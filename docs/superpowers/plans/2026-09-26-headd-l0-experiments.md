@@ -20,6 +20,11 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 ## Global Constraints
 
+- Comparação regional B1*/z-score selada até revisão de D-E0*: nenhuma execução
+  diagnóstica; decisão datada deve preceder o primeiro commit de integração E0*.
+- Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
+  a [decisão pendente PA](2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
+
 - “One variable per arm.” Pool/reconciliação/seleção/limiar idênticos entre B1\*/B2/placebo; representações e parâmetros aprendidos podem diferir.
 - FAR = 1/60 por região-mês, calibrada em réplicas N independentes da avaliação.
 - 3 ruídos ×3 ε ×(500 T+500 N) = 9.000 avaliações; 30 placebos; 13×132 por réplica.
@@ -87,6 +92,10 @@ Sem essa flag, o comando de preparação mantém seu comportamento.
   `test_null_fit_uses_training_only`: alterar meses ≥60 não muda fit;
   `test_null_calibration_evaluation_disjoint`: IDs/streams disjuntos;
   `test_null_aggregate_is_sum`: PA soma das folhas;
+  `test_null_panels_have_integer_counts`: shape `[200,13,132]`, inteiros ≥0;
+  `test_null_sampling_deterministic`: mesma seed produz arrays idênticos;
+  `test_null_nonconvergence_is_reported`: falha de fit e fallback em blocos
+  identificados em todos os artefatos, sem modelo substituto silencioso;
   `test_e0_scoring_preserves_preflight_stream`: injeção da seed 42 idêntica à
   preparação atual; `test_e0_scoring_waits_for_pa_decision`: bloqueia antes de
   calcular scores; `test_e0_ap_reports_prevalence`: AP sempre acompanha prevalência.
@@ -139,14 +148,14 @@ Comparar configurações resolvidas dos braços removendo apenas `name/residuals
 
 Config final: root_seed=42, train_months=60, window=12, ε=(0,.05,.20), ruídos white/env/dem, 500/500/200 por célula, n_placebos=30, target_far=1/60, seis detectores, mint_shrink/meta_des/evt_gpd. Estes complementos só são usados após revisão da spec. Smoke: 2 T+2 N por célula, 2 placebos e 2 N de calibração; exercita fallback de cauda curta, sem alegação estatística.
 
-- [ ] **Step 4:** Testes/checks → PASS; `uv run python -m headd_l0.run configs/e1_smoke.toml` → todos os artefatos/manifest e status smoke. Repetir em outro run_id: mesmas contagens/scores/métricas, exceto timestamp/id/hash do manifesto. O smoke é técnico e não analisa RQ1′ em nenhuma rota. Se E0 estiver indisponível sem autorização D-G0 por B1*, registrar bloqueio da interpretação; com essa autorização, os demais modos ainda dependem de D5 e dos próprios gates.
+- [ ] **Step 4:** Testes/checks → PASS; `uv run python -m headd_l0.run configs/e1_smoke.toml` → todos os artefatos/manifest e status smoke. Repetir em outro run_id: mesmas contagens/scores/métricas, exceto timestamp/id/hash do manifesto. O smoke é técnico e não analisa RQ1′ em nenhuma rota. E0 permanece inconclusivo e B1* já está autorizado. O smoke é apenas técnico; interpretação exige E0* aprovado, FAR comparável, D5 e todos os demais gates válidos, sem dispensa por D-G0.
 - [ ] **Step 5:** `git add src/headd_l0/run.py tests/test_run.py configs/e1_smoke.toml configs/e1_bench.toml MIGRATION.md` e `git commit -m "feat: wire reproducible experiment arms and manifests"`.
 
 ### Task 2: Calibração FAR e piloto antecipado — think / longContext
 
 **Files:** Modify `src/headd_l0/run.py`, `tests/test_run.py`, `configs/e1_bench.toml`, `docs/protocol-decisions.md`.
 
-**Interfaces:** Usa `threshold.calibration_report` por `(arm,region,noise,epsilon)`, fit de pool por réplica em meses 0–59, scores monitorados nos meses 60–131. Grava `calibration.parquet`: arm,graph_id,region,noise,epsilon,threshold,target_far,achieved_far,n,method,replicate_ids. Valores aprendidos diferentes não violam “mesmo limiar”: o método/target é que são comuns. Na camada 1, nulos vêm da NB sazonal/tendência da Task 4, ajustada apenas no treino, com avaliação N independente; bootstrap em blocos é diagnóstico secundário.
+**Interfaces:** Usa `threshold.calibration_report` por `(arm,region,noise,epsilon)`, fit de pool por réplica em meses 0–59, scores monitorados nos meses 60–131. Grava `calibration.parquet`: arm,graph_id,region,noise,epsilon,threshold,target_far,achieved_far,n,method,replicate_ids. Valores aprendidos diferentes não violam “mesmo limiar”: o método/target é que são comuns. Na camada 1, nulos vêm da NB sazonal/tendência da Task 0 (consumidos pela Task 4), ajustada apenas no treino, com avaliação N independente; bootstrap em blocos é diagnóstico secundário.
 
 - [ ] **Step 1: Escrever `test_threshold_ignores_evaluation_scores`, `test_calibration_uses_null_only`, `test_no_twins_counted_as_independent_nulls`, `test_region_specific_far`.**
 
@@ -184,7 +193,7 @@ assert missed_region_included and no_onset_region_excluded
 Fixture de empate com 2 placebos deve manter fração estrita e ordem determinística. Alterar somente timestamps futuros não muda alarmes passados no smoke completo.
 
 - [ ] **Step 2:** `uv run pytest tests/test_run.py -k 'primary or onset or detection or placebo or equivalence' -v` → FAIL.
-- [ ] **Step 3: Implementar inferência.** Primeiro bootstrap pareado Δ restricted_lead B2−baseline por ε e ruído, 10.000 draws, IC95%; depois fração dos 30 placebos superados na mesma estatística agregada. Mesmas regiões/replicates/bootstrap indices em cada comparação. No rank, B2 e todos os placebos usam os mesmos IDs pré-fixados por D-COST; não usar B2 completo contra placebo reduzido. Antes dos braços, checar D-REACH por ε/célula; mínimo proposto≥50% de T com algum vizinho alcançado em ε=.20. Falha marca insufficient_power, sem conclusão negativa e sem ajuste do gerador. Critério proposto: IC>0 em ambos ε>0, equivalência ±1 mês em ε=0 e rank>.95, além da rota E0 aprovado **ou** D-G0/B1* autorizado com E0 inconclusivo, FAR comparável, D5 e demais gates válidos. Publicar também efeitos por ruído sem selecionar estratos favoráveis. FAR permanece separada de desempenho em T.
+- [ ] **Step 3: Implementar inferência.** Primeiro bootstrap pareado Δ restricted_lead B2−baseline por ε e ruído, 10.000 draws, IC95%; depois fração dos 30 placebos superados na mesma estatística agregada. Mesmas regiões/replicates/bootstrap indices em cada comparação. No rank, B2 e todos os placebos usam os mesmos IDs pré-fixados por D-COST; não usar B2 completo contra placebo reduzido. Antes dos braços, checar D-REACH por ε/célula; mínimo aprovado ≥50% de T com algum vizinho alcançado em ε=.20. Falha marca insufficient_power, sem conclusão negativa e sem ajuste do gerador. Critério proposto: IC>0 em ambos ε>0, equivalência ±1 mês em ε=0 e rank>.95, além de E0* aprovado sob o protocolo vigente, FAR comparável, D5 e demais gates válidos. D-G0 já autoriza B1*, mas não é alternativa à aprovação de E0*. Publicar também efeitos por ruído sem selecionar estratos favoráveis. FAR permanece separada de desempenho em T.
 
 ROC-AUC T/N usa um score por réplica: máximo regional no prefixo monitorado 60–83, cutoff fixo proposto 83. O cruzamento seed deve ser posterior ao cutoff por configuração validada; se não for, esse diagnóstico não é pré-onset e deve ser marcado. Não alinhar corte de features ao onset futuro. AP por região e métricas de tempo têm máscaras temporais explícitas; não comparar AP macro com tabela E0 por tarefa.
 

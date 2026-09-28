@@ -241,3 +241,33 @@ Não alterar seed, rótulos ou baseline para obter aprovação. A implementaçã
 das etapas L0 pode prosseguir, mas a interpretação permanece bloqueada.
 O escopo confirmado é preparar as próximas etapas, sem antecipar o simulador
 ou escolher seus parâmetros científicos pendentes.
+
+## Pendência PA — registro documental de 28/09/2026
+
+**Status:** pendente; nenhuma alternativa científica aprovada por esta atualização.
+**Responsável pela decisão futura:** autor do projeto, Vinícius Costa.
+A aprovação das revisões dos planos autoriza documentação e verificações técnicas,
+não altera D-E0*, D-GT1 nem o resultado oficial da seed 42.
+
+Enquanto D-E0* não for revisado, a comparação B1* × `rolling_zscore` nas 13 regiões
+fica selada, inclusive como diagnóstico. Só verificações técnicas P1–P3 e classes
+no fluxo E0; P4/P6 e preparação condicionada de P5 podem avançar. Escolher o gate
+regional depois de conhecer sua aprovação repetiria o problema de selecionar seeds.
+
+A decisão deve responder, independentemente de scores: PA como união é um alvo
+com sentido epidemiológico ou artefato da agregação? RQ1′ exige discriminação
+agregada ou coerência? Qual alternativa preserva melhor a comparabilidade com E0?
+As quatro alternativas, seus custos e atividades permitidas estão no
+[plano E0](superpowers/plans/2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada).
+Nenhuma foi escolhida: manter o protocolo; gate regional/PA descritivo; redesenhar
+injeção; redefinir rótulo PA (esta última altera D-GT1 confirmado em 28/09).
+
+A caracterização de máscaras em muitas seeds está **somente planejada**, sem
+execução nesta entrega; nenhuma seed substitui a 42. Frequência amostral zero não
+prova impossibilidade. Toda AP futura acompanha prevalência, janela e denominador;
+contraste suficiente não se resume à existência de duas classes.
+
+A decisão futura será acrescentada com data, responsável e justificativa; seu
+commit deve preceder o primeiro commit de integração do scoring E0*. Este registro
+de pendência não satisfaz essa precedência. E0 continua inconclusivo, E0* failed
+(`single_class:PA`) e a interpretação de E1′ permanece bloqueada.

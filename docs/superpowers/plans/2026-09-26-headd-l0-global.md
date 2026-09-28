@@ -20,6 +20,11 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 ## Global Constraints
 
+- Comparação regional B1*/z-score selada até revisão de D-E0*: nenhuma execução
+  diagnóstica; decisão datada deve preceder o primeiro commit de integração E0*.
+- Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
+  a [decisão pendente PA](2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
+
 - “Raw data is immutable.”
 - “Counts, not proportions.”
 - “No look-ahead.”
@@ -112,11 +117,6 @@ As trilhas independentes não autorizam subagentes automaticamente; `think`,
 | 12–13/10 | Inferência somente com autorização | Bootstrap, placebos, estatística real e centralidade. |
 | 14–16/10 | Redação e reprodução final | Entregar também limitações/inconclusão se bloqueios persistirem. |
 
-33 braços                                                                               |
-| 09–11/10    | Bancadas sintética e semi-real                                                     | Manifests completos, FAR observada e métricas sem seleção de runs                                                                             |
-| 12–13/10    | Bootstrap, placebos, estatística real, centralidade                                | ICs e tabelas; gates científicos respeitados                                                                                                  |
-| 14–16/10    | Redação e reprodução final                                                         | Metodologia, resultados/limitações, figuras e comandos                                                                                        |
-
 33 braços = B0+B1*+B2+30 placebos. Reutilizar dados simulados e ajustes compartilháveis; não simular novamente por braço. Pré-registrar hardware/gatilho de custo e aplicar D-COST antes dos efeitos: (a) placebos em 100T fixas/célula, comparando B2 no mesmo subconjunto e preservando N; (b) 200T+200N/célula; (c) cortar opcionais. Não comparar B2 completo com placebos de um subconjunto nem ocultar o tamanho efetivo.
 
 Camada1 (injeção epidêmica+nulos paramétricos) tem prioridade sobre todos os opcionais. Camada0 (não-inferioridade) não é cortada. Camada3 é qualitativa. Opcionais, em ordem depois da entrega principal: Φ/B3 real, B-Gao, SEIRS de robustez. Nenhum deles justifica atrasar E0, controles, análise ou redação. Não desenvolver implementações vazias desses braços agora. Novas specs/planos delimitados são produzidos se houver tempo e priorização; isso não os torna parte do caminho obrigatório.
@@ -143,3 +143,75 @@ Camada1 (injeção epidêmica+nulos paramétricos) tem prioridade sobre todos os
 Cobertura: dados, S, baseline, A/W/placebos, simulação, features, injeção, FAR, métricas, estatística, runner e entrega possuem tarefas. Extensões opcionais estão explicitamente adiadas. Assinaturas/tipos são definidos nos planos donos. As cinco classes de falha do Review Focus têm testes atribuídos. Os gates pendentes são decisões científicas identificadas, não tarefas de implementação com “TBD”.
 
 Para executar, ler a spec, o protocolo vigente e a sequência ativa P1–P3; a auditoria inicial já terminou. Comandos futuros e tarefas condicionadas não são autorização para scoring ou interpretação.
+
+## Aceite da revisão documental P1–P6 (28/09/2026)
+
+Escopo desta revisão: somente `docs/`, sem código, dados, fixtures, scoring,
+caracterização multiseed ou alteração de decisões aprovadas. Três blocos/commits
+locais, nesta ordem: (1) contradições de contratos/objetivo;
+(2) histórico versus validação ativa e desmembramento E0*; (3) pendência PA.
+
+- [x] Verificar links locais/âncoras e símbolos atuais; contratos ausentes estão
+  explicitamente **futuros**, exporter aposentado e roteiro original são históricos.
+- [x] Rodar a suíte técnica completa indicada na sequência ativa E0 e conferir os resultados.
+  Comandos de implementação/scoring/simulação são futuros e não rodam nesta entrega.
+- [x] Reproduzir o pré-gate esperado da sequência P3. Exit 0, outro motivo de falha
+  ou divergência de `single_class:PA`/`interpretation_allowed=false` interrompe a
+  entrega até investigação; não ajustar expectativas. Evidência e metadados no E0.
+- [x] Executar a busca de vocabulário abaixo e revisar cada checkbox: componente
+  `implementado`/`validado tecnicamente` não implica `gate aprovado` ou
+  `interpretação autorizada`.
+- [x] Verificar diff exclusivamente documental e ausência de erros de whitespace
+  antes de cada commit. Não incluir alterações preexistentes do usuário; sem push.
+
+Comandos atuais de auditoria documental (da raiz):
+
+```bash
+rg -n 'implementado|validado tecnicamente|gate aprovado|interpretação autorizada' docs/superpowers/plans docs/superpowers/specs
+git diff --check 830e9fe51a725cacbc926d445f276d1d85638806 --
+git diff --name-only 830e9fe51a725cacbc926d445f276d1d85638806 -- | rg -n -v '^docs/'
+```
+
+A última busca deve imprimir zero linhas (exit 1 de `rg` = nenhum caminho proibido).
+Para verificar links locais/âncoras, executar o trecho abaixo; links web não fazem
+parte desse check. Símbolos atuais consumidos pela Task 0 estão nos módulos citados;
+P6 e APIs novas são explicitamente futuros. Não tratar exemplos históricos como API atual.
+
+```bash
+python3 - <<'PYLINKS'
+import re
+from pathlib import Path
+from urllib.parse import unquote
+paths = list(Path("docs/superpowers").rglob("*.md")) + [Path("docs/protocol-decisions.md")]
+for source in paths:
+    text = re.sub(r"```.*?```", "", source.read_text(), flags=re.S)
+    for target in re.findall(r"\[[^\]]*\]\(([^)]+)\)", text):
+        if re.match(r"\w+://|mailto:", target):
+            continue
+        dest, _, anchor = unquote(target).partition("#")
+        path = source.parent / dest if dest else source
+        assert path.exists(), (source, target)
+        if anchor and path.suffix == ".md":
+            heads = re.findall(r"^#{1,6} (.+)$", path.read_text(), re.M)
+            ids = {re.sub(r"[^\w\- ]", "", h.lower()).replace(" ", "-") for h in heads}
+            assert anchor in ids, (source, target)
+print("Links locais e âncoras: OK")
+PYLINKS
+```
+
+### Rastreabilidade das revisões aprovadas
+
+| Item | Destino |
+| --- | --- |
+| A1 | E0: comparação regional selada; Experimentos Task 0 condicionada. |
+| A2 | E0: critérios independentes de scores. |
+| A3 | E0: registro/precedência; registro de pendência em protocolo. |
+| A4 | E0: coluna de atividades permitidas na tabela de alternativas. |
+| B5 | E0: caracterização estrutural futura, sem selecionar seeds. |
+| B6 | E0: contraste/prevalência; todos os planos e arquitetura: AP contextualizada. |
+| B7 | E0: quarta alternativa, redefinir rótulo PA. |
+| C8 | Esta seção: três blocos em commits separados. |
+| C9 | Vocabulário comum nos quatro planos e arquitetura; busca acima. |
+| C10 | Aceite executável de links, símbolos, comandos e diff. |
+| C11 | E0: evidência com data, SHA e comandos exatos. |
+| C12 | E0 P3 e aceite: pré-gate divergente interrompe entrega. |

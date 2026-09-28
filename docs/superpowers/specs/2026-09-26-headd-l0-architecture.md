@@ -54,7 +54,7 @@ Esta tabela preserva as observações históricas da leitura inicial. A auditori
 | D8  | `evaluation/stats.py` continua DM/Cliff após Friedman não significativo, contém resultados substitutos e fallback HAC sem pesos Bartlett; bootstrap usa RandomState.     | Portar rotinas válidas separadamente; fluxo científico, HAC e Generator requerem testes e registro de desvio.                                     |
 | D9  | `evaluation/metrics.py` usa AP como AUC-PR e um NAB simplificado com mediana dos scores avaliados.                                                                       | AP mantém essa definição. NAB legado é apenas caracterização; E1 usa alarmes do limiar calibrado, sem mediana do teste.                           |
 
-**Gate G0:** produzir `reference_audit.json` com reprodução, fontes, exceções e cobertura das 14 tarefas. Manter E0 bloqueado enquanto D1–D7 impedirem satisfazer simultaneamente referência, causalidade e contratos. Não criar um modo legado no pacote de produção para contornar o gate. Deliberar G0/D1–D7 até 29/09/2026. Se o HEAD não sustentar E0, registrar escolha explícita entre E0 inconclusivo com B1\* corrigido e autorizado, ou bloqueio total da interpretação E1′. Decisão de 27/09: saída (i), E0 inconclusivo com B1\* autorizado e gate E0\* ([registro](../../protocol-decisions.md)). B1* deve aparecer em todos os artefatos e textos; não transforma discrepância em paridade D5 também foi resolvida em 27/09: MinT sobre previsões NB2 de contagens. A referência histórica não libera E0*.
+**Gate G0:** produzir `reference_audit.json` com reprodução, fontes, exceções e cobertura das 14 tarefas. Manter E0 bloqueado enquanto D1–D7 impedirem satisfazer simultaneamente referência, causalidade e contratos. Não criar um modo legado no pacote de produção para contornar o gate. Deliberar G0/D1–D7 até 29/09/2026. Se o HEAD não sustentar E0, registrar escolha explícita entre E0 inconclusivo com B1\* corrigido e autorizado, ou bloqueio total da interpretação E1′. Decisão de 27/09: saída (i), E0 inconclusivo com B1\* autorizado e gate E0\* ([registro](../../protocol-decisions.md)). B1* deve aparecer em todos os artefatos e textos; não transforma discrepância em paridade. D5 também foi resolvida em 27/09: MinT sobre previsões NB2 de contagens. A referência histórica não libera E0*.
 
 ## 4. Mapa de código e responsabilidade
 
@@ -152,6 +152,14 @@ Representação local: resíduo padronizado em t, t−1 e diferença temporal; a
 
 ## 7. Decisões experimentais propostas para revisão
 
+**Pendência PA:** comparação regional B1*/z-score selada até revisão de D-E0*,
+inclusive diagnóstico; decisão datada e responsável devem preceder o primeiro
+commit de integração E0*. Ver [procedimento e alternativas no E0](../plans/2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada).
+Caracterização de muitas seeds usa só máscaras e está planejada, não executada;
+nenhuma substitui a 42. Toda AUC-PR acompanha prevalência positiva por tarefa,
+janela e denominador; a existência de duas classes não basta para justificar
+contraste suficiente. A definição epidemiológica de PA é decidida sem scores.
+
 As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). Continuam pendentes a faixa de R0 e o perfil do simulador (D-GT2/D-GT4), os eventos da camada 3 (D-L3) e a decisão PA antes da integração E0*. Hardware registrado em 27/09; piloto D-COST ainda pendente.
 
 | Camada      | Ground truth / uso                                                                                                                                                                             | Regra                                                                                                                                                                                                              |
@@ -203,7 +211,7 @@ SD, CV, AR1, skewness e kurtosis têm janela causal e máscara de validade. Jane
 
 ## 9. Artefatos, dependências e verificação
 
-`results/<run_id>/manifest.json`: config resolvida/hash, SHA do projeto e estado dirty, SHA CDADE, versões/lock hash, timestamp UTC, seeds completas, hashes dos dados/grafos, partições, parâmetros científicos, `baseline_id`, status dos gates, caminhos e hashes dos artefatos. `metrics.parquet`: `experiment,layer,baseline_id,arm,graph_id,noise,epsilon,k,replicate,region,metric,value,status`. Manifesto inclui perfil/hash da injeção e do nulo, decisão G0 explícita (`gates.G0.decision`) e status E0 (`gates.E0.status`), nívelD-COST, IDs do subconjunto, tamanho efetivo e diagnósticoD-REACH. `scores.parquet`, `onsets.parquet`, `calibration.parquet`, `statistics.json` preservam auditoria. Não sobrescrever run_id existente.
+`results/<run_id>/manifest.json`: config resolvida/hash, SHA do projeto e estado dirty, SHA CDADE, versões/lock hash, timestamp UTC, seeds completas, hashes dos dados/grafos, partições, parâmetros científicos, `baseline_id`, status dos gates, caminhos e hashes dos artefatos. `metrics.parquet`: `experiment,layer,baseline_id,arm,graph_id,noise,epsilon,k,replicate,region,metric,value,status`. Manifesto inclui perfil/hash da injeção e do nulo, decisão G0 explícita (`gates.G0.decision`) e status E0 (`gates.E0.status`), nívelD-COST, IDs do subconjunto, tamanho efetivo e diagnósticoD-REACH. `scores.parquet`, `onsets.parquet`, `calibration.parquet`, `statistics.json` preservam auditoria. Toda linha AUC-PR de `metrics.parquet` deve ser acompanhada por `n_positive`, `n_negative` e `prevalence`, identificando tarefa/janela; figuras/tabelas preservam essa informação (também no descritivo original, explicitando ausências). Não sobrescrever run_id existente.
 
 `data/processed/` guarda longa, geometrias, calibração endêmica e cache regenerável. O manifesto do run referencia seus hashes. Componentes numéricos não fazem I/O; o runner é responsável por salvar seus outputs. Isso satisfaz a definição de pronto sem acoplar cada função ao filesystem.
 
