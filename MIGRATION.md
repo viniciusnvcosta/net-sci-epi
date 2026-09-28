@@ -144,3 +144,19 @@ mark warmup outside evaluation, with deterministic active indices.
 Tests cover future suffix changes, actual prefix truncation, hand-computed
 competence, drift/reset and training-only normalization. Registry `meta_des`
 will be wired and serialized by Task9; no E0* gate is declared here.
+
+## Evaluation (Task 7, 2026-09-27)
+
+`evaluate.py` ports AP, precision/recall/F1 and the explicitly simplified NAB
+formula from pinned `evaluation/metrics.py` (Apache-2.0). `metrics.npz` is the
+unchanged audit export, verified against manifest hashes. Numerical parity is
+1e-12 when tests supply the original median-derived alarms; production never
+learns a threshold from evaluation scores and applies no point adjustment.
+Both-class discrimination is required: the combined report returns None for
+AP/ROC on single-class tasks, and standalone AP raises ValueError.
+
+Detection uses the first alarm in the inclusive clipped onset±12 window;
+lead=onset-alarm, delay=-lead. Misses retain restricted_lead through censoring
+at window-end+1; no onset (-1) has no timing value and no detection denominator.
+FAR uses only explicitly eligible monitored null months; empty eligibility is
+an error. Runner must mask training alarms and serialize undefined metrics.
