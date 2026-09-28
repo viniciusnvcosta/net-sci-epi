@@ -10,6 +10,14 @@
 
 **Spec:** [Arquitetura](../specs/2026-09-26-headd-l0-architecture.md), [plano global](2026-09-26-headd-l0-global.md), README §5; [baseline/E0](2026-09-26-headd-l0-e0.md), [grafo/simulação](2026-09-26-headd-l0-graph-simulation.md).
 
+## Vocabulário de status
+
+Usar os mesmos quatro rótulos nos planos e na arquitetura: `implementado`
+(código/artefato existe), `validado tecnicamente` (checks identificados passaram),
+`gate aprovado` (todas as condições daquele gate satisfeitas) e
+`interpretação autorizada` (todos os gates/decisões aplicáveis satisfeitos).
+Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte.
+
 ## Global Constraints
 
 - “One variable per arm.” Pool/reconciliação/seleção/limiar idênticos entre B1\*/B2/placebo; representações e parâmetros aprendidos podem diferir.
@@ -33,13 +41,74 @@
 
 ## Pré-condições e mapa de arquivos
 
+As Tasks 0–5 são **futuras**: seus novos símbolos, arquivos, configs e comandos
+não existem ainda, salvo funções explicitamente consumidas dos componentes E0.
+Status atual: preparação `implementado` e componentes `validado tecnicamente`;
+E0* sem `gate aprovado`, E1′ sem `interpretação autorizada`. Nenhuma tarefa de
+integração/scoring E0* começa antes da decisão PA, inclusive commits da Task 1
+que integrem esse caminho. Tasks 1–5 têm pré-condições próprias além da Task 0.
+
 Modificar `run.py`, `inject.py`, `tests/test_run.py`, `tests/test_inject.py`; criar configs `e1_smoke.toml`, `e1_bench.toml`, `e1_real.toml`, `e1_local.toml`, testes de integração em `tests/test_run.py`, notebooks `01_l0_network.ipynb`, `02_e1_results.ipynb`. Atualizar README/MIGRATION só nas seções correspondentes.
 
 Revisão aprovada: [D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–4, D-COST e D-REACH](../../protocol-decisions.md) (27/09). Camada 0 usa `inject_original_bounded`; camada 1 substitui o pulso por epidemia reutilizando simulate.py; camada 2 conserva seu mecanismo/onsets; camada 3 é qualitativa. Gate inválido ou alcance insuficiente é inconclusivo.
 
-**Rota decidida:** D-G0 autorizou B1\* com E0 inconclusivo, e D5 fixou a conexão MinT: previsões NB2 um passo à frente reconciliadas por MinT(Shrink), com detectores sobre resíduos padronizados (E0 Task 3). Para interpretar E1′, exigir o E0\* aprovado (E0 Task 9, executado na camada 0 da Task 4), FAR comparável e os demais gates aplicáveis válidos.
+**Rota decidida:** D-G0 autorizou B1\* com E0 inconclusivo, e D5 fixou a conexão MinT: previsões NB2 um passo à frente reconciliadas por MinT(Shrink), com detectores sobre resíduos padronizados (E0 Task 3). Para interpretar E1′, exigir o E0\* aprovado (E0 Task 9, integrado na Task 0 e consumido na camada 0 da Task 4), FAR comparável e os demais gates aplicáveis válidos.
 
 Não criar módulos adicionais preventivamente. Se run.py exceder 400 linhas, extrair exclusivamente parsing/dataclasses para `config.py` com `tests/test_config.py`, mantendo orquestração em run.py e ajustando imports em um único commit. Essa divisão depende do tamanho real.
+
+### Task 0: Integração E0* B1*/z-score e nulos reais — futura e condicionada
+
+**Entrada obrigatória:** decisão PA datada e registrada antes do primeiro commit
+que integre scoring E0*. Até lá, apenas planejamento; nenhuma comparação regional,
+mesmo diagnóstica. Este trabalho depende de P1–P3 e das features locais de P6,
+mas não de grafo adquirido, perfil do simulador ou injeção epidêmica.
+
+**Files futuros:** Modify `src/headd_l0/forecast.py`, `src/headd_l0/run.py`,
+`tests/test_forecast.py`, `tests/test_run.py`, `MIGRATION.md`; Create
+`configs/e0_star_scoring.toml`. Preservar o modo atual `configs/e0_star.toml`.
+
+**Interfaces:** Consome `fit_nb2`, `forecast_mean`, `fit_mint`,
+`reconciled_residuals`, `standardize`, `local_features` (P6), `DETECTORS`,
+`select_stream`, `rolling_zscore`, `calibration_report`, `check_e0_star`.
+Produz `sample_nb2(fit: NB2Fit, months: np.ndarray, n: int,
+rng: np.random.Generator) -> np.ndarray` em `forecast.py`, shape
+`[n,n_series,len(months)]`, inteira não negativa; consumida também pela Task 4.
+Produz tabela do gate `task,arm,auc_pr,n_positive,n_negative` e, nos artefatos,
+`prevalence=n_positive/(n_positive+n_negative)`. Produz também
+`run_e0_scoring(cfg: E0Config) -> Path` em `run.py`; reutiliza o E0Config atual,
+sem depender de ExperimentConfig/SimConfig futuros. O TOML de scoring mantém
+os campos atuais com outro run_id; a CLI futura opta por scoring via `--score-e0`.
+Sem essa flag, o comando de preparação mantém seu comportamento.
+
+- [ ] **Step 1: Verificar precedência documental.** Conferir data/responsável da
+  decisão PA e seu commit anterior à integração. Sem revisão de D-E0*, não iniciar
+  scoring; a autorização de B1* não satisfaz esta pré-condição.
+- [ ] **Step 2: Escrever testes futuros dos nulos e integração.**
+  `test_null_fit_uses_training_only`: alterar meses ≥60 não muda fit;
+  `test_null_calibration_evaluation_disjoint`: IDs/streams disjuntos;
+  `test_null_aggregate_is_sum`: PA soma das folhas;
+  `test_e0_scoring_preserves_preflight_stream`: injeção da seed 42 idêntica à
+  preparação atual; `test_e0_scoring_waits_for_pa_decision`: bloqueia antes de
+  calcular scores; `test_e0_ap_reports_prevalence`: AP sempre acompanha prevalência.
+  Nulos completos: treino original + 72 meses amostrados, shape `[200,13,132]`.
+- [ ] **Step 3:** Futuro: `uv run pytest -o addopts='' tests/test_forecast.py tests/test_run.py -v`
+  → novos testes FAIL antes da implementação.
+- [ ] **Step 4: Integrar o mínimo após decisão.** NB2 no treino 0–59; 200 painéis
+  de calibração + 200 de avaliação disjuntos, PA recalculado; falha de ajuste usa
+  bootstrap em blocos do treino marcado nos artefatos conforme D-GT3, sem fallback
+  silencioso. NB2 → MinT → resíduos padronizados → features locais → pool/seleção.
+  Comparador: `rolling_zscore`, janela causal 12. Calibrar ambos pelo mesmo método,
+  FAR 1/60, tolerância observada 1/300. Thresholds numéricos podem diferir.
+  Preservar o stream oficial da injeção; derivar streams de calibração, avaliação,
+  detectores e bootstrap separadamente, sem realocar a injeção para uma child.
+- [ ] **Step 5: Avaliar conforme decisão registrada.** No protocolo ainda vigente,
+  `check_e0_star` exige 14 tarefas com duas classes; bootstrap pareado de 10.000
+  sobre as 13 regiões, PA excluído, limite inferior >0. Não alterar esse contrato
+  antes de decisão. Prevalências e resultados indefinidos acompanham toda AP.
+- [ ] **Step 6:** Futuro: testes/checks → PASS; comando
+  `uv run python -m headd_l0.run --score-e0 configs/e0_star_scoring.toml` somente após cumprir
+  a pré-condição científica. Registrar métricas, nulos, FAR, seeds e gates.
+- [ ] **Step 7:** Commit futuro `feat: integrate approved E0 star scoring and null calibration`.
 
 ### Task 1: Runner, configs, artefatos e composição dos braços — longContext
 
@@ -47,7 +116,7 @@ Não criar módulos adicionais preventivamente. Se run.py exceder 400 linhas, ex
 
 **Interfaces:** Consome funções/tipos dos dois planos anteriores. Produz `ArmSpec(name: str,residuals: str,graph_id: str | None)`, com `residuals ∈ {"base","reconciled"}`, `ExperimentConfig(name: str,run_id: str,root_seed: int,raw_dir: Path,output_dir: Path,train_months: int,window: int,epsilon_levels: tuple[float,...],noise_types: tuple[str,...],n_transition: int,n_null: int,n_calibration: int,n_placebos: int,target_far: float,detectors: tuple[str,...],reconciliation: str,selector: str,threshold: str,simulation: SimConfig | None,injection: InjectionConfig | EpidemicInjectionConfig | None,layer: str,baseline_id: str)`, `RunResult(path: Path,status: str,metrics: pd.DataFrame)`; todas congeladas.
 
-`load_config(path: Path) -> ExperimentConfig`, `build_arms(n_placebos: int) -> tuple[ArmSpec,...]`, `run(cfg: ExperimentConfig) -> RunResult`, `main() -> int`. Entrada oficial: `uv run python -m headd_l0.run configs/e1_bench.toml`. Tipos de operação `name` são `e0_parity`, `e1_smoke`, `e1_bench`, `e1_real`, `e1_local`; nome não seleciona algoritmo oculto. Tipos da injeção são definidos na Task 4 e só exigidos nos modos correspondentes; o nulo NB2 não introduz RealNullConfig. `baseline_id` é `B1*` (D-G0); nenhum artefato usa `B1` ou "CDADE v1". Configs de preparação continuam nas CLIs de seus módulos.
+`load_config(path: Path) -> E0Config | ExperimentConfig`, `build_arms(n_placebos: int) -> tuple[ArmSpec,...]`, `run(cfg: ExperimentConfig) -> RunResult`, `main() -> int`. Entrada futura: `uv run python -m headd_l0.run configs/e1_bench.toml`. Tipos de operação `name` são `e1_smoke`, `e1_bench`, `e1_real`, `e1_local`; nome não seleciona algoritmo oculto. Tipos da injeção são definidos na Task 4 e só exigidos nos modos correspondentes; o nulo NB2 não introduz RealNullConfig. `baseline_id` é `B1*` (D-G0); nenhum artefato usa `B1` ou "CDADE v1". Preservar `E0Config`/validações atuais e o TOML sem `name` de preparação; somente configs futuras com `name` usam ExperimentConfig. Configs de preparação continuam nas CLIs de seus módulos.
 
 - [ ] **Step 1: Escrever `test_config_rejects_unknown_components`, `test_manifest_is_complete`, `test_run_id_is_not_overwritten`, `test_reordering_arms_preserves_seeds`, `test_one_variable_per_arm`, `test_labels_never_reach_pipeline`, `test_gate_blocks_interpretation`.** Fixtures pequenas usam componentes determinísticos substituídos para isolar orquestração; smoke real é Step 4.
 
@@ -66,7 +135,7 @@ np.testing.assert_array_equal(first_order_counts, second_order_counts)
 Comparar configurações resolvidas dos braços removendo apenas `name/residuals/graph_id`; devem coincidir. Fit/transform recebem somente contagens e janelas; teste passa máscaras embaralhadas e exige scores iguais. Config inválida e dados ausentes geram erro, sem métricas de sucesso vazias.
 
 - [ ] **Step 2:** `uv run pytest tests/test_run.py -v` → FAIL nos novos casos.
-- [ ] **Step 3: Implementar.** `tomllib` → validação → dataclass. Seeds raiz spawn(6): dados, calibração, avaliação, placebos, detectores, bootstrap; criar todas as children pela ordem canônica, antes de iterar braços. Registrar entropy/spawn_key; tarefas da mesma réplica compartilham dados/seeds de detector. Previsões NB2 e reconciliação MinT(Shrink) são calculadas uma vez por réplica e compartilhadas (D5). B0 usa features locais dos resíduos base y − μ̂; B1\* usa features locais dos resíduos reconciliados y − P·μ̂; B2 acrescenta neighbors com W real sobre os mesmos resíduos (PA com zeros relacionais); placebo troca só W. Teste demonstra que o MinT recebe contagens previstas, nunca scores; nenhum ramo substitui a reconciliação por normalização de scores.
+- [ ] **Step 3: Implementar.** `tomllib` → validação → dataclass. Para E1, seeds raiz spawn(6): dados, calibração, avaliação, placebos, detectores, bootstrap; criar todas as children pela ordem canônica, antes de iterar braços. Não aplicar essa realocação ao stream oficial de injeção E0* (Task 0). Registrar entropy/spawn_key; tarefas da mesma réplica compartilham dados/seeds de detector. Previsões NB2 e reconciliação MinT(Shrink) são calculadas uma vez por réplica e compartilhadas (D5). B0 usa features locais dos resíduos base y − μ̂; B1\* usa features locais dos resíduos reconciliados y − P·μ̂; B2 acrescenta neighbors com W real sobre os mesmos resíduos (PA com zeros relacionais); placebo troca só W. Teste demonstra que o MinT recebe contagens previstas, nunca scores; nenhum ramo substitui a reconciliação por normalização de scores.
 
 Config final: root_seed=42, train_months=60, window=12, ε=(0,.05,.20), ruídos white/env/dem, 500/500/200 por célula, n_placebos=30, target_far=1/60, seis detectores, mint_shrink/meta_des/evt_gpd. Estes complementos só são usados após revisão da spec. Smoke: 2 T+2 N por célula, 2 placebos e 2 N de calibração; exercita fallback de cauda curta, sem alegação estatística.
 
@@ -93,7 +162,7 @@ Simular região com escala de scores 100× outra para provar que threshold/FAR n
 
 - [ ] **Step 2:** `uv run pytest tests/test_run.py -k 'calibration or threshold or null or far' -v` → FAIL.
 - [ ] **Step 3: Integrar calibração independente.** Usar 200 N adicionais por célula; salvar thresholds antes da avaliação. Produzir FAR N avaliada e IC por reamostragem de réplica. Pré-registrar critério de comparabilidade: proposta de desvio absoluto máximo `1/300` do alvo para a FAR pontual de cada braço/região/célula, e IC95% das diferenças B2−B1\*/real−placebo dentro de ±1/300. Falha vira `far_not_comparable`; não recalibrar olhando N de avaliação. Esse critério é adicional e requer revisão junto à §7.
-- [ ] **Step 4: Verificar calibração e executar o piloto na janela antecipada D-COST.** Testes/checks → PASS. O piloto de custo deve ocorrer ~02/10, logo após detectores e simulador acoplado, antes do calendário original desta tarefa. Usar10T+10N,30placebos e calibração reduzida; medir tempo/RAM por componente. Se seleção ainda não existe, registrar custo não medido e completar a medição quando disponível, sem inverter a ordem de porte. Congelar hardware/orçamento/gatilho antes do piloto e não inspecionar efeitos. Registrar o hardware (CPU, núcleos, RAM, SO/WSL) em `docs/reference-provenance.md` antes do piloto. Gatilhos da [D-COST](../../protocol-decisions.md) sobre a projeção da execução completa nesse hardware: acima de **48 h** → degrau (a), placebos em 100T fixas/célula, B2 no mesmo subconjunto para rank, calibração e N de avaliação completas; acima de **96 h** → degrau (b), 200T+200N/célula; se ainda insuficiente → degrau (c), cortar opcionais. A escada é aplicada antes de ver qualquer efeito, não corta a camada 0 e não altera a ordem de porte. Gravar IDs por seed antes dos resultados, nível da escada e tamanho efetivo. Memória processa uma réplica por vez.
+- [ ] **Step 4: Verificar calibração e executar o piloto na janela antecipada D-COST.** Testes/checks → PASS. O piloto de custo deve ocorrer ~02/10, logo após detectores e simulador acoplado, antes do calendário original desta tarefa. Usar10T+10N,30placebos e calibração reduzida; medir tempo/RAM por componente. A seleção já existe; se a integração ainda não estiver disponível, declarar somente o custo dessa integração como não medido. Congelar hardware/orçamento/gatilho antes do piloto e não inspecionar efeitos. Usar o hardware já registrado em `docs/reference-provenance.md` (27/09); atualizar se mudar antes do piloto. Gatilhos da [D-COST](../../protocol-decisions.md) sobre a projeção da execução completa nesse hardware: acima de **48 h** → degrau (a), placebos em 100T fixas/célula, B2 no mesmo subconjunto para rank, calibração e N de avaliação completas; acima de **96 h** → degrau (b), 200T+200N/célula; se ainda insuficiente → degrau (c), cortar opcionais. A escada é aplicada antes de ver qualquer efeito, não corta a camada 0 e não altera a ordem de porte. Gravar IDs por seed antes dos resultados, nível da escada e tamanho efetivo. Memória processa uma réplica por vez.
 - [ ] **Step 5:** `git add src/headd_l0/run.py tests/test_run.py configs/e1_bench.toml docs/protocol-decisions.md` e `git commit -m "feat: separate null calibration from FAR evaluation"`.
 
 ### Task 3: Bancada sintética e inferência primária — longContext / think
@@ -144,7 +213,8 @@ def inject_epidemic(counts: np.ndarray, W: np.ndarray,
                     cfg: EpidemicInjectionConfig, k: float) -> EpidemicInjectionResult: ...
 ```
 
-Nulos ([D-GT3](../../protocol-decisions.md)): o modelo é fixo, NB2 com tendência e dois pares de harmônicos, ajustado por região nos meses 0–59. O ajuste reusa `forecast.fit_nb2`/`NB2Fit` da E0 Task 3 (mesmo modelo das previsões do MinT); acrescentar `sample_nb2(fit: NB2Fit, months: np.ndarray, n: int, rng: np.random.Generator) -> np.ndarray` em `forecast.py`, saída `[n,n_series,len(months)]` inteira não negativa. Sem `RealNullConfig`: não há escolhas de modelo em aberto. Não criar abstração de modelos nulos genéricos.
+**Nulos:** consumir `sample_nb2` e os painéis de calibração/avaliação da Task 0;
+não duplicar implementação em `inject.py`. Modelo NB2 fixo, sem `RealNullConfig`.
 
 **Gate de desenho:** D-GT4 fixou tamanho (casos observados em excesso na semente, alvo k × max(mediana mensal de treino, 1), k ∈ {1,3,6}, realizado sempre reportado), introdução uniforme em 72–118, θ igual ao da bancada e truncamento permitido e contado no mês 131. **Pendentes com o usuário:** a faixa de R0 e o perfil completo do simulador (D-GT2/D-GT4), a fixar após a validação de uma região. O contrato de EpidemicInjectionConfig deve referenciar esse perfil/hash sem configuração global oculta. O motor expõe `EpidemicFlows` (grafo/simulação Task 3). Não inventar esses valores: a tarefa para neste ponto até a decisão.
 
@@ -162,12 +232,13 @@ np.testing.assert_array_equal(aggregated[0], out.counts.sum(axis=0))
 
 - [ ] **Step 2:** `uv run pytest tests/test_inject.py -k 'epsilon or training or size or onset or aggregate or mutated or deterministic' -v` → FAIL nas novas funções ausentes.
 - [ ] **Step 3: Implementar o adaptador após resolver D-GT4.** Reutilizar componente de surto com ν=0, outras regiões inicialmente sem surto e acoplamentoC; impedir casos espontâneos fora da semente no controle ε=0. Somar casos observados não negativos a cópia do SIVEP, recomputar PA e não aplicar θ duas vezes. k=(1,3,6), alvo=k×max(mediana de treino da semente, 1); introdução uniforme 72–118 inclusive. Semente onset=introdução; demais primeiro mês de caso importado observado≥1, ausência−1. Não alterar onsetsR0/2SD da camada 2.
-- [ ] **Step 4: Escrever testes dos nulos.** `test_null_fit_uses_training_only` altera meses≥60 e exige coeficientes idênticos; `test_null_panels_have_integer_counts` exige shape(200,13,132), inteiros≥0; `test_null_aggregate_is_sum` verificaPA; `test_null_sampling_deterministic` compara mesma seed; `test_null_calibration_evaluation_disjoint` verifica IDs/streams distintos. Fit inválido deve produzir diagnóstico explícito, não modelo substituto silencioso.
-- [ ] **Step 5:** `uv run pytest tests/test_inject.py -k null -v` → FAIL.
-- [ ] **Step 6: Implementar nulos (D-GT3 decidida).** Reusar `forecast.fit_nb2` (statsmodels já declarado), ajuste só meses 0–59 de cada região; se um ajuste não convergir, registrar a falha, calibrar essa região pelo bootstrap em blocos do treino e marcá-la em todos os artefatos. Gerar200 painéis de calibração (200 séries por região), com PA calculado, e conjunto N independente de avaliação cujo tamanho foi fixado antes da execução. Manifestar parâmetros, fórmula, seeds, adequação no treino e falhas. FAR 1/60, tolerância 1/300. Nas demais regiões, blocos do treino são apenas diagnóstico, sem substituir silenciosamente o nulo principal.
+- [ ] **Steps 4–6: Consumir os nulos da Task 0.** Verificar 200 painéis de
+  calibração e 200 de avaliação independentes, PA soma das folhas, falhas de ajuste
+  marcadas, FAR 1/60 e tolerância 1/300. Testes/implementação pertencem à Task 0;
+  esta referência preserva a numeração histórica sem duplicar trabalho.
 - [ ] **Step 7: Escrever testes das análises por camada.** `test_local_layer_uses_bounded_injection` exige `inject_original_bounded` com seeds da camada 0, PA calculado pela soma das regiões e máscara PA pela união regional; `test_e0_star_runs_before_e1` exige o E0\* avaliado antes de qualquer resultado; `test_noninferiority_resamples_regions` verifica pares B1\*/B2, bootstrap sobre as 13 regiões, limite inferior do IC ≥ −0,02 e PA reportado à parte; `test_real_primary_uses_epidemic_onsets` verifica definição camada 1; `test_real_gate_blocks_unresolved_choices` impede conclusão antes dos critérios aprovados; `test_secondary_stops_at_friedman` preserva ordem estatística. Se B1\* autorizado, teste exige baseline_idB1* e E0inconclusive, sem substituir tabelas de paridade.
 - [ ] **Step 8:** `uv run pytest tests/test_run.py -k 'local_layer or noninferiority or real_primary or real_gate or secondary' -v` → FAIL.
-- [ ] **Step 9: Integrar configurações e inferência.** Camada 0 usa e1_local.toml e `inject_original_bounded`; executa primeiro o E0\* (B1\* contra o z-score móvel causal) e, com ele aprovado, a não-inferioridade: limite inferior do IC 95% da média de ΔAUC-PR(B2 − B1\*) ≥ −0,02, bootstrap pareado de 10.000 reamostras sobre as 13 regiões, PA reportado à parte. Falha é custo do método, não refutação de RQ1′. Camada1 usa e1_real.toml,100seeds propostas compartilhadas entre braços, estratos ε/k e perfil de ruído fixado. Antes dos braços medir D-REACH; executar bootstrap pareado→rankplacebo→critério conjunto como na camada 2, com equivalência ε=0 e FAR válida. Reutilizar os mesmos fundos reais não cria100observações epidemiológicas independentes; explicitar inferência condicional aos fundos e injeções.
+- [ ] **Step 9: Integrar configurações e inferência.** Camada 0 usa e1_local.toml e `inject_original_bounded`; consome o E0\* produzido pela Task 0 após decisão PA e, com ele aprovado, a não-inferioridade: limite inferior do IC 95% da média de ΔAUC-PR(B2 − B1\*) ≥ −0,02, bootstrap pareado de 10.000 reamostras sobre as 13 regiões, PA reportado à parte. Falha é custo do método, não refutação de RQ1′. Camada1 usa e1_real.toml,100seeds propostas compartilhadas entre braços, estratos ε/k e perfil de ruído fixado. Antes dos braços medir D-REACH; executar bootstrap pareado→rankplacebo→critério conjunto como na camada 2, com equivalência ε=0 e FAR válida. Reutilizar os mesmos fundos reais não cria100observações epidemiológicas independentes; explicitar inferência condicional aos fundos e injeções.
 
 Preservar análise secundária: AP por região/método agregada sobre seeds antes de ranks; Friedman→Wilcoxon/Bonferroni→DM/HAC→Cliff/IC95%, interrompendo se Friedman p>.05. DM usa perdas quadráticas de alarmes0/1 versus máscara0/1 e lag12; Cliff usa AP por região. Bootstrap temporal em blocos pode diagnosticar estabilidade, mas não é o gerador nulo principal; o pulso ad hoc foi removido sem sensibilidade paralela.
 

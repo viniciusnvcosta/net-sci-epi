@@ -10,6 +10,14 @@
 
 **Spec:** [Arquitetura e decisões](../specs/2026-09-26-headd-l0-architecture.md), [AGENTS.md](../../../AGENTS.md), [README §5](../../../README.md#5--protocolo-experimental-e1).
 
+## Vocabulário de status
+
+Usar os mesmos quatro rótulos nos planos e na arquitetura: `implementado`
+(código/artefato existe), `validado tecnicamente` (checks identificados passaram),
+`gate aprovado` (todas as condições daquele gate satisfeitas) e
+`interpretação autorizada` (todos os gates/decisões aplicáveis satisfeitos).
+Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte.
+
 ## Global Constraints
 
 - “Raw data is immutable.”
@@ -19,7 +27,7 @@
 - “Fixed false-alarm rate.”
 - Python ≥ 3.12; FAR = 1/60 por região-mês; 13 regiões; 132 meses; 30 placebos.
 - “3 ruídos × 3 níveis de ε × (500 T + 500 N) = 9.000 simulações de 13 × 132.”
-- “|ΔAUC-PR| ≤ 0.01 per task and the same method ranking.” E0 contém 14 tarefas. D-G0 (27/09) escolheu a saída (i): E0 inconclusivo, B1\* autorizado, gate E0\* antes do E1′.
+- Critério histórico, não gate vigente: “|ΔAUC-PR| ≤ 0.01 per task and the same method ranking.” E0 previa 14 tarefas. D-G0 (27/09) escolheu a saída (i): E0 inconclusivo, B1\* autorizado, gate E0\* antes do E1′.
 - Ordem de porte: `data → reconcile → detectors → threshold → select → evaluate → stats`.
 - Sem Hydra/OmegaConf, MLflow, DVC, just, Factory/Registry ou Quarto no novo pacote; sem expansão de escopo para resgatar resultado negativo.
 - Uma seed raiz, `SeedSequence(root).spawn(n)`, `numpy.random.Generator`; registrar seeds.
@@ -38,75 +46,91 @@
 
 ## Situação inicial e caminho crítico
 
-HEAD de referência: `fbfa609bba6cb0b0f2a9e8d73be18022aec319b7`, em `~/projects/hybrid-theory`. O protocolo fornecido já define escopo e finalidade; estes documentos detalham sua execução. As alterações preexistentes em README/pyproject e AGENTS não fazem parte dos commits de planejamento.
+Referência CDADE: `fbfa609bba6cb0b0f2a9e8d73be18022aec319b7`, em
+`~/projects/hybrid-theory`. A [PR #1](https://github.com/viniciusnvcosta/net-sci-epi/pull/1)
+entregou os componentes corrigidos e a preparação da camada 0. O estado operacional
+está em [development](../../development.md); decisões aprovadas prevalecem sobre
+roteiros históricos. E0 permanece inconclusivo; E0* falha com `single_class:PA`.
 
-**Risco principal:** o HEAD inspecionado não demonstra o baseline descrito. Há diferenças em MinT, FAST-MCD, causalidade, eixos, EVT e avaliação. A [spec §3](../specs/2026-09-26-headd-l0-architecture.md#3-divergências-verificadas-por-leitura-do-head) documenta fontes e decisões. Não há promessa de que E0 possa passar sem revisão do protocolo. A entrega documental está completa mesmo com execução científica condicionada a esse gate.
+P1–P2: `implementado`, com componentes `validado tecnicamente` pela suíte registrada
+no plano E0. P3: preparação `implementado`; comparação completa pendente, sem
+`gate aprovado` para E0* e sem `interpretação autorizada` para E1′.
+D-G0a concluiu a busca sem proveniência verificável; hardware já registrado em
+[reference-provenance](../../reference-provenance.md). O piloto D-COST ainda falta.
 
 ```mermaid
 flowchart TD
-  A[Auditoria G0] --> B[Dados]
-  B --> C[Reconciliação]
-  C --> D[Detectores]
-  D --> E[Limiar]
-  E --> F[Seleção]
-  F --> G[Avaliação]
-  G --> H[Estatística]
-  H --> I[E0: 14 tarefas]
-  B --> J[A e placebos]
-  B --> K[Uma região validada]
-  J --> L[Simulador 13 regiões]
-  K --> L
-  J --> M[Features causais]
+  B[Dados e S existentes] --> V[Validação técnica P1–P3 e classes]
+  B --> J[P4: A/W e placebos]
+  C[Resíduos e componentes existentes] --> M[P6: features locais e vizinhas]
+  J --> M
+  F[Grafo sintético de teste] --> M
+  D[Decisão científica sobre PA] --> I[Integração E0* B1*/z-score]
+  V --> I
+  M --> I
+  R[Perfil científico aprovado] --> K[P5: uma região validada]
+  K --> L[Simulador acoplado]
+  J --> L
   I --> N[Runner e FAR]
   L --> N
   M --> N
-  N --> O[E1 sintético]
-  N --> P[E1 semi-real]
-  O --> Q[Análise e entrega]
-  P --> Q
+  N --> O[E1 técnico: camadas 0/1/2]
+  O --> Q[Interpretação: E0* e demais gates aprovados]
 ```
 
-As trilhas independentes permitem alternar trabalho durante bloqueios; não autorizam subagentes automaticamente. Roteamento do AGENTS é preservado como classificação de tarefa: `think` para teoria, `default` para módulos, `background` para suporte, `longContext` para integração. No harness atual esses nomes não são IDs de modelo.
+P4 e P6 podem avançar sem o simulador; P6 começa com grafos sintéticos.
+P5 agora permite preparação científica, sem escolher parâmetros pendentes.
+A comparação regional E0* está selada até a decisão sobre PA, inclusive para
+fins diagnósticos. A autorização B1* de D-G0 não libera interpretação.
+As trilhas independentes não autorizam subagentes automaticamente; `think`,
+`default`, `background` e `longContext` continuam classificações de tarefas.
 
 ## Sequência global e critérios de avanço
 
-| Etapa | Plano executável                                                    | Saída verificável                                                                         | Gate                                                                                                                 |
-| ----- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| P0    | [Baseline/E0](2026-09-26-headd-l0-e0.md), tarefa 1                  | Inventário do SHA, dependências, dados, execução mínima e divergências                    | G0: referência suficiente e decisões de baseline explícitas                                                          |
-| P1    | Baseline/E0, tarefa 2                                               | Longa, ordem canônica, coerência exata 13→1, hashes                                       | G1: positivos e testes somam ao PA em 132 meses                                                                      |
-| P2    | Baseline/E0, tarefas 3–8                                            | Componentes mínimos com testes de paridade/comportamento e MIGRATION                      | Não chamar correções de paridade                                                                                     |
-| P3    | Baseline/E0, tarefa 9                                               | Tabela de 14 tarefas, AP por método, ranking e proveniência                               | G2: E0 conforme AGENTS, ou decisão explícita D-G0 por B1\* com E0 inconclusivo; sem decisão, interpretação bloqueada |
-| P4    | [L0 e simulação](2026-09-26-headd-l0-graph-simulation.md), tarefa 1 | A/W, mapa, GEXF, 30 grafos válidos e manifest                                             | G3: nomes, graus e conectividade                                                                                     |
-| P5    | L0 e simulação, tarefas 2–3                                         | Separação T/N em uma região; CRN e onsets em 13 regiões                                   | G4: validação por ruído, isolamento ε=0 e alcance D-REACH antes dos braços                                           |
-| P6    | L0 e simulação, tarefa 4                                            | Representações local/S/vizinhos causais                                                   | G5: invariância de prefixo e mesma representação nos placebos                                                        |
-| P7    | [Experimentos](2026-09-26-headd-l0-experiments.md), tarefas 1–2     | Runner TOML, smoke, FAR calibrada em N independente                                       | G6: seeds/partições e única variável por braço                                                                       |
-| P8    | Experimentos, tarefas 3–4                                           | Camadas 0/1/2, nulos paramétricos, dimensão D-COST registrada e inferência pré-registrada | G7: protocolo completo, ou conclusão negativa/inconclusiva explícita                                                 |
-| P9    | Experimentos, tarefa 5                                              | Notebooks, figuras, tabelas e README reproduzíveis                                        | Entrega da disciplina                                                                                                |
+| Etapa | Plano / trabalho ativo | Saída e condição de avanço |
+| --- | --- | --- |
+| P0 | [E0](2026-09-26-headd-l0-e0.md), histórico Task 1 | Auditoria realizada; D-G0 autoriza B1*, E0 inconclusivo. |
+| P1 | E0, validação ativa P1 | Longa, hashes, ordem canônica e coerência exata 13→1 em 132 meses (G1). |
+| P2 | E0, validação ativa P2 | Componentes existentes; comportamento corrigido separado de paridade de primitivas. |
+| P3 | E0, validação ativa P3; [Experimentos](2026-09-26-headd-l0-experiments.md), Task 0 futura | Pré-gate reprovado; integração B1*/z-score condicionada à decisão PA. G2 exige E0*, não só D-G0. |
+| P4 | [Grafo/simulação](2026-09-26-headd-l0-graph-simulation.md), Task 1 futura | A/W, mapa, GEXF, 30 placebos e manifest; G3: nomes, graus e conectividade. |
+| P5 | Grafo/simulação, Tasks 2–3 futuras | Perfil aprovado antes do integrador; uma região antes do acoplamento; G4: ruídos, ε=0 e D-REACH. |
+| P6 | Grafo/simulação, Task 4 futura | Features sobre resíduos; G5: causalidade e mesma representação sob placebos. |
+| P7 | Experimentos, Tasks 1–2 futuras | Runner, smoke e FAR; G6: seeds/partições independentes e única variável por braço. |
+| P8 | Experimentos, Tasks 3–4 futuras | Camadas 0/1/2, nulos, D-COST e inferência; G7 ou conclusão inconclusiva explícita. |
+| P9 | Experimentos, Task 5 futura | Notebooks, figuras, tabelas e README reproduzíveis. |
 
 ## Agenda de execução e cortes de escopo
 
-| Período     | Prioridade                                                                         | Evidência ao encerrar                                                                                                                         |
-| ----------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| 26–27/09    | G0 e dados; deliberar D1–D7 até 29/09, com saída D-G0 explícita                    | Relatório de auditoria e coerência; não consumir a semana tentando ajustar E0                                                                 |
-| 28/09–01/10 | S/A/placebos e simulador de uma região; porte sequencial dos componentes liberados | Testes de grafo e validação single-region                                                                                                     |
-| 02–06/10    | Piloto ~02/10 após detectores+acoplamento; concluir componentes, G2 e features     | E0 aprovado ou decisão D-G0 explícita por B1\* com E0 inconclusivo; sem rota, interpretação bloqueada; D5 e G4/G5 válidos antes da inferência |
-| 07–08/10    | Smoke, calibração independente e confirmação dos custos ainda não medidos          | Tempo/memória medidos; projeção para 9.000 réplicas × 33 braços                                                                               |
+| Período | Prioridade | Evidência / dependência |
+| --- | --- | --- |
+| 26–27/09 | Auditoria, componentes e D-G0 realizados | Histórico e MIGRATION; sem refazer porte. |
+| 28/09–01/10 | Validar P1–P3; iniciar P4/P6 e preparar P5 | Pré-gate esperado; grafo/features verificáveis; decisão PA e perfil ainda pendentes. |
+| 02–06/10 | Uma região/acoplamento após perfil; integração E0* após decisão PA | Piloto ~02/10 condicionado ao simulador disponível; G4/G5 e gate E0* distintos. |
+| 07–08/10 | Smoke, calibração independente e custos | Gates prévios satisfeitos; projeção de 9.000 réplicas × 33 braços. |
+| 09–11/10 | Bancadas sintética e semi-real condicionais | Manifests, FAR e gates; não selecionar runs nem prometer desbloqueio. |
+| 12–13/10 | Inferência somente com autorização | Bootstrap, placebos, estatística real e centralidade. |
+| 14–16/10 | Redação e reprodução final | Entregar também limitações/inconclusão se bloqueios persistirem. |
+
+33 braços                                                                               |
 | 09–11/10    | Bancadas sintética e semi-real                                                     | Manifests completos, FAR observada e métricas sem seleção de runs                                                                             |
 | 12–13/10    | Bootstrap, placebos, estatística real, centralidade                                | ICs e tabelas; gates científicos respeitados                                                                                                  |
 | 14–16/10    | Redação e reprodução final                                                         | Metodologia, resultados/limitações, figuras e comandos                                                                                        |
 
-33 braços = B0+B1+B2+30 placebos. Reutilizar dados simulados e ajustes compartilháveis; não simular novamente por braço. Pré-registrar hardware/gatilho de custo e aplicar D-COST antes dos efeitos: (a) placebos em 100T fixas/célula, comparando B2 no mesmo subconjunto e preservando N; (b) 200T+200N/célula; (c) cortar opcionais. Não comparar B2 completo com placebos de um subconjunto nem ocultar o tamanho efetivo.
+33 braços = B0+B1*+B2+30 placebos. Reutilizar dados simulados e ajustes compartilháveis; não simular novamente por braço. Pré-registrar hardware/gatilho de custo e aplicar D-COST antes dos efeitos: (a) placebos em 100T fixas/célula, comparando B2 no mesmo subconjunto e preservando N; (b) 200T+200N/célula; (c) cortar opcionais. Não comparar B2 completo com placebos de um subconjunto nem ocultar o tamanho efetivo.
 
 Camada1 (injeção epidêmica+nulos paramétricos) tem prioridade sobre todos os opcionais. Camada0 (não-inferioridade) não é cortada. Camada3 é qualitativa. Opcionais, em ordem depois da entrega principal: Φ/B3 real, B-Gao, SEIRS de robustez. Nenhum deles justifica atrasar E0, controles, análise ou redação. Não desenvolver implementações vazias desses braços agora. Novas specs/planos delimitados são produzidos se houver tempo e priorização; isso não os torna parte do caminho obrigatório.
 
 ## Checklist de execução e encerramento
 
 - [x] Executar P0 e decidir G0: saída (i) em 27/09, E0 inconclusivo e B1\* autorizado; D2, D3, D5 e D6 decididos ([registro](../../protocol-decisions.md)).
-- [ ] D-G0a: documentar a proveniência dos resultados apresentados do CDADE v1 em `docs/reference-provenance.md` até 29/09 (somente leitura sobre o original).
-- [ ] Executar P1–P3 na ordem de porte; verificar testes e MIGRATION; implementar `inject_original_bounded` e o gate E0\*.
-- [ ] Executar P4–P6; verificar validação single-region antes de acoplar.
-- [ ] Fixar a faixa de R0 e o perfil do simulador (D-GT2/D-GT4) antes da camada 1; demais decisões da spec §7 congeladas em 27/09.
-- [ ] Registrar o hardware (CPU, núcleos, RAM, WSL) em `docs/reference-provenance.md`; executar piloto ~02/10 após detectores+acoplamento; aplicar os gatilhos de 48 h e 96 h da D-COST antes de observar efeitos.
+- [x] D-G0a: busca concluída, sem proveniência verificável; ver `docs/reference-provenance.md`.
+- [x] Hardware D-COST registrado (27/09); atualizar somente se o ambiente do piloto mudar.
+- [ ] Validar P1–P3 pela sequência ativa do plano E0; não recriar componentes/exportadores.
+- [ ] Iniciar P4/P6; testes de features independem de P5.
+- [ ] Preparar P5 e aprovar perfil antes do integrador; validar uma região antes de acoplar. Fixar faixa R0 antes da camada 1.
+- [ ] Verificar decisão PA datada e anterior ao primeiro commit de integração E0* (Experimentos Task 0).
+- [ ] Executar piloto D-COST após detectores+acoplamento; aplicar 48 h/96 h antes de observar efeitos.
 - [ ] Verificar alcance D-REACH antes dos braços; células sem poder não contam como evidência negativa.
 - [ ] Avaliar o E0\* na camada 0 antes de qualquer resultado do E1′; executar camadas 0/1/2 e nulos NB2 com FAR e seeds disjuntas; separar E0\*, não-inferioridade e evidência de propagação.
 - [ ] Executar P7–P8 com FAR e seeds disjuntas; verificar comparabilidade antes de interpretar lead time.
@@ -118,4 +142,4 @@ Camada1 (injeção epidêmica+nulos paramétricos) tem prioridade sobre todos os
 
 Cobertura: dados, S, baseline, A/W/placebos, simulação, features, injeção, FAR, métricas, estatística, runner e entrega possuem tarefas. Extensões opcionais estão explicitamente adiadas. Assinaturas/tipos são definidos nos planos donos. As cinco classes de falha do Review Focus têm testes atribuídos. Os gates pendentes são decisões científicas identificadas, não tarefas de implementação com “TBD”.
 
-Para executar, revisar primeiro a spec e G0. Recomendo execução nativa da auditoria inicial, pois ela condiciona as interfaces do baseline; depois dela, tarefas de grafo/simulador podem receber revisão independente. A escolha entre execução nativa e por subagentes cabe ao usuário antes de iniciar a implementação.
+Para executar, ler a spec, o protocolo vigente e a sequência ativa P1–P3; a auditoria inicial já terminou. Comandos futuros e tarefas condicionadas não são autorização para scoring ou interpretação.

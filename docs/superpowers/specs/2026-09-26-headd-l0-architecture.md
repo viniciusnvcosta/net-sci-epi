@@ -1,12 +1,22 @@
 # HEADD-Series L0 — arquitetura e decisões de implementação
 
-Data: 26/09/2026. Revisão documental de ground truth aprovada; parâmetros científicos pendentes permanecem no [registro de decisões](../../protocol-decisions.md). Nenhum gate foi executado por esta revisão.
+Data original: 26/09/2026. Atualização documental: 28/09/2026, após PR #1.
+E0 inconclusivo; B1* autorizado; E0* reprovado por `single_class:PA`. A reprodução
+técnica do pré-gate está no plano E0; não houve scoring nem decisão científica nova.
+
+## Vocabulário de status
+
+Usar os mesmos quatro rótulos nos planos e na arquitetura: `implementado`
+(código/artefato existe), `validado tecnicamente` (checks identificados passaram),
+`gate aprovado` (todas as condições daquele gate satisfeitas) e
+`interpretação autorizada` (todos os gates/decisões aplicáveis satisfeitos).
+Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte.
 
 ## 1. Objetivo, fontes e limites
 
 Construir a bancada E1′ do README §5, com baseline B1* corrigido sob D-G0/D-E0* (E0 inconclusivo), S + A, controle ε = 0, FAR de 1/60 por região-mês e 30 placebos. O resultado pode ser negativo. O prazo é 16/10/2026.
 
-Fontes locais lidas: `AGENTS.md`, `README.md` e `pyproject.toml`, incluindo suas alterações ainda não commitadas. SHA-256 dessas versões:
+Fontes históricas lidas em 26/09 (hashes não representam a revisão atual): `AGENTS.md`, `README.md` e `pyproject.toml`, incluindo suas alterações ainda não commitadas. SHA-256 dessas versões:
 
 | Arquivo        | SHA-256                                                            |
 | -------------- | ------------------------------------------------------------------ |
@@ -16,7 +26,7 @@ Fontes locais lidas: `AGENTS.md`, `README.md` e `pyproject.toml`, incluindo suas
 
 Referência CDADE: `/home/vinvs/projects/hybrid-theory`, commit **`fbfa609bba6cb0b0f2a9e8d73be18022aec319b7`**. As leituras de código usaram `git show HEAD:<path>`, não arquivos modificados do working tree. E0 deve fixar esse SHA completo, nunca resolver `HEAD` novamente durante uma execução. Os resultados locais não possuem, por si só, proveniência suficiente para certificar E0.
 
-O projeto atual contém `main.py` demonstrativo, sem `src/`, `tests/` ou dados neste checkout. `.python-version` pede 3.12; `pyproject.toml` permite 3.11.13 e ainda não declara pytest, ruff, scipy ou pyarrow diretamente. Corrigir isso na implementação, preservando dependências e edições não relacionadas.
+Estado atual: Python ≥3.12; `src/headd_l0/`, testes e dependências do baseline já existem. P1–P2 estão implementados; P3 prepara injeção/classes, sem scoring completo. Grafo, simulador e features são futuros. Comandos atuais: [development](../../development.md).
 
 Não implementar M, REGIC, GNN, GANF/GDN, hhh4 completo, Tycho, L4/L5 ou SEIRS+ agent-based. B-Gao, B3/Φ e variante SEIRS são extensões condicionais, não dependências da entrega principal.
 
@@ -30,7 +40,7 @@ O plano adota 1, com uma auditoria inicial. Corrigir um erro metodológico não 
 
 ## 3. Divergências verificadas por leitura do HEAD
 
-Estas são observações de código, não resultados de uma reprodução executada.
+Esta tabela preserva as observações históricas da leitura inicial. A auditoria posterior, o porte e suas evidências estão em MIGRATION e no registro de decisões; não repetir tarefas resolvidas.
 
 | ID  | Evidência no commit de referência                                                                                                                                        | Consequência e condição de desbloqueio                                                                                                            |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -44,9 +54,13 @@ Estas são observações de código, não resultados de uma reprodução executa
 | D8  | `evaluation/stats.py` continua DM/Cliff após Friedman não significativo, contém resultados substitutos e fallback HAC sem pesos Bartlett; bootstrap usa RandomState.     | Portar rotinas válidas separadamente; fluxo científico, HAC e Generator requerem testes e registro de desvio.                                     |
 | D9  | `evaluation/metrics.py` usa AP como AUC-PR e um NAB simplificado com mediana dos scores avaliados.                                                                       | AP mantém essa definição. NAB legado é apenas caracterização; E1 usa alarmes do limiar calibrado, sem mediana do teste.                           |
 
-**Gate G0:** produzir `reference_audit.json` com reprodução, fontes, exceções e cobertura das 14 tarefas. Manter E0 bloqueado enquanto D1–D7 impedirem satisfazer simultaneamente referência, causalidade e contratos. Não criar um modo legado no pacote de produção para contornar o gate. Deliberar G0/D1–D7 até 29/09/2026. Se o HEAD não sustentar E0, registrar escolha explícita entre E0 inconclusivo com B1\* corrigido e autorizado, ou bloqueio total da interpretação E1′. Decisão de 27/09: saída (i), E0 inconclusivo com B1\* autorizado e gate E0\* ([registro](../../protocol-decisions.md)). B1* deve aparecer em todos os artefatos e textos; não transforma discrepância em paridade nem resolve D5 automaticamente. A auditoria e componentes independentes continuam úteis enquanto isso.
+**Gate G0:** produzir `reference_audit.json` com reprodução, fontes, exceções e cobertura das 14 tarefas. Manter E0 bloqueado enquanto D1–D7 impedirem satisfazer simultaneamente referência, causalidade e contratos. Não criar um modo legado no pacote de produção para contornar o gate. Deliberar G0/D1–D7 até 29/09/2026. Se o HEAD não sustentar E0, registrar escolha explícita entre E0 inconclusivo com B1\* corrigido e autorizado, ou bloqueio total da interpretação E1′. Decisão de 27/09: saída (i), E0 inconclusivo com B1\* autorizado e gate E0\* ([registro](../../protocol-decisions.md)). B1* deve aparecer em todos os artefatos e textos; não transforma discrepância em paridade D5 também foi resolvida em 27/09: MinT sobre previsões NB2 de contagens. A referência histórica não libera E0*.
 
 ## 4. Mapa de código e responsabilidade
+
+O mapa combina contratos atuais do baseline com contratos **futuros** de grafo,
+features, simulador, runner completo e camada 1. Nomes/arquivos ausentes nessas
+trilhas são entregas futuras; o exporter indicado é histórico aposentado.
 
 Manter o layout do AGENTS. `tests/test_<module>.py` espelha cada módulo. Não criar serviços, factories, registry global ou camadas de repositório. Cada módulo mira 150–300 linhas e só se divide ao ultrapassar aproximadamente 400.
 
@@ -62,11 +76,11 @@ Manter o layout do AGENTS. `tests/test_<module>.py` espelha cada módulo. Não c
 | `src/headd_l0/graph.py`                                | Geometria → A → W, placebos, centralidades, exportação GEXF; importa S de `reconcile`, sem duplicá-la.                                                                             |
 | `src/headd_l0/features.py`                             | `FeatureBatch`, representação local/S/vizinhos e indicadores causais; eixos explícitos.                                                                                            |
 | `src/headd_l0/simulate.py`                             | `SimConfig`, `SimResult`, `EndemicCalibration`, uma região, extensão acoplada/gêmeas e componente de surto reutilizado pela camada 1; proveniência de casos importados observados. |
-| `src/headd_l0/inject.py`                               | `InjectionConfig`, `EpidemicInjectionConfig`, `InjectionResult`; injeção original intacta (camada 0), adaptador epidêmico (camada 1) e nulos paramétricos reais.                   |
+| `src/headd_l0/inject.py`                               | `InjectionConfig`, `InjectionResult`; injeção limitada da camada 0. Futuros `EpidemicInjectionConfig`/`EpidemicInjectionResult` e adaptador da camada 1; amostragem NB2 pertence a `forecast.py`.                   |
 | `src/headd_l0/run.py`                                  | `ExperimentConfig`, `ArmSpec`, `RunResult`, TOML, composição, seeds, artefatos e gates; CLI.                                                                                       |
-| `scripts/export_cdade_reference.py`                    | Ferramenta exclusiva de auditoria/testes, executada em checkout exportado do SHA; não é dependência de produção.                                                                   |
+| `scripts/export_cdade_reference.py`                    | Histórico aposentado: exporter recuperável por MIGRATION; não recriar nem exigir na validação atual.                                                                   |
 | `tests/reference/`                                     | Pequenas fixtures determinísticas e seus manifests; nenhum resultado fabricado.                                                                                                    |
-| `configs/*.toml`                                       | `data`, `e0_parity`, `l0_graph`, `sim_single`, `e1_bench`, `e1_real`, `e1_local`; extensões só quando priorizadas.                                                                 |
+| `configs/*.toml`                                       | Atuais: `data`, `e0_star` (preparação). Futuros: `e0_star_scoring`, `l0_graph`, `sim_single`, `e1_bench`, `e1_real`, `e1_local`; extensões só quando priorizadas.                                                                 |
 | `MIGRATION.md`                                         | Criado na primeira tarefa: componente, caminho/SHA original, caminho novo, teste, tolerância, exclusões e divergências.                                                            |
 | `notebooks/01_l0_network.ipynb`, `02_e1_results.ipynb` | Consomem resultados; não reimplementam métricas nem escolhem parâmetros.                                                                                                           |
 
@@ -90,7 +104,7 @@ Os CSVs foram encontrados no working tree de `hybrid-theory/data/raw/`, não com
 | PA.csv                |    132 | `ba437eff83a537addcdda93aca09401d5033804b83a0b767baa55788267041f5` |
 | PASIVEPDailyPerHr.csv |  7.592 | `ad61c77c8c187713cd47e72bb5f028eda1203e3f5e4962c5970d41abd9ae7188` |
 
-A leitura com biblioteca padrão verificou 13 regiões e diferenças `(positivos, testes) = (0,0)` nos 132 meses. Ainda não é um teste do novo loader. Como `data/raw/` é imutável e está ausente aqui, usar o diretório original em modo leitura na primeira execução. Materialização inicial no novo repositório exige que o usuário disponibilize/autorize a inclusão dos arquivos; nunca sobrescrever dados existentes.
+A leitura inicial e os testes atuais do loader verificam 13 regiões e diferenças `(positivos, testes) = (0,0)` nos 132 meses; ver sequência ativa P1 no plano E0. Como `data/raw/` é imutável e está ausente aqui, usar o diretório original em modo leitura na primeira execução. Materialização inicial no novo repositório exige que o usuário disponibilize/autorize a inclusão dos arquivos; nunca sobrescrever dados existentes.
 
 ## 6. Composição dos braços e causalidade
 
@@ -98,6 +112,8 @@ A leitura com biblioteca padrão verificou 13 regiões e diferenças `(positivos
 flowchart LR
   CSV[CSV e hierarquia] --> COUNT[Contagens canônicas]
   GEO[Malhas] --> A[A e 30 placebos]
+  PROFILE[Perfil científico aprovado] --> SINGLE[Uma região validada]
+  SINGLE --> SIM
   COUNT --> CAL[Calibração endêmica no treino]
   CAL --> SIM[SIR validado e gêmeas]
   A --> SIM
@@ -119,7 +135,8 @@ flowchart LR
   EVAL --> STAT[Bootstrap e placebos]
   G0[Auditoria de referência] --> E0[E0 inconclusivo]
   G0 --> ROUTE[B1* autorizado, D-G0 saída i]
-  ROUTE --> E0S[Gate E0*]
+  ROUTE --> PA[Decisão pendente PA antes da integração]
+  PA --> E0S[Gate E0*]
   E0S --> STAT
 ```
 
@@ -135,7 +152,7 @@ Representação local: resíduo padronizado em t, t−1 e diferença temporal; a
 
 ## 7. Decisões experimentais propostas para revisão
 
-As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). Continuam pendentes a faixa de R0 e o perfil do simulador (D-GT2/D-GT4), o hardware do piloto (D-COST) e os eventos da camada 3 (D-L3).
+As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). Continuam pendentes a faixa de R0 e o perfil do simulador (D-GT2/D-GT4), os eventos da camada 3 (D-L3) e a decisão PA antes da integração E0*. Hardware registrado em 27/09; piloto D-COST ainda pendente.
 
 | Camada      | Ground truth / uso                                                                                                                                                                             | Regra                                                                                                                                                                                                              |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -166,7 +183,7 @@ Os valores fixados por README/AGENTS são obrigatórios, salvo revisão explíci
 | FAR                  | Um alarme = um mês-região acima do limiar; sem cooldown implícito. Ajustar por braço/região em N de calibração; alvo 1/60.                                                                                                   | Avaliação N separada: reportar FAR e IC por blocos, incluindo desvio do alvo; bloquear interpretação se comparabilidade falhar. |
 | Geografia            | Queen é primária. Se desconexa, falhar e produzir diagnóstico; k-NN simétrico de centróides é variante identificada e exige pré-registro.                                                                                    | Não ligar ilhas arbitrariamente nem chamar grafo corrigido de queen puro.                                                       |
 
-D-COST antecipa o piloto para ~02/10 após detectores+simulador acoplado, sem inverter a ordem de porte. Registrar o hardware antes do piloto; gatilhos sobre a projeção da execução completa: > 48 h → degrau (a), > 96 h → degrau (b). Escada: 30 placebos em 100T fixas/célula (rank compara B2 no mesmo subconjunto e preserva N); depois 200T+200N/célula; depois opcionais. IDs e parâmetros são congelados antes dos efeitos. Se seleção ainda não existe, declarar custo não medido; não certificar pipeline completo. Camada1 precede B-Gao/Φ/SEIRS; camada 0 não é cortada.
+D-COST antecipa o piloto para ~02/10 após detectores+simulador acoplado, sem inverter a ordem de porte. Registrar o hardware antes do piloto; gatilhos sobre a projeção da execução completa: > 48 h → degrau (a), > 96 h → degrau (b). Escada: 30 placebos em 100T fixas/célula (rank compara B2 no mesmo subconjunto e preserva N); depois 200T+200N/célula; depois opcionais. IDs e parâmetros são congelados antes dos efeitos. A seleção existe; declarar custo da integração ainda não medida, sem certificar pipeline completo. Camada1 precede B-Gao/Φ/SEIRS; camada 0 não é cortada.
 
 Definir, no mesmo registro antes da implementação metapopulacional, Nᵢ (populações efetivas, não inferidas só de casos), θ, β₀/β₁, µ/γ, intensidade de cada ruído, sazonalidade e SD usada no onset. Proposta para a SD: desvio-padrão da série observada da gêmea nos 60 meses de treino, congelado; não SD do excesso pré-surto (que pode ser identicamente zero com números comuns). Estimar νᵢ só das medianas de treino, condicionado aos parâmetros fixados; ν e θ não são identificáveis separadamente por essas medianas. Essa definição quantitativa é um gate de desenho, com fonte e teste, não um default escondido no código.
 
@@ -190,15 +207,15 @@ SD, CV, AR1, skewness e kurtosis têm janela causal e máscara de validade. Jane
 
 `data/processed/` guarda longa, geometrias, calibração endêmica e cache regenerável. O manifesto do run referencia seus hashes. Componentes numéricos não fazem I/O; o runner é responsável por salvar seus outputs. Isso satisfaz a definição de pronto sem acoplar cada função ao filesystem.
 
-Adicionar apenas via `uv add`: scipy/pyarrow na primeira tarefa; pytest/ruff em dev; PyOD para os cinco detectores já usados e river para ADWIN nas tarefas donas. Não introduzir framework para eliminar essas duas bibliotecas pequenas à custa de paridade. Resolver versões e registrar conflitos com os pisos atuais; não baixar versões silenciosamente. Bibliotecas geográficas/networkx já declaradas são aproveitadas. Não remover openpyxl/pymnet/igraph/pmdarima neste trabalho de planejamento.
+Dependências do baseline já declaradas: scipy/pyarrow, pytest/ruff em dev, PyOD e river. Não repetir instalação/porte; dependências futuras apenas via `uv add`. Não introduzir framework para eliminar essas duas bibliotecas pequenas à custa de paridade. Resolver versões e registrar conflitos com os pisos atuais; não baixar versões silenciosamente. Bibliotecas geográficas/networkx já declaradas são aproveitadas. Não remover openpyxl/pymnet/igraph/pmdarima neste trabalho de planejamento.
 
 Testes rápidos sem rede; integração geográfica/fixtures originais marcada; simulador `slow`; reprodução completa E0 e bancada fora do pytest padrão. Ausência de dados/oráculo pode dar skip só em testes opcionais; comandos de gate devem falhar explicitamente. Checks: `uv run ruff check .`, `uv run ruff format --check .`, `uv run pytest` e testes científicos da etapa. Commits locais convencionais; sem push.
 
 ## 10. Questões que impedem execução automática
 
-1. Resolver G0/D1–D7 com evidência e revisão do baseline: HEAD e protocolo não são hoje intercambiáveis.
+1. Registrar decisão sobre PA antes do primeiro commit de integração/scoring E0*. D-G0 está resolvido; E0 permanece inconclusivo e E0* reprovado.
 2. Aprovar as convenções da §7 e parâmetros numéricos da simulação antes de E1; documentar se o critério de equivalência é aceito.
-3. Definir representação de contagem para MinT (D5); não autorizar integração com um contrato em branco.
+3. Preservar D5 já aprovada: MinT sobre previsões de contagem, features sobre resíduos padronizados; P6 independe de P5.
 4. Obter malha com 13 regiões e conectividade compatível, ou registrar a variante antes dos placebos.
 
-Esses gates não impedem entregar o plano global, auditar o original, escrever testes dos componentes isolados ou construir S/A. Impedem anunciar baseline paritário; interpretar E1′ exige E0 aprovado ou a saída B1\* explicitamente autorizada, além de todos os demais gates aplicáveis. Os planos associados descrevem tarefas condicionais com critérios objetivos de entrada/saída.
+Esses gates não impedem entregar o plano global, auditar o original, escrever testes dos componentes isolados ou construir S/A. Impedem anunciar baseline paritário; interpretar E1′ exige E0* aprovado sob o protocolo vigente, além de FAR e todos os demais gates aplicáveis. B1* já autorizado não basta. Os planos associados descrevem tarefas condicionais com critérios objetivos de entrada/saída.
