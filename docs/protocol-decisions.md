@@ -223,3 +223,21 @@ G0–G7 continuam condicionais.
 - Wickramasuriya, S. L., Athanasopoulos, G., & Hyndman, R. J. (2019). Optimal forecast reconciliation for hierarchical and grouped time series through trace minimization. _JASA_, 114(526), 804–819.
 - Schäfer, J., & Strimmer, K. (2005). A shrinkage approach to large-scale covariance matrix estimation and implications for functional genomics. _Statistical Applications in Genetics and Molecular Biology_, 4(1), Art. 32.
 - Eze, P. U., Geard, N., Mueller, I., & Chadès, I. (2023). Anomaly detection in endemic disease surveillance data using machine learning techniques. _Healthcare_, 11(13), 1896.
+
+## Confirmação operacional — Task 9 (28/09/2026)
+
+O autor confirmou seguir D5/D-GT1: duração completa de 3–6 meses, sem
+truncamento, e PA recalculado como soma das 13 regiões. Para preservar a
+ordem de consumo aleatório, sorteiam-se os onsets propostos em 60–131;
+onsets tardios são deslocados para `min(onset, 132 − duração)`, sem novo
+sorteio. Registrar onset proposto e realizado. Isso concentra eventos tardios
+no último início admissível; não se alega uniformidade dos onsets realizados.
+A máscara de PA é a união das máscaras regionais. Sobreposições não são
+removidas e não há resampling para garantir duas classes.
+
+Com seed 42, PA tem 72 meses positivos na janela de teste. A condição de duas
+classes em todas as 14 tarefas falha; E0* não libera interpretação de E1′.
+Não alterar seed, rótulos ou baseline para obter aprovação. A implementação
+das etapas L0 pode prosseguir, mas a interpretação permanece bloqueada.
+O escopo confirmado é preparar as próximas etapas, sem antecipar o simulador
+ou escolher seus parâmetros científicos pendentes.

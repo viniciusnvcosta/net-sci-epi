@@ -92,7 +92,7 @@ O nível ε = 0 é um controle interno de falsificação. Sem propagação, A n�
 
 ### 5.2 Bancada semi-real: ground truth em camadas
 
-- **Camada 0 — anomalias locais.** A injeção original CDADE de spikes, level shifts e drifts permanece inalterada para E0 e para a comparação de não-inferioridade B2−B1 nas 14 tarefas. Não é evidência de propagação. A margem proposta é −0,02 na média de ΔAUC-PR, com IC por bootstrap pareado sobre tarefas; a regra formal de decisão permanece no registro.
+- **Camada 0 — anomalias locais.** Usa injeções finitas de spikes, level shifts e drifts (D-GT1), com treino intacto e PA recalculado. Não é evidência de propagação. A não-inferioridade B2−B1* exige limite inferior do IC95% ≥ −0,02, bootstrap pareado sobre as13regiões e PA separado. E0 permanece inconclusivo; E0* é o gate substituto. O pré-gate atual falha porque PA tem uma só classe na janela de teste.
 - **Camada 1 — injeção epidêmica.** Substitui o pulso ad hoc por casos adicionais gerados pelo componente de surto de `simulate.py`, com fundo endêmico desligado e propagação por `C=(1−ε)I+εW`. Somar a uma cópia das contagens reais e recalcular PA; não criar um segundo simulador. Níveis propostos k=(1,3,6) vezes a mediana mensal de treino da semente; introdução uniforme em 72–118, θ igual à bancada e faixa R0 pré-registrada. Domínio do tamanho e demais parâmetros ainda precisam ser fixados.
 - **Camada 2 — bancada inteiramente sintética.** Mantém o mecanismo e os onsets da §5.1; dimensionamento pode seguir somente a escada de custo pré-registrada.
 - **Camada 3 — eventos documentados.** Checagem qualitativa no notebook 02, com fontes verificadas, sem critério formal.
@@ -106,13 +106,13 @@ A camada 1 tem prioridade sobre B-Gao, Φ/B3 e SEIRS; a camada 0 não é cortada
 | Braço             | Descrição                                                                                                                                                |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **B0**            | séries independentes, sem S (piso)                                                                                                                       |
-| **B1**            | CDADE v1: S + pool + reconciliação MinT + seleção dinâmica + limiar EVT/GPD                                                                              |
+| **B1***           | Baseline corrigido estilo CDADE: S + pool + reconciliação MinT + seleção dinâmica + limiar EVT/GPD                                                                              |
 | **B2**            | B1 + features de vizinhança em W: W·xₜ, W·xₜ₋₁, diferença entre a região e a média dos vizinhos, e I de Moran local em janela móvel                      |
 | **B2-placebo**    | B2 com cada um dos 30 grafos placebo                                                                                                                     |
 | B-Gao (opcional)  | classificador GBM sobre os 5 indicadores de alerta precoce (SD, CV, AR1, assimetria, curtose), treinado na bancada e aplicado por região em janela móvel |
 | B3 (exploratório) | B2 + camadas de espécie Φ (só dados reais)                                                                                                               |
 
-Entre B1 e B2 muda uma única coisa: a informação relacional disponível. Pool, reconciliação, seleção e limiar ficam idênticos.
+Entre B1* e B2 muda uma única coisa: a informação relacional disponível. Pool, reconciliação, seleção e limiar ficam idênticos.
 
 ### 5.4 Métricas e critério de validação
 
@@ -124,11 +124,11 @@ Entre B1 e B2 muda uma única coisa: a informação relacional disponível. Pool
 
 **Inferência principal, camadas 1/2.** Bootstrap pareado do ganho por réplica, estratificado por ε, seguido da posição de B2 nos 30 placebos. Sustentar RQ1′ exige conjuntamente IC95% do ganho>0 nos níveis ε>0, equivalência pré-registrada em ε=0 e rank estrito>.95 nos placebos. Com redução de custo, B2 e placebos são comparados no mesmo subconjunto fixo de réplicas; registrar dimensão efetiva.
 
-**Camada0.** Paridade E0 e não-inferioridade são análises distintas. Reportar a média de ΔAUC-PR nas 14 tarefas e seu IC pareado; confirmar previamente se a margem −.02 se aplica à média ou ao limite inferior do IC. Piora é custo do método, não refutação isolada da RQ1′. A dependência entre PA e regiões deve ser explicitada.
+**Camada 0.** E0 inconclusivo e não-inferioridade são análises distintas. A regra aprovada D-GT1 usa o limite inferior do IC95% de ΔAUC-PR(B2−B1*) e reamostra as13regiões; PA é reportado à parte. Piora é custo do método, não refutação isolada de RQ1′.
 
 **Protocolo secundário real.** Manter Friedman→Wilcoxon/Bonferroni→Diebold-Mariano/HAC→Cliff/IC95%, interrompendo os testes seguintes se Friedman p>.05; não substituir por ele os critérios principais da camada 1.
 
-**Gates e conclusão.** Decidir G0 até 29/09. Se E0 não for sustentado pelo SHA fixado, é necessária escolha explícita entre interpretação bloqueada ou E0 inconclusivo com B1* corrigido, nomeado assim em todos os resultados. Nenhuma alternativa está escolhida. Todos os outros gates permanecem. Critério científico não satisfeito com gates válidos é resultado negativo para a bancada; gate inválido ou alcance insuficiente é inconclusivo. Não expandir o grafo para resgatar a hipótese.
+**Gates e conclusão.** D-G0 autorizou B1* corrigido com E0 inconclusivo. E0* e os outros gates continuam obrigatórios; seu estado executável está em [Task 9](docs/e0-task9-status.md). Critério científico não satisfeito com gates válidos é resultado negativo para a bancada; gate inválido ou alcance insuficiente é inconclusivo. Não expandir o grafo nem ajustar a baseline para resgatar a hipótese.
 
 ### 5.5 Análise de rede complementar
 
@@ -169,8 +169,12 @@ Liu et al. (2026) geraram um conjunto sintético com o modelo agent-based SEIRS+
 ```bash
 uv sync
 uv run pytest
-uv run python -m headd_l0.run configs/e1_bench.toml
+uv run python -m headd_l0.run configs/e0_star.toml  # pré-gate; exit 2 esperado
 ```
+
+Estado executável e próximos passos: [Task 9 e ambiente L0](docs/e0-task9-status.md).
+O runner de bancada E1′ ainda pertence às próximas etapas; o pré-gate atual
+não autoriza interpretação científica.
 
 ## 8 · Ambiente e dependências
 

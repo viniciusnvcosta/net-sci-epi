@@ -12,6 +12,11 @@ single, `b3` ensemble average, `b4` static top-k, `b5` reconciliation + EVT,
 
 ## Reference audit (Task 1, G0 evidence)
 
+Historical procedure: the three one-time exporter scripts were retired after
+Task 9 at the author’s request. Recover `scripts/` from HEADD commit `98187ee`
+in a temporary directory to rerun the command below. Current tests validate
+archived array hashes directly and do not require the legacy interpreter.
+
 ```bash
 uv run python scripts/export_cdade_reference.py --repo /home/vinvs/projects/hybrid-theory \
   --revision fbfa609bba6cb0b0f2a9e8d73be18022aec319b7 --output results/reference-audit
@@ -189,3 +194,27 @@ Reference: [Newey–West/Bartlett](https://www.statsmodels.org/dev/generated/sta
 
 The stale Task8 plan example using14tasks/pendingD-GT1 was aligned with the
 already approved13-region decision. No scientific criterion was newly chosen.
+
+## Task 9 — bounded injection and E0* preparation
+
+- `inject.py` ports `cdade/data/synthetic.py` types/magnitudes and random draw
+  order; finite duration is drawn after direction, late onsets shifted left.
+  PA is recomputed, mask is the union. Events preserve proposed/actual onset,
+  kind, duration, direction and amplitude; negative values are not clipped.
+- Literal original injection exists only in `tests/legacy_injection.py`, checked
+  against all arrays in `inject.npz`. It reproduces the 26 all-positive legacy
+  evaluation months. The corrected seed42 panel also exposes a single-class
+  PA (72/72) because it combines 13 independently injected leaves. No redraw.
+- `rolling_zscore` uses the preceding12months, ddof1, absolute orientation and
+  unit scale for a constant history. `check_e0_star` pairs by task name and
+  bootstraps13regions, excluding PA, with10000draws.
+- `configs/e0_star.toml` runs preparation, not the future scoring/calibration
+  experiment. It writes coherent injection, event and class diagnostics and
+  a manifest; exit2 means no interpretation. With seed42:110negative cells,
+  2adjusted onsets, E0inconclusive and E0*failed(single_class:PA).
+- Removed the3transient importer scripts and their subprocess tests; kept
+  fixtures, raw hashes, original source SHA, descriptive results and a
+  historical exporter commit. Local array integrity tests replace reimports.
+- Environment: uv0.12.19 via existing asdf; global Ruff0.12.3→0.16.9;
+  project Ruff remains0.16.9. `uv lock --upgrade-package ruff` refreshes lock
+  metadata; scientific dependency versions are unchanged.

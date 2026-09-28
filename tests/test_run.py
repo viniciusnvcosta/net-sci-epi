@@ -73,3 +73,38 @@ def test_e0_rejects_different_labels_between_arms():
     frame = evidence()
     frame.loc[0, ["n_positive", "n_negative"]] = [11, 61]
     assert not check_e0_star(True, frame, np.random.default_rng(8)).passed
+
+
+def test_e0_recorded_inconclusive(tmp_path):
+    import json
+    from pathlib import Path
+
+    from headd_l0.run import E0Config, run_preflight
+
+    fixture = np.load(Path(__file__).parent / "reference/data.npz")
+    cfg = E0Config(run_id="audit", output_dir=tmp_path)
+    result = run_preflight(cfg, fixture["counts"].T)
+    manifest = json.loads((result / "manifest.json").read_text())
+    assert manifest["gates"]["E0"]["status"] == "inconclusive"
+    assert manifest["gates"]["E0_star"]["status"] == "failed"
+    assert "single_class:PA" in manifest["gates"]["E0_star"]["reasons"]
+    assert manifest["interpretation_allowed"] is False
+    assert manifest["baseline_id"] == "B1*"
+    assert manifest["reference_sha"].startswith("fbfa609")
+    assert manifest["negative_injected_cells"] > 0
+    saved = np.load(result / "injection.npz")
+    np.testing.assert_allclose(saved["counts"][0], saved["counts"][1:].sum(axis=0))
+    tasks = pd.read_parquet(result / "tasks.parquet")
+    assert len(tasks) == 14
+    assert tasks.loc[tasks.task == "PA", "n_negative"].item() == 0
+    with pytest.raises(FileExistsError):
+        run_preflight(cfg, fixture["counts"].T)
+
+
+def test_e0_config_rejects_wrong_baseline(tmp_path):
+    from headd_l0.run import load_config
+
+    config = tmp_path / "bad.toml"
+    config.write_text('baseline_id = "B1"\n')
+    with pytest.raises(ValueError):
+        load_config(config)
