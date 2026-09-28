@@ -160,3 +160,32 @@ lead=onset-alarm, delay=-lead. Misses retain restricted_lead through censoring
 at window-end+1; no onset (-1) has no timing value and no detection denominator.
 FAR uses only explicitly eligible monitored null months; empty eligibility is
 an error. Runner must mask training alarms and serialize undefined metrics.
+
+## Statistical inference (Task 8, 2026-09-27)
+
+`stats.py` retains the pinned `evaluation/stats.py` Friedman/Wilcoxon primitives
+and Cliff point statistic (Apache-2.0); `stats.npz` is copied from the audit with
+all manifest array hashes verified. The exported non-significant Friedman
+(stat5.836734693877531, p.32243093781203774) and Cliff point value match to1e-12.
+All follow-ups now stop at Friedman p>.05, including DM and Cliff; no stub
+p-values or artificial intervals are generated. All-zero paired Wilcoxon
+differences return stat0/p1; other pairs use SciPy with .05/C(k,2).
+
+Primary bootstrap resamples entire replicates with all regions together.
+Task bootstrap accepts already-paired differences; D-GT1 callers pass13regions
+and report PA separately, using the lower95% bound. Circular block bootstrap
+resamples within each retained region; n_units there counts series, not an
+independent-month/effective sample size. Cliff intervals resample paired region
+indices with Generator (10000draws); RandomState interval equality is not claimed.
+
+DM implements Bartlett HAC with lag12 in the secondary protocol, applied
+separately per task to the predeclared squared binary-alarm losses (Experiments
+Task4). Positive DM means the first method has higher loss. It never flattens
+region boundaries into temporal lags. Exact equal losses yield(0,1); nonzero
+constant differences yield undefined statistic/p, serialized as None with
+zero_hac_variance status. A regression covers decimal roundoff. No numerical
+fallback substitutes ordinary variance or fabricates significance.
+Reference: [Newey–West/Bartlett](https://www.statsmodels.org/dev/generated/statsmodels.stats.sandwich_covariance.cov_hac.html).
+
+The stale Task8 plan example using14tasks/pendingD-GT1 was aligned with the
+already approved13-region decision. No scientific criterion was newly chosen.
