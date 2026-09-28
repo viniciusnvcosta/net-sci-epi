@@ -198,3 +198,26 @@ DETECTORS: dict[str, Callable[[DetectorConfig], _Detector]] = {
     "iforest": IFDetector,
     "mcd": MCDDetector,
 }
+
+
+def rolling_zscore(counts: np.ndarray, window: int = 12) -> np.ndarray:
+    """Absolute z-score against strictly previous months, separately by series.
+
+    Args:
+        counts: Finite panel [series, time].
+        window: Number of previous observations; warmup scores are NaN.
+
+    A constant history uses unit scale, making equal values score zero while
+    preserving finite scores for departures. Scale otherwise uses ddof=1.
+    """
+    values = np.asarray(counts, dtype=float)
+    if values.ndim != 2 or not np.isfinite(values).all() or window < 2:
+        raise ValueError("expected a finite panel and window >= 2")
+    scores = np.full(values.shape, np.nan)
+    for t in range(window, values.shape[1]):
+        history = values[:, t - window : t]
+        scale = history.std(axis=1, ddof=1)
+        scores[:, t] = np.abs(values[:, t] - history.mean(axis=1)) / np.where(
+            scale > 0, scale, 1
+        )
+    return scores
