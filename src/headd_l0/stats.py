@@ -6,6 +6,7 @@ Cliff's point statistic and rank-test primitives follow CDADE fbfa609
 
 from dataclasses import dataclass
 from itertools import combinations
+from typing import cast
 
 import numpy as np
 from scipy.stats import friedmanchisquare, norm, rankdata, wilcoxon
@@ -207,9 +208,10 @@ def secondary_protocol(
             stat, pval = 0.0, 1.0
         else:
             stat, pval = wilcoxon(auc[:, i], auc[:, j], alternative="two-sided")
+        pval = cast(float, pval)
         wx[key] = {
-            "stat": float(stat),
-            "p_value": float(pval),
+            "stat": cast(float, stat),
+            "p_value": pval,
             "alpha": alpha,
             "significant": bool(pval < alpha),
         }

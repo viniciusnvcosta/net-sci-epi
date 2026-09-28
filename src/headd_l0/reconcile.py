@@ -65,7 +65,7 @@ def shrinkage_covariance(errors: np.ndarray) -> tuple[np.ndarray, float]:
 
 
 def _bottom_up(
-    base: np.ndarray, S: np.ndarray, covariance: np.ndarray | None
+    base: np.ndarray, S: np.ndarray, _covariance: np.ndarray | None
 ) -> np.ndarray:
     return S @ base[1:]
 

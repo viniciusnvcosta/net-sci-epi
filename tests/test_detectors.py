@@ -129,3 +129,10 @@ def test_rolling_zscore_is_causal():
     constant = np.ones((1, 15))
     constant[0, 14] = 4
     np.testing.assert_allclose(rolling_zscore(constant)[0, 12:], [0, 0, 3])
+
+
+@pytest.mark.parametrize("name", list(DETECTORS))
+def test_scoring_before_fit_has_explicit_error(name):
+    detector = DETECTORS[name](DetectorConfig(seed=42))
+    with pytest.raises(ValueError, match="fitted"):
+        detector.score(np.ones((2, 1)))
