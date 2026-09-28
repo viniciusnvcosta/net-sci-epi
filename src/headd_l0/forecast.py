@@ -42,7 +42,7 @@ def harmonic_design(months: np.ndarray) -> np.ndarray:
 
 
 def _fit_series(y: np.ndarray, X: np.ndarray) -> tuple[np.ndarray, float, bool]:
-    """Fit one series from Poisson starting values; failures return NaN parameters."""
+    """Fit one series from Poisson starting values; numerical failures return NaN parameters."""
     failed = np.full(X.shape[1], np.nan), np.nan, False
     with warnings.catch_warnings():
         # The outcome is judged below by convergence and finite parameters.
@@ -88,7 +88,9 @@ def fit_nb2(counts: np.ndarray, train_months: int = 60) -> NB2Fit:
 
 
 def forecast_mean(fit: NB2Fit, months: np.ndarray) -> np.ndarray:
-    """Return the NB2 mean ``[n_series, len(months)]``; NaN rows mark failed fits.
+    """Return the NB2 mean ``[n_series, len(months)]``; numerical failures yield NaN rows.
+
+    Callers must also check ``fit.converged``: nonconverged fits may be finite.
 
     Args:
         fit: Result of :func:`fit_nb2`.

@@ -49,6 +49,9 @@ def test_univariate_and_constant_features(name):
     np.testing.assert_allclose(
         solo.score(query), padded.score(np.column_stack([query, [1, 1]]))
     )
+    np.testing.assert_allclose(
+        solo.score(query), padded.score(np.column_stack([query, [-1000, 1000]]))
+    )
     constant = DETECTORS[name](cfg).fit(np.ones((50, 2)))
     np.testing.assert_allclose(constant.score(np.array([[1, 1], [4, 5]])), [0, 5])
 
