@@ -21,8 +21,8 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 ## Global Constraints
 
 - D-E0*-R1 (28/09) adotou ambas as classes nas 13 regiões; PA é descritivo.
-  Scoring Task 0 aguarda tabela de classes/contraste, P1–P3 e features locais P6;
-  o código atual ainda usa a regra histórica.
+  A tabela de classes/contraste e P1–P3 foram confirmadas; scoring Task 0
+  aguarda features locais P6. O pré-gate regional está implementado e pendente.
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
   a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
@@ -172,4 +172,4 @@ Alterar x[:,90:] → features até 89 idênticas; warmup só usa passado e possu
 
 ## Critério de saída
 
-A/W e 30 draws válidos, validação single-region, ε=0 isolado, onsets auditáveis e invariância de prefixo. Os dados sintéticos não são versionados; seeds/config e fixtures pequenas permitem regeneração. D-G0 já autoriza B1*, mas E0* permanece reprovado. Esses resultados técnicos não são evidência da RQ1′ nem substituem E0\*, validação do simulador, D5, FAR ou alcance.
+A/W e 30 draws válidos, validação single-region, ε=0 isolado, onsets auditáveis e invariância de prefixo. Os dados sintéticos não são versionados; seeds/config e fixtures pequenas permitem regeneração. D-G0 já autoriza B1*, mas E0* permanece pendente de scoring e aprovação. Esses resultados técnicos não são evidência da RQ1′ nem substituem E0\*, validação do simulador, D5, FAR ou alcance.

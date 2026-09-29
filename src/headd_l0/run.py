@@ -143,7 +143,7 @@ def run_preflight(cfg: E0Config, counts: np.ndarray) -> Path:
 
     No component/performance gate is inferred from preparation. A single-class
     regional task fails E0*; otherwise the performance gate remains pending
-    until Experiments Task 4 calls check_e0_star with evaluated model outputs.
+    until Experiments Task 0 calls check_e0_star with evaluated model outputs.
     """
 
     seed = np.random.SeedSequence(cfg.root_seed)

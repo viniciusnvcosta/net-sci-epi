@@ -77,6 +77,17 @@ Para repetir, use uma cópia do TOML com novo `run_id` e mantenha seed e protoco
 O pré-gate histórico falhou em `single_class:PA`; a revisão técnica não aprova
 E0* nem libera interpretação de E1′.
 
+A execução real revisada em **2026-09-29T09:08:03Z** usou o commit limpo
+`fb854f2d56c409f79cc0bd97df1d420d78afad7b` e uma cópia temporária do
+TOML com `run_id = "second-execution-regional-preflight"` e
+`raw_dir = "/home/vinvs/projects/hybrid-theory/data/raw"`; seed 42, baseline,
+referência e `output_dir = "results"` permaneceram. Comando:
+`uv run --locked python -m headd_l0.run /tmp/second-execution-regional-preflight.toml`.
+Exit 2, E0 inconclusivo, E0* pendente, motivos vazios, interpretação bloqueada.
+As regiões tiveram 14–29 positivos e 43–58 negativos; PA 72/0. O manifest
+registra 110 células negativas, 2 onsets ajustados, revisão D-E0*-R1 e commit
+da decisão `50f8b3f29bacc4747329addf80cee6719fe3c7fc`. Não houve scoring.
+
 ## Próximas etapas
 
 1. Construir A/W e placebos em P4 e implementar features locais

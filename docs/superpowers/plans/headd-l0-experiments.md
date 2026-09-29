@@ -21,8 +21,8 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 ## Global Constraints
 
 - D-E0*-R1 (28/09) adotou ambas as classes nas 13 regiões; PA é descritivo.
-  Scoring Task 0 aguarda tabela de classes/contraste, P1–P3 e features locais P6;
-  o código atual ainda usa a regra histórica.
+  A tabela de classes/contraste e P1–P3 foram confirmadas; scoring Task 0
+  aguarda features locais P6. O pré-gate regional está implementado e pendente.
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
   a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
@@ -119,7 +119,8 @@ Sem essa flag, o comando de preparação mantém seu comportamento.
       cobertura e coerência descritivas, sem AUC-PR como critério. Condições 1/3/4
       não mudam: bootstrap pareado de 10.000 sobre as 13 regiões, limite inferior
       do IC 95% >0. Prevalências e resultados indefinidos acompanham toda AP.
-      O código atual ainda exige 14 tarefas; revisão e scoring são futuros.
+      A revisão regional do pré-gate já foi implementada na Task 2; scoring
+      e calibração continuam futuros.
 - [ ] **Step 6:** Futuro: testes/checks → PASS; comando
       `uv run python -m headd_l0.run --score-e0 configs/e0_star_scoring.toml` somente após cumprir
       a pré-condição científica. Registrar métricas, nulos, FAR, seeds e gates.
