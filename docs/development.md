@@ -1,8 +1,8 @@
 # Desenvolvimento e reprodução
 
-O repositório dispõe dos componentes da baseline B1* e da preparação da
-camada 0. Grafo, simulador acoplado, features relacionais e runner completo de
-experimentos seguem os [planos de implementação](superpowers/plans/headd-l0-global.md).
+O repositório dispõe dos componentes da baseline B1*, da preparação da
+camada 0, do grafo regional P4 e das features P6. Simulador acoplado e runner
+completo de experimentos seguem os [planos de implementação](superpowers/plans/headd-l0-global.md).
 As decisões científicas vigentes estão em [protocol-decisions.md](protocol-decisions.md).
 
 ## Ambiente e comandos
@@ -88,10 +88,54 @@ As regiões tiveram 14–29 positivos e 43–58 negativos; PA 72/0. O manifest
 registra 110 células negativas, 2 onsets ajustados, revisão D-E0*-R1 e commit
 da decisão `50f8b3f29bacc4747329addf80cee6719fe3c7fc`. Não houve scoring.
 
+## Grafo regional P4
+
+```bash
+uv run python -m headd_l0.graph configs/l0_graph.toml
+```
+
+O TOML fixa `year=2013`, `simplified=false`, micro regiões de PA, seed 42 e
+30 placebos antes da aquisição. A fonte é DataSUS via geobr 2.1.1. A resolução
+original mantém o processamento upstream do leitor, que une municípios e
+remove anéis internos. Não há reparo geométrico local nem troca de ano,
+resolução ou Queen para obter conectividade. Código/nome original e nome
+canônico ficam no manifest; exige-se correspondência com as 13 regiões.
+
+A execução real única em **2026-09-29T16:35:04Z**, commit limpo
+`7208531475b658ab34ff33d823455a4a12121509`, retornou 13 regiões válidas,
+EPSG:4674, sem geometrias vazias. A Queen é conexa, com 25 arestas e graus na
+ordem canônica `[3,3,3,5,4,4,3,4,5,1,2,7,6]`. W tem soma 1 por linha. Os
+30 placebos são distintos, diferentes de A, conexos e preservam os graus de
+cada região. Foram 30 candidatos e 22.616 tentativas para 250 trocas aceitas
+por candidato. Distâncias por diferença simétrica de arestas: 16–34 para A
+e 18–38 entre draws. Isso não demonstra amostragem uniforme nem aprova
+G3/E1; o manifest mantém `interpretation_allowed=false`.
+
+Artefatos em `data/processed/graph/`: fonte e geometrias canônicas, mapas,
+`adjacency.npy`, `W.npy`, `S.npy`, `placebos.npy`, centralidades e GEXFs
+separados de S/A/30 placebos. O manifest também fica em
+`results/l0-graph-2013-original/manifest.json`, com 43 hashes de artefatos,
+configuração, seed, versão/hash do código, Git, timestamp e custo. A aquisição
+mediu 11,986 s de parede, 4,474 s CPU usuário, 1,110 s CPU sistema e pico RSS
+1.176.524 KiB; os artefatos antes dos manifests ocupam 121.715.743 bytes.
+
+O catálogo aponta para o
+[GeoParquet 2013](https://github.com/ipea/geobr_prep_data/releases/download/v2.0.0/healthregions_2013.parquet),
+SHA256 `42de74c7506a5ce52b46ba4d5abdde6b321eebf649b09c08f641fc2e56d8918e`.
+O cache temporário do geobr foi preservado em processed junto ao catálogo.
+O leitor pode usar seu espelho IPEA para o mesmo arquivo; o endpoint efetivo
+não é exposto pela biblioteca e não é reivindicado no manifest.
+
+O comando recusa diretórios de execução/cache existentes. Para nova aquisição,
+use uma cópia do TOML com novos `run_id` e `processed_dir`; não sobrescreva a
+evidência. `adjacency()` lê o cache canônico padrão, verifica origem, nomes,
+hash e invariantes antes de devolver A. Falhas de aquisição, cardinalidade,
+geometria ou conectividade produzem diagnósticos e exit 2, sem cache aprovado.
+
 ## Próximas etapas
 
-1. Construir A/W e placebos em P4 e implementar features locais
-   e relacionais em P6.
+1. Integrar A/W e placebos P4 e features locais/relacionais P6 ao runner,
+   mantendo os gates científicos separados da validação dos componentes.
 2. Preparar P5; definir o perfil científico pendente e validar uma região antes
    de acoplar.
 3. Antes do scoring da Task 0, confirmar a tabela regional de classes e
