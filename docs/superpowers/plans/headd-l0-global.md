@@ -56,7 +56,9 @@ Referência CDADE: `fbfa609bba6cb0b0f2a9e8d73be18022aec319b7`, em
 `~/projects/hybrid-theory`. A [PR #1](https://github.com/viniciusnvcosta/net-sci-epi/pull/1)
 entregou os componentes corrigidos e a preparação da camada 0. O estado operacional
 está em [development](../../development.md); decisões aprovadas prevalecem sobre
-roteiros históricos. E0 permanece inconclusivo; o pré-gate histórico falha com `single_class:PA`. D-E0*-R1 ainda não foi implementada nem aprova E0*.
+roteiros históricos. E0 permanece inconclusivo. O pré-gate histórico falhou com `single_class:PA`;
+a revisão D-E0*-R1 está implementada e o pré-gate regional está pendente de
+scoring. A decisão não aprova E0*.
 
 P1–P2: `implementado`, com componentes `validado tecnicamente` pela suíte registrada
 no plano E0. P3: preparação `implementado`; comparação completa pendente, sem
@@ -86,8 +88,8 @@ flowchart TD
 
 P4 e P6 podem avançar sem o simulador; P6 começa com grafos sintéticos.
 P5 agora permite preparação científica, sem escolher parâmetros pendentes.
-A comparação regional E0\* aguarda tabela de classes/contraste, P1–P3 e
-features locais P6; o código atual ainda usa a regra histórica de 14 tarefas. A autorização B1* de D-G0 não libera interpretação.
+A comparação regional E0\* aguarda features locais P6 e scoring/calibração;
+a tabela pré-scoring de classes/contraste e P1–P3 foram confirmadas. A autorização B1* de D-G0 não libera interpretação.
 As trilhas independentes não autorizam subagentes automaticamente; `think`,
 `default`, `background` e `longContext` continuam classificações de tarefas.
 
@@ -98,7 +100,7 @@ As trilhas independentes não autorizam subagentes automaticamente; `think`,
 | P0    | [E0](headd-l0-e0.md), histórico Task 1                                         | Auditoria realizada; D-G0 autoriza B1\*, E0 inconclusivo.                                        |
 | P1    | E0, validação ativa P1                                                                    | Longa, hashes, ordem canônica e coerência exata 13→1 em 132 meses (G1).                          |
 | P2    | E0, validação ativa P2                                                                    | Componentes existentes; comportamento corrigido separado de paridade de primitivas.              |
-| P3    | E0, validação ativa P3; [Experimentos](headd-l0-experiments.md), Task 0 futura | Pré-gate antigo reprovado; Task 0 exige tabela/contraste, P1–P3 e P6. G2 exige E0*. |
+| P3    | E0, validação ativa P3; [Experimentos](headd-l0-experiments.md), Task 0 futura | Pré-gate regional pendente; tabela/contraste e P1–P3 confirmados; Task 0 ainda exige P6. G2 exige E0*. |
 | P4    | [Grafo/simulação](headd-l0-graph-simulation.md), Task 1 futura                 | A/W, mapa, GEXF, 30 placebos e manifest; G3: nomes, graus e conectividade.                       |
 | P5    | Grafo/simulação, Tasks 2–3 futuras                                                        | Perfil aprovado antes do integrador; uma região antes do acoplamento; G4: ruídos, ε=0 e D-REACH. |
 | P6    | Grafo/simulação, Task 4 futura                                                            | Features sobre resíduos; G5: causalidade e mesma representação sob placebos.                     |
@@ -127,11 +129,11 @@ Camada1 (injeção epidêmica+nulos paramétricos) tem prioridade sobre todos os
 - [x] Executar P0 e decidir G0: saída (i) em 27/09, E0 inconclusivo e B1\* autorizado; D2, D3, D5 e D6 decididos ([registro](../../protocol-decisions.md)).
 - [x] D-G0a: busca concluída, sem proveniência verificável; ver `docs/reference-provenance.md`.
 - [x] Hardware D-COST registrado (27/09); atualizar somente se o ambiente do piloto mudar.
-- [ ] Validar P1–P3 pela sequência ativa do plano E0; não recriar componentes/exportadores.
+- [x] Validar P1–P3 pela sequência ativa do plano E0; não recriar componentes/exportadores.
 - [ ] Iniciar P4/P6; testes de features independem de P5.
 - [ ] Preparar P5 e aprovar perfil antes do integrador; validar uma região antes de acoplar. Fixar faixa R0 antes da camada 1.
 - [x] Registrar D-E0*-R1 datada antes do primeiro commit de integração E0\*; conferir SHA deste commit na Task 0.
-- [ ] Antes do scoring Task 0, confirmar tabela regional de positivos/negativos/prevalência e contraste sem cutoff escolhido por scores, P1–P3 e features locais P6.
+- [ ] Antes do scoring Task 0, confirmar features locais P6. Tabela regional de positivos/negativos/prevalência e contraste sem cutoff escolhido por scores, e P1–P3, já confirmados.
 - [ ] Executar piloto D-COST após detectores+acoplamento; aplicar 48 h/96 h antes de observar efeitos.
 - [ ] Verificar alcance D-REACH antes dos braços; células sem poder não contam como evidência negativa.
 - [ ] Avaliar o E0\* na camada 0 antes de qualquer resultado do E1′; executar camadas 0/1/2 e nulos NB2 com FAR e seeds disjuntas; separar E0\*, não-inferioridade e evidência de propagação.

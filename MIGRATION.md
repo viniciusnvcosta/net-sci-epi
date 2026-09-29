@@ -214,3 +214,16 @@ Reference: [Newey–West/Bartlett](https://www.statsmodels.org/dev/generated/sta
   historical exporter commit. Local array integrity tests replace reimports.
 
 Execution commands and current gate limitations: [development guide](docs/development.md).
+
+## D-E0*-R1 regional pre-gate (Task 2, 2026-09-29)
+
+`run.py` now enforces both classes and finite AP only for the 13 canonical
+regional tasks in the 72-month test window. It rejects malformed regional
+counts, missing/duplicate/unknown task-arm rows and mismatched regional labels.
+Optional PA rows are descriptive and do not enter AP or class criteria. The
+10,000-draw paired bootstrap remains over named regions. The root-seed-42
+`inject_original_bounded` stream, labels and counts are unchanged; preflight
+retains all 14 tasks, writes PA union/coherence diagnostics, and remains pending
+until component and trivial-baseline evidence exists. The earlier
+`single_class:PA` failure remains a historical artifact; E0 is inconclusive.
+Behavior tests in `tests/test_run.py` cover this revision. No new dependency.

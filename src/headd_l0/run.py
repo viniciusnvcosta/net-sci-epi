@@ -33,42 +33,55 @@ class E0StarResult:
 def check_e0_star(
     components_ok: bool, auc_pr: pd.DataFrame, rng: np.random.Generator
 ) -> E0StarResult:
-    """Check all 14 tasks, then bootstrap paired AP differences over 13 regions.
+    """Validate paired regional evidence and bootstrap AP gains over 13 regions.
+
+    PA rows are optional descriptive evidence. Their AP and class balance do not
+    enter the gate, though duplicate or unknown task/arm keys are rejected.
 
     Args:
         components_ok: Outcome of the component behavior suite for this code.
-        auc_pr: Columns task, arm, auc_pr, n_positive, n_negative. Both B1* and
-            zscore must have finite AP and both classes on every canonical task.
+        auc_pr: Columns task, arm, auc_pr, n_positive, n_negative. Regional
+            rows require finite AP and both classes in the 72-month test window.
         rng: Independent bootstrap stream; never used for data generation.
     """
-    names = ("PA", *hierarchy().leaves)
+    names = hierarchy().leaves
     required = {"task", "arm", "auc_pr", "n_positive", "n_negative"}
     valid = required.issubset(auc_pr.columns)
     if valid:
         keys = list(zip(auc_pr.task, auc_pr.arm, strict=True))
         expected = {(name, arm) for name in names for arm in ("B1*", "zscore")}
-        valid = len(keys) == len(expected) and set(keys) == expected
-        numeric = auc_pr[["auc_pr", "n_positive", "n_negative"]].to_numpy(float)
-        valid = bool(
-            valid
-            and np.isfinite(numeric).all()
-            and auc_pr.auc_pr.between(0, 1).all()
-            and (numeric[:, 1:] > 0).all()
+        permitted = expected | {("PA", arm) for arm in ("B1*", "zscore")}
+        valid = (
+            len(keys) == len(set(keys))
+            and set(keys).issubset(permitted)
+            and expected.issubset(keys)
         )
     if valid:
-        sizes = auc_pr.groupby("task")[["n_positive", "n_negative"]].nunique()
-        valid = bool(
-            (sizes == 1).all().all()
-            and (numeric[:, 1:] == np.floor(numeric[:, 1:])).all()
+        regional = auc_pr.loc[auc_pr.task != "PA"]
+        numeric = (
+            regional[["auc_pr", "n_positive", "n_negative"]]
+            .apply(pd.to_numeric, errors="coerce")
+            .to_numpy(float)
         )
+        counts = numeric[:, 1:]
+        valid = bool(
+            np.isfinite(numeric).all()
+            and ((numeric[:, 0] >= 0) & (numeric[:, 0] <= 1)).all()
+            and (counts > 0).all()
+            and (counts == np.floor(counts)).all()
+            and (counts.sum(axis=1) == 72).all()
+        )
+    if valid:
+        sizes = regional.groupby("task")[["n_positive", "n_negative"]].nunique()
+        valid = bool((sizes == 1).all().all())
     lower = None
     if valid:
-        table = auc_pr.pivot(index="task", columns="arm", values="auc_pr")
-        delta = (table["B1*"] - table["zscore"]).loc[list(names[1:])].to_numpy()
+        table = regional.pivot(index="task", columns="arm", values="auc_pr")
+        delta = (table["B1*"] - table["zscore"]).loc[list(names)].to_numpy()
         lower = float(task_bootstrap(delta, rng, n_boot=10000).low)
     conditions = {
         "components": bool(components_ok),
-        "fourteen_tasks": valid,
+        "thirteen_regional_tasks": valid,
         "trivial_baseline": lower is not None and lower > 0,
     }
     return E0StarResult(
@@ -129,7 +142,7 @@ def run_preflight(cfg: E0Config, counts: np.ndarray) -> Path:
     """Persist coherent injection and class diagnostics before detector execution.
 
     No component/performance gate is inferred from preparation. A single-class
-    task fails E0* immediately; otherwise the performance gate remains pending
+    regional task fails E0*; otherwise the performance gate remains pending
     until Experiments Task 4 calls check_e0_star with evaluated model outputs.
     """
 
@@ -155,17 +168,42 @@ def run_preflight(cfg: E0Config, counts: np.ndarray) -> Path:
             "n_negative": (~result.mask[:, 60:]).sum(axis=1),
         }
     )
+    tasks["denominator"] = 72
+    tasks["window_start"] = 60
+    tasks["window_end"] = 131
+    tasks["positive_prevalence"] = tasks.n_positive / tasks.denominator
+    tasks["role"] = ["descriptive", *(["regional"] * 13)]
+    tasks["in_gate"] = [False, *([True] * 13)]
     tasks.to_parquet(path / "tasks.parquet", index=False)
+    pa_diagnostics = {
+        "positive_prevalence": float(tasks.loc[0, "positive_prevalence"]),
+        "union_coverage_months": int(result.mask[0, 60:].sum()),
+        "denominator": 72,
+        "counts_coherent": bool(
+            np.array_equal(result.counts[0], result.counts[1:].sum(axis=0))
+        ),
+        "labels_union_coherent": bool(
+            np.array_equal(result.mask[0], result.mask[1:].any(axis=0))
+        ),
+    }
+    (path / "pa_diagnostics.json").write_text(
+        json.dumps(pa_diagnostics, indent=2) + "\n"
+    )
     pd.DataFrame([asdict(event) for event in result.events]).to_parquet(
         path / "events.parquet", index=False
     )
-    invalid = tasks.loc[(tasks.n_positive == 0) | (tasks.n_negative == 0), "task"]
+    invalid = tasks.loc[
+        tasks.in_gate & ((tasks.n_positive == 0) | (tasks.n_negative == 0)), "task"
+    ]
     git = ["git", "-C", str(Path(__file__).resolve().parent)]
     manifest = {
         "config": {
             k: str(v) if isinstance(v, Path) else v for k, v in asdict(cfg).items()
         },
         "baseline_id": cfg.baseline_id,
+        "e0_star_revision": "D-E0*-R1",
+        "e0_star_decision_commit": "50f8b3f29bacc4747329addf80cee6719fe3c7fc",
+        "e0_star_gate_version": "regional-13-v1",
         "reference_sha": cfg.reference_sha,
         "git_sha": subprocess.check_output(
             [*git, "rev-parse", "HEAD"], text=True

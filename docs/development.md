@@ -59,29 +59,33 @@ uv run python -m headd_l0.run configs/e0_star.toml
 
 Esse comando prepara a injeção e os diagnósticos; ainda não executa a comparação
 B1*/z-score com calibração FAR. Os artefatos ficam em
-`results/<run_id>/{injection.npz,events.parquet,tasks.parquet,manifest.json}`.
+`results/<run_id>/{injection.npz,events.parquet,tasks.parquet,pa_diagnostics.json,manifest.json}`.
 
-Com a seed 42 fixada, as 13 regiões têm ambas as classes, mas a união regional
-rotula todos os 72 meses de teste de PA como positivos. O pré-gate retorna
-**exit 2**, `E0_star.status = "failed"`, motivo `single_class:PA`, e
-`interpretation_allowed = false`. E0 permanece **inconclusivo**. Foram observadas
-110 células negativas e 2 onsets ajustados; não houve clipping nem novo sorteio.
+Na seed 42, as 13 regiões têm ambas as classes nos meses 60–131; PA tem 72
+positivos e 0 negativos pela união. D-E0*-R1 (28/09) aplica a condição de
+classes somente às regiões. O pré-gate revisado retorna **exit 2**,
+`E0_star.status = "pending"`, motivos vazios e `interpretation_allowed = false`.
+Componentes e baseline trivial continuam `not_evaluated`; E0 permanece
+**inconclusivo**. As 110 células negativas e 2 onsets ajustados da injeção
+original permanecem, sem clipping nem novo sorteio.
 
-Para repetir uma execução existente, use uma cópia do TOML com outro `run_id`,
-mantendo seed e protocolo. Não escolha seeds ou ajuste o baseline para obter
-aprovação. Esse é o resultado histórico do código ainda vigente. D-E0*-R1 (28/09)
-autorizou condição 2 regional, com PA descritivo, sem alterar a injeção ou a
-seed 42. A decisão não aprova E0* nem libera interpretação de E1′.
+`tasks.parquet` retém as 14 tarefas com prevalência, denominador 72, janela e
+papel no gate. `pa_diagnostics.json` registra cobertura da união e coerência de
+contagens/rótulos, sem reivindicar discriminação de PA. O manifest fixa revisão,
+commit da decisão e versão da regra; resultados históricos nunca são sobrescritos.
+Para repetir, use uma cópia do TOML com novo `run_id` e mantenha seed e protocolo.
+O pré-gate histórico falhou em `single_class:PA`; a revisão técnica não aprova
+E0* nem libera interpretação de E1′.
 
 ## Próximas etapas
 
-1. Validar P1–P3, construir A/W e placebos em P4, e implementar features locais
+1. Construir A/W e placebos em P4 e implementar features locais
    e relacionais em P6.
 2. Preparar P5; definir o perfil científico pendente e validar uma região antes
    de acoplar.
 3. Antes do scoring da Task 0, confirmar a tabela regional de classes e
-   contraste sem cutoff escolhido por scores, além de P1–P3 e features locais P6.
-   Implementar a revisão de `check_e0_star` para 13 regiões; PA permanece descritivo.
+   contraste sem cutoff escolhido por scores, além de features locais P6.
+   P1–P3 e a revisão regional do pré-gate foram validados tecnicamente.
 4. Integrar os componentes ao gate E0* e respeitar os demais gates antes de
    interpretar resultados. `configs/e1_bench.toml` ainda não está disponível.
 

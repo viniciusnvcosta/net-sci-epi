@@ -13,9 +13,11 @@
 ## Estado de execução
 
 P1–P2: `implementado`, com componentes `validado tecnicamente` pela evidência abaixo.
-P3: preparação `implementado`; pré-gate reprovado em PA com seed 42. Scoring e
-calibração completos são **futuros e condicionados** (Experimentos Task 0).
-D-E0*-R1 (28/09) definiu ambas as classes nas 13 tarefas regionais; PA é descritivo. O código ainda aplica a condição histórica de 14 tarefas. Não há `gate aprovado` para E0\* nem `interpretação autorizada` para E1′.
+P3: preparação e revisão regional `implementado` e `validado tecnicamente`; pré-gate
+seed 42 pendente, com PA descritivo (72/0). Scoring e calibração completos são
+**futuros e condicionados** (Experimentos Task 0). D-E0*-R1 (28/09) exige ambas
+as classes nas 13 regiões. Não há `gate aprovado` para E0\* nem
+`interpretação autorizada` para E1′.
 
 ## Vocabulário de status
 
@@ -53,39 +55,44 @@ Aplicar [D-G0, D-E0\*, D5 e D-GT1](../../protocol-decisions.md) (27/09): saída 
 ## Sequência ativa de validação P1–P3
 
 **Files atuais:** `src/headd_l0/`, `tests/`, `configs/data.toml`, `configs/e0_star.toml`,
-`MIGRATION.md`. São insumos de verificação; esta revisão não os modifica.
+`MIGRATION.md`. A revisão regional atualiza run, testes e documentação; não executa scores.
 **Interfaces atuais:** `load_sivep` → `DataBundle`; previsões/resíduos de
 `forecast.py`/`reconcile.py`; `inject_original_bounded` → `InjectionResult`;
 `run_preflight` → diretório de artefatos. Não compor scores dos braços nesta sequência.
 
-- [ ] **P1 — Verificar dados e hierarquia.** Rodar
+- [x] **P1 — Verificar dados e hierarquia.** Rodar
       `uv run --locked pytest -o addopts='' tests/test_data.py tests/test_reference.py -q`.
       Esperado: PASS, hashes/ordem canônica, painel 13×132, soma exata de positivos e
       testes no PA. Conferir `MIGRATION.md`; tolerância zero nas primitivas portadas.
-- [ ] **P2 — Verificar componentes existentes.** Rodar
+- [x] **P2 — Verificar componentes existentes.** Rodar
       `uv run --locked pytest -o addopts='' tests/test_forecast.py tests/test_reconcile.py tests/test_detectors.py tests/test_threshold.py tests/test_select.py tests/test_evaluate.py tests/test_stats.py -q`.
       Esperado: PASS; fit só no treino, MinT sobre previsões, orientação dos seis
       detectores, EVT/FAR, seleção causal, censura e parada após Friedman.
       Testes unitários usam fixtures; não são comparação B1\*/z-score nos dados reais.
-- [ ] **P3 — Verificar preparação e classes.** Rodar
+- [x] **P3 — Verificar preparação e classes.** Rodar
       `uv run --locked pytest -o addopts='' tests/test_inject.py tests/test_run.py -q`.
       Esperado: PASS; duração completa, onset ajustado sem redraw, PA soma/união,
-      negativos preservados, determinismo e gate reprovado em PA.
-- [ ] **Reproduzir o pré-gate sem scoring.** Rodar
+      negativos preservados, determinismo e gate regional pendente.
+- [x] **Reproduzir o pré-gate sem scoring.** Rodar
       `uv run --locked python -m headd_l0.run configs/e0_star.toml` se o run_id ainda
       não existir; caso contrário usar cópia temporária do TOML com novo run_id,
       mantendo seed 42, caminhos e protocolo. Os artefatos ficam em `results/<run_id>/`.
-      Exigir exit 2, `gates.E0.status="inconclusive"`, `gates.E0_star.status="failed"`,
-      `reasons=["single_class:PA"]`, `interpretation_allowed=false` e componentes/
+      Exigir exit 2, `gates.E0.status="inconclusive"`, `gates.E0_star.status="pending"`,
+      `reasons=[]`, `interpretation_allowed=false` e componentes/
       baseline trivial `not_evaluated`. PA tem 72 positivos/0 negativos; registrar
       110 células negativas introduzidas e 2 onsets ajustados, sem clipping/redraw.
 - [ ] **Resultado inesperado:** exit 0, outro motivo ou divergência dos campos
-      acima é regressão/discrepância: interromper a entrega documental e investigar
+      acima é regressão/discrepância: investigar
       comando, SHA, config e artefatos. Não mudar expectativas/seed/rótulos para passar.
-      Uma correção de código fica fora desta entrega documental.
-- [ ] **Checks globais:** `uv run --locked pytest -o addopts='' -q`,
+      Preservar a seed e a injeção.
+- [x] **Checks globais:** `uv run --locked pytest -o addopts='' -q`,
       `uv run --locked ruff check .`, `uv run --locked ruff format --check .`.
       Registrar data, SHA, comandos e resultados; nenhum PASS libera E0\*.
+
+A execução revisada de 29/09/2026 validou P1 (22), P2 (106) e P3 (43)
+testes. O pré-gate real e seus metadados estão no relatório Task 2 em
+`.superpowers/sdd/headd-l0-global/task-2-report.md`. Essa validação não inclui
+scores, thresholds ou aprovação de E0*.
 
 ## Evidência técnica registrada
 
