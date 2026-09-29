@@ -234,3 +234,6 @@ reports/experiments/*/
 # Regenerable experiment outputs
 data/processed/
 results/
+
+# Isolated implementation worktrees
+/.worktrees/
