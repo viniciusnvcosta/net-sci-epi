@@ -99,7 +99,9 @@ O TOML fixa `year=2013`, `simplified=false`, micro regiões de PA, seed 42 e
 original mantém o processamento upstream do leitor, que une municípios e
 remove anéis internos. Não há reparo geométrico local nem troca de ano,
 resolução ou Queen para obter conectividade. Código/nome original e nome
-canônico ficam no manifest; exige-se correspondência com as 13 regiões.
+canônico ficam no manifest; exige-se correspondência exata com a tabela de
+13 pares código–nome DataSUS/PA de 2013 (`datasus-pa-2013-v1`). Códigos
+desconhecidos ou associados ao nome de outra região bloqueiam a aquisição.
 
 A execução real única em **2026-09-29T16:35:04Z**, commit limpo
 `7208531475b658ab34ff33d823455a4a12121509`, retornou 13 regiões válidas,

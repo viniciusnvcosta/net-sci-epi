@@ -255,7 +255,10 @@ PA and `simplified=false` before acquisition. The resolved geobr 2.1.1 reader
 unions municipalities and removes interior holes; manifests record this
 upstream operation and its source hash. Local invalid geometries are rejected,
 not repaired. Original codes/names and their accent/case normalization are
-retained in an audit table, checked against all 13 canonical regions. No year,
+retained in an audit table, checked against the exact 13 code/name pairs in
+`PA_HEALTH_REGIONS_2013` (audit version `datasus-pa-2013-v1`). The table is
+pinned to the acquired DataSUS/geobr 2013 source hash; unknown codes or swapped
+code/name assignments fail before a ready cache is written. No year,
 resolution or contiguity fallback is selected to obtain connectivity.
 
 Each placebo candidate starts from A and accepts 10×|E| double-edge swaps,

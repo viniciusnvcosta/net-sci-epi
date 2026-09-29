@@ -19,7 +19,21 @@ def acquisition_fixture():
     return (
         gpd.GeoDataFrame(
             {
-                "code_health_region": list(range(15001, 15014)),
+                "code_health_region": [
+                    15001,
+                    15002,
+                    15003,
+                    15004,
+                    15013,
+                    15014,
+                    15006,
+                    15007,
+                    15008,
+                    15009,
+                    15010,
+                    15011,
+                    15012,
+                ],
                 "name_health_region": names,
                 "abbrev_state": "PA",
             },
@@ -198,3 +212,29 @@ def test_incompatible_cache_source_is_rejected(tmp_path, monkeypatch, field, val
     path.write_text(json.dumps(manifest))
     with pytest.raises(ValueError, match="source"):
         graph.adjacency()
+
+
+@pytest.mark.parametrize("corruption", ["unknown_codes", "swapped_names"])
+def test_source_region_identity_mismatch_is_blocked(tmp_path, monkeypatch, corruption):
+    source = acquisition_fixture()
+    if corruption == "unknown_codes":
+        source["code_health_region"] = list(range(15901, 15914))
+    else:
+        source.loc[[0, 1], "name_health_region"] = source.loc[
+            [1, 0], "name_health_region"
+        ].to_numpy()
+    monkeypatch.setattr(graph_io.geobr, "read_health_region", lambda **kwargs: source)
+    assert graph_io.main([str(config_file(tmp_path))]) == 2
+    manifest = json.loads((tmp_path / "results/test-graph/manifest.json").read_text())
+    assert manifest["status"] == "blocked"
+    assert "codes" in manifest["error"]
+    assert manifest["name_mapping_version"] == "datasus-pa-2013-v1"
+    assert manifest["name_mapping"] == [
+        {
+            "code_health_region": int(row.code_health_region),
+            "name_health_region": row.name_health_region,
+            "name": row.name_health_region,
+        }
+        for row in source.itertuples()
+    ]
+    assert not (tmp_path / "processed/adjacency.npy").exists()

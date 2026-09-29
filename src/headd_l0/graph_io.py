@@ -36,6 +36,23 @@ from headd_l0.graph import (
 from headd_l0.reconcile import summing_matrix
 
 GEOBR_SOURCE = Path(inspect.getfile(geobr.read_health_region))
+# DataSUS/geobr healthregions_2013.parquet, v2.0.0 catalog (original resolution).
+# Source SHA256: 42de74c7506a5ce52b46ba4d5abdde6b321eebf649b09c08f641fc2e56d8918e
+PA_HEALTH_REGIONS_2013 = {
+    15001: "ARAGUAIA",
+    15002: "BAIXO AMAZONAS",
+    15003: "CARAJAS",
+    15004: "LAGO DE TUCURUI",
+    15006: "METROPOLITANA I",
+    15007: "METROPOLITANA II",
+    15008: "METROPOLITANA III",
+    15009: "RIO CAETES",
+    15010: "TAPAJOS",
+    15011: "TOCANTINS",
+    15012: "XINGU",
+    15013: "MARAJO I",
+    15014: "MARAJO II",
+}
 
 
 @dataclass(frozen=True)
@@ -91,16 +108,19 @@ def _canonical_regions(regions: gpd.GeoDataFrame, manifest: dict) -> gpd.GeoData
         )
     )
     manifest["name_mapping"] = json.loads(mapping.to_json(orient="records"))
+    manifest["name_mapping_version"] = "datasus-pa-2013-v1"
     if (
         len(mapping) != 13
         or mapping[code].duplicated().any()
         or mapping["name"].duplicated().any()
         or set(mapping["name"]) != set(hierarchy().leaves)
-        or not mapping[code].astype(str).str.startswith("15").all()
-        or not (pd.to_numeric(mapping[code]) % 1 == 0).all()
+        or not pd.to_numeric(mapping[code], errors="coerce")
+        .map(PA_HEALTH_REGIONS_2013)
+        .eq(mapping["name"])
+        .all()
     ):
         raise ValueError(
-            f"source must contain exactly 13 PA regional codes and canonical names; observed {len(mapping)}"
+            f"source must match the 13 DataSUS 2013 PA codes and canonical names; observed {len(mapping)}"
         )
     if "abbrev_state" in regions and not (regions.abbrev_state == "PA").all():
         raise ValueError("source includes non-PA regions")
