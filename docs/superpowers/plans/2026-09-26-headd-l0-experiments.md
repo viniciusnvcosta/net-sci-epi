@@ -21,7 +21,7 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 ## Global Constraints
 
 - Comparação regional B1*/z-score selada até revisão de D-E0*: nenhuma execução
-  diagnóstica; decisão datada deve preceder o primeiro commit de integração E0*.
+  diagnóstica; decisão datada deve preceder o primeiro commit de integração E0\*.
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
   a [decisão pendente PA](2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
@@ -49,8 +49,8 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 As Tasks 0–5 são **futuras**: seus novos símbolos, arquivos, configs e comandos
 não existem ainda, salvo funções explicitamente consumidas dos componentes E0.
 Status atual: preparação `implementado` e componentes `validado tecnicamente`;
-E0* sem `gate aprovado`, E1′ sem `interpretação autorizada`. Nenhuma tarefa de
-integração/scoring E0* começa antes da decisão PA, inclusive commits da Task 1
+E0\* sem `gate aprovado`, E1′ sem `interpretação autorizada`. Nenhuma tarefa de
+integração/scoring E0\* começa antes da decisão PA, inclusive commits da Task 1
 que integrem esse caminho. Tasks 1–5 têm pré-condições próprias além da Task 0.
 
 Modificar `run.py`, `inject.py`, `tests/test_run.py`, `tests/test_inject.py`; criar configs `e1_smoke.toml`, `e1_bench.toml`, `e1_real.toml`, `e1_local.toml`, testes de integração em `tests/test_run.py`, notebooks `01_l0_network.ipynb`, `02_e1_results.ipynb`. Atualizar README/MIGRATION só nas seções correspondentes.
@@ -61,10 +61,10 @@ Revisão aprovada: [D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–4, D-COST e D-REACH](.
 
 Não criar módulos adicionais preventivamente. Se run.py exceder 400 linhas, extrair exclusivamente parsing/dataclasses para `config.py` com `tests/test_config.py`, mantendo orquestração em run.py e ajustando imports em um único commit. Essa divisão depende do tamanho real.
 
-### Task 0: Integração E0* B1*/z-score e nulos reais — futura e condicionada
+### Task 0: Integração E0\* B1\*/z-score e nulos reais — futura e condicionada
 
 **Entrada obrigatória:** decisão PA datada e registrada antes do primeiro commit
-que integre scoring E0*. Até lá, apenas planejamento; nenhuma comparação regional,
+que integre scoring E0\*. Até lá, apenas planejamento; nenhuma comparação regional,
 mesmo diagnóstica. Este trabalho depende de P1–P3 e das features locais de P6,
 mas não de grafo adquirido, perfil do simulador ou injeção epidêmica.
 
@@ -86,37 +86,37 @@ os campos atuais com outro run_id; a CLI futura opta por scoring via `--score-e0
 Sem essa flag, o comando de preparação mantém seu comportamento.
 
 - [ ] **Step 1: Verificar precedência documental.** Conferir data/responsável da
-  decisão PA e seu commit anterior à integração. Sem revisão de D-E0*, não iniciar
-  scoring; a autorização de B1* não satisfaz esta pré-condição.
+      decisão PA e seu commit anterior à integração. Sem revisão de D-E0*, não iniciar
+      scoring; a autorização de B1* não satisfaz esta pré-condição.
 - [ ] **Step 2: Escrever testes futuros dos nulos e integração.**
-  `test_null_fit_uses_training_only`: alterar meses ≥60 não muda fit;
-  `test_null_calibration_evaluation_disjoint`: IDs/streams disjuntos;
-  `test_null_aggregate_is_sum`: PA soma das folhas;
-  `test_null_panels_have_integer_counts`: shape `[200,13,132]`, inteiros ≥0;
-  `test_null_sampling_deterministic`: mesma seed produz arrays idênticos;
-  `test_null_nonconvergence_is_reported`: falha de fit e fallback em blocos
-  identificados em todos os artefatos, sem modelo substituto silencioso;
-  `test_e0_scoring_preserves_preflight_stream`: injeção da seed 42 idêntica à
-  preparação atual; `test_e0_scoring_waits_for_pa_decision`: bloqueia antes de
-  calcular scores; `test_e0_ap_reports_prevalence`: AP sempre acompanha prevalência.
-  Nulos completos: treino original + 72 meses amostrados, shape `[200,13,132]`.
+      `test_null_fit_uses_training_only`: alterar meses ≥60 não muda fit;
+      `test_null_calibration_evaluation_disjoint`: IDs/streams disjuntos;
+      `test_null_aggregate_is_sum`: PA soma das folhas;
+      `test_null_panels_have_integer_counts`: shape `[200,13,132]`, inteiros ≥0;
+      `test_null_sampling_deterministic`: mesma seed produz arrays idênticos;
+      `test_null_nonconvergence_is_reported`: falha de fit e fallback em blocos
+      identificados em todos os artefatos, sem modelo substituto silencioso;
+      `test_e0_scoring_preserves_preflight_stream`: injeção da seed 42 idêntica à
+      preparação atual; `test_e0_scoring_waits_for_pa_decision`: bloqueia antes de
+      calcular scores; `test_e0_ap_reports_prevalence`: AP sempre acompanha prevalência.
+      Nulos completos: treino original + 72 meses amostrados, shape `[200,13,132]`.
 - [ ] **Step 3:** Futuro: `uv run pytest -o addopts='' tests/test_forecast.py tests/test_run.py -v`
-  → novos testes FAIL antes da implementação.
+      → novos testes FAIL antes da implementação.
 - [ ] **Step 4: Integrar o mínimo após decisão.** NB2 no treino 0–59; 200 painéis
-  de calibração + 200 de avaliação disjuntos, PA recalculado; falha de ajuste usa
-  bootstrap em blocos do treino marcado nos artefatos conforme D-GT3, sem fallback
-  silencioso. NB2 → MinT → resíduos padronizados → features locais → pool/seleção.
-  Comparador: `rolling_zscore`, janela causal 12. Calibrar ambos pelo mesmo método,
-  FAR 1/60, tolerância observada 1/300. Thresholds numéricos podem diferir.
-  Preservar o stream oficial da injeção; derivar streams de calibração, avaliação,
-  detectores e bootstrap separadamente, sem realocar a injeção para uma child.
+      de calibração + 200 de avaliação disjuntos, PA recalculado; falha de ajuste usa
+      bootstrap em blocos do treino marcado nos artefatos conforme D-GT3, sem fallback
+      silencioso. NB2 → MinT → resíduos padronizados → features locais → pool/seleção.
+      Comparador: `rolling_zscore`, janela causal 12. Calibrar ambos pelo mesmo método,
+      FAR 1/60, tolerância observada 1/300. Thresholds numéricos podem diferir.
+      Preservar o stream oficial da injeção; derivar streams de calibração, avaliação,
+      detectores e bootstrap separadamente, sem realocar a injeção para uma child.
 - [ ] **Step 5: Avaliar conforme decisão registrada.** No protocolo ainda vigente,
-  `check_e0_star` exige 14 tarefas com duas classes; bootstrap pareado de 10.000
-  sobre as 13 regiões, PA excluído, limite inferior >0. Não alterar esse contrato
-  antes de decisão. Prevalências e resultados indefinidos acompanham toda AP.
+      `check_e0_star` exige 14 tarefas com duas classes; bootstrap pareado de 10.000
+      sobre as 13 regiões, PA excluído, limite inferior >0. Não alterar esse contrato
+      antes de decisão. Prevalências e resultados indefinidos acompanham toda AP.
 - [ ] **Step 6:** Futuro: testes/checks → PASS; comando
-  `uv run python -m headd_l0.run --score-e0 configs/e0_star_scoring.toml` somente após cumprir
-  a pré-condição científica. Registrar métricas, nulos, FAR, seeds e gates.
+      `uv run python -m headd_l0.run --score-e0 configs/e0_star_scoring.toml` somente após cumprir
+      a pré-condição científica. Registrar métricas, nulos, FAR, seeds e gates.
 - [ ] **Step 7:** Commit futuro `feat: integrate approved E0 star scoring and null calibration`.
 
 ### Task 1: Runner, configs, artefatos e composição dos braços — longContext
@@ -144,11 +144,11 @@ np.testing.assert_array_equal(first_order_counts, second_order_counts)
 Comparar configurações resolvidas dos braços removendo apenas `name/residuals/graph_id`; devem coincidir. Fit/transform recebem somente contagens e janelas; teste passa máscaras embaralhadas e exige scores iguais. Config inválida e dados ausentes geram erro, sem métricas de sucesso vazias.
 
 - [ ] **Step 2:** `uv run pytest tests/test_run.py -v` → FAIL nos novos casos.
-- [ ] **Step 3: Implementar.** `tomllib` → validação → dataclass. Para E1, seeds raiz spawn(6): dados, calibração, avaliação, placebos, detectores, bootstrap; criar todas as children pela ordem canônica, antes de iterar braços. Não aplicar essa realocação ao stream oficial de injeção E0* (Task 0). Registrar entropy/spawn_key; tarefas da mesma réplica compartilham dados/seeds de detector. Previsões NB2 e reconciliação MinT(Shrink) são calculadas uma vez por réplica e compartilhadas (D5). B0 usa features locais dos resíduos base y − μ̂; B1\* usa features locais dos resíduos reconciliados y − P·μ̂; B2 acrescenta neighbors com W real sobre os mesmos resíduos (PA com zeros relacionais); placebo troca só W. Teste demonstra que o MinT recebe contagens previstas, nunca scores; nenhum ramo substitui a reconciliação por normalização de scores.
+- [ ] **Step 3: Implementar.** `tomllib` → validação → dataclass. Para E1, seeds raiz spawn(6): dados, calibração, avaliação, placebos, detectores, bootstrap; criar todas as children pela ordem canônica, antes de iterar braços. Não aplicar essa realocação ao stream oficial de injeção E0\* (Task 0). Registrar entropy/spawn_key; tarefas da mesma réplica compartilham dados/seeds de detector. Previsões NB2 e reconciliação MinT(Shrink) são calculadas uma vez por réplica e compartilhadas (D5). B0 usa features locais dos resíduos base y − μ̂; B1\* usa features locais dos resíduos reconciliados y − P·μ̂; B2 acrescenta neighbors com W real sobre os mesmos resíduos (PA com zeros relacionais); placebo troca só W. Teste demonstra que o MinT recebe contagens previstas, nunca scores; nenhum ramo substitui a reconciliação por normalização de scores.
 
 Config final: root_seed=42, train_months=60, window=12, ε=(0,.05,.20), ruídos white/env/dem, 500/500/200 por célula, n_placebos=30, target_far=1/60, seis detectores, mint_shrink/meta_des/evt_gpd. Estes complementos só são usados após revisão da spec. Smoke: 2 T+2 N por célula, 2 placebos e 2 N de calibração; exercita fallback de cauda curta, sem alegação estatística.
 
-- [ ] **Step 4:** Testes/checks → PASS; `uv run python -m headd_l0.run configs/e1_smoke.toml` → todos os artefatos/manifest e status smoke. Repetir em outro run_id: mesmas contagens/scores/métricas, exceto timestamp/id/hash do manifesto. O smoke é técnico e não analisa RQ1′ em nenhuma rota. E0 permanece inconclusivo e B1* já está autorizado. O smoke é apenas técnico; interpretação exige E0* aprovado, FAR comparável, D5 e todos os demais gates válidos, sem dispensa por D-G0.
+- [ ] **Step 4:** Testes/checks → PASS; `uv run python -m headd_l0.run configs/e1_smoke.toml` → todos os artefatos/manifest e status smoke. Repetir em outro run_id: mesmas contagens/scores/métricas, exceto timestamp/id/hash do manifesto. O smoke é técnico e não analisa RQ1′ em nenhuma rota. E0 permanece inconclusivo e B1\* já está autorizado. O smoke é apenas técnico; interpretação exige E0\* aprovado, FAR comparável, D5 e todos os demais gates válidos, sem dispensa por D-G0.
 - [ ] **Step 5:** `git add src/headd_l0/run.py tests/test_run.py configs/e1_smoke.toml configs/e1_bench.toml MIGRATION.md` e `git commit -m "feat: wire reproducible experiment arms and manifests"`.
 
 ### Task 2: Calibração FAR e piloto antecipado — think / longContext
@@ -193,7 +193,7 @@ assert missed_region_included and no_onset_region_excluded
 Fixture de empate com 2 placebos deve manter fração estrita e ordem determinística. Alterar somente timestamps futuros não muda alarmes passados no smoke completo.
 
 - [ ] **Step 2:** `uv run pytest tests/test_run.py -k 'primary or onset or detection or placebo or equivalence' -v` → FAIL.
-- [ ] **Step 3: Implementar inferência.** Primeiro bootstrap pareado Δ restricted_lead B2−baseline por ε e ruído, 10.000 draws, IC95%; depois fração dos 30 placebos superados na mesma estatística agregada. Mesmas regiões/replicates/bootstrap indices em cada comparação. No rank, B2 e todos os placebos usam os mesmos IDs pré-fixados por D-COST; não usar B2 completo contra placebo reduzido. Antes dos braços, checar D-REACH por ε/célula; mínimo aprovado ≥50% de T com algum vizinho alcançado em ε=.20. Falha marca insufficient_power, sem conclusão negativa e sem ajuste do gerador. Critério proposto: IC>0 em ambos ε>0, equivalência ±1 mês em ε=0 e rank>.95, além de E0* aprovado sob o protocolo vigente, FAR comparável, D5 e demais gates válidos. D-G0 já autoriza B1*, mas não é alternativa à aprovação de E0*. Publicar também efeitos por ruído sem selecionar estratos favoráveis. FAR permanece separada de desempenho em T.
+- [ ] **Step 3: Implementar inferência.** Primeiro bootstrap pareado Δ restricted_lead B2−baseline por ε e ruído, 10.000 draws, IC95%; depois fração dos 30 placebos superados na mesma estatística agregada. Mesmas regiões/replicates/bootstrap indices em cada comparação. No rank, B2 e todos os placebos usam os mesmos IDs pré-fixados por D-COST; não usar B2 completo contra placebo reduzido. Antes dos braços, checar D-REACH por ε/célula; mínimo aprovado ≥50% de T com algum vizinho alcançado em ε=.20. Falha marca insufficient_power, sem conclusão negativa e sem ajuste do gerador. Critério proposto: IC>0 em ambos ε>0, equivalência ±1 mês em ε=0 e rank>.95, além de E0\* aprovado sob o protocolo vigente, FAR comparável, D5 e demais gates válidos. D-G0 já autoriza B1\*, mas não é alternativa à aprovação de E0\*. Publicar também efeitos por ruído sem selecionar estratos favoráveis. FAR permanece separada de desempenho em T.
 
 ROC-AUC T/N usa um score por réplica: máximo regional no prefixo monitorado 60–83, cutoff fixo proposto 83. O cruzamento seed deve ser posterior ao cutoff por configuração validada; se não for, esse diagnóstico não é pré-onset e deve ser marcado. Não alinhar corte de features ao onset futuro. AP por região e métricas de tempo têm máscaras temporais explícitas; não comparar AP macro com tabela E0 por tarefa.
 
@@ -242,10 +242,10 @@ np.testing.assert_array_equal(aggregated[0], out.counts.sum(axis=0))
 - [ ] **Step 2:** `uv run pytest tests/test_inject.py -k 'epsilon or training or size or onset or aggregate or mutated or deterministic' -v` → FAIL nas novas funções ausentes.
 - [ ] **Step 3: Implementar o adaptador após resolver D-GT4.** Reutilizar componente de surto com ν=0, outras regiões inicialmente sem surto e acoplamentoC; impedir casos espontâneos fora da semente no controle ε=0. Somar casos observados não negativos a cópia do SIVEP, recomputar PA e não aplicar θ duas vezes. k=(1,3,6), alvo=k×max(mediana de treino da semente, 1); introdução uniforme 72–118 inclusive. Semente onset=introdução; demais primeiro mês de caso importado observado≥1, ausência−1. Não alterar onsetsR0/2SD da camada 2.
 - [ ] **Steps 4–6: Consumir os nulos da Task 0.** Verificar 200 painéis de
-  calibração e 200 de avaliação independentes, PA soma das folhas, falhas de ajuste
-  marcadas, FAR 1/60 e tolerância 1/300. Testes/implementação pertencem à Task 0;
-  esta referência preserva a numeração histórica sem duplicar trabalho.
-- [ ] **Step 7: Escrever testes das análises por camada.** `test_local_layer_uses_bounded_injection` exige `inject_original_bounded` com seeds da camada 0, PA calculado pela soma das regiões e máscara PA pela união regional; `test_e0_star_runs_before_e1` exige o E0\* avaliado antes de qualquer resultado; `test_noninferiority_resamples_regions` verifica pares B1\*/B2, bootstrap sobre as 13 regiões, limite inferior do IC ≥ −0,02 e PA reportado à parte; `test_real_primary_uses_epidemic_onsets` verifica definição camada 1; `test_real_gate_blocks_unresolved_choices` impede conclusão antes dos critérios aprovados; `test_secondary_stops_at_friedman` preserva ordem estatística. Se B1\* autorizado, teste exige baseline_idB1* e E0inconclusive, sem substituir tabelas de paridade.
+      calibração e 200 de avaliação independentes, PA soma das folhas, falhas de ajuste
+      marcadas, FAR 1/60 e tolerância 1/300. Testes/implementação pertencem à Task 0;
+      esta referência preserva a numeração histórica sem duplicar trabalho.
+- [ ] **Step 7: Escrever testes das análises por camada.** `test_local_layer_uses_bounded_injection` exige `inject_original_bounded` com seeds da camada 0, PA calculado pela soma das regiões e máscara PA pela união regional; `test_e0_star_runs_before_e1` exige o E0\* avaliado antes de qualquer resultado; `test_noninferiority_resamples_regions` verifica pares B1\*/B2, bootstrap sobre as 13 regiões, limite inferior do IC ≥ −0,02 e PA reportado à parte; `test_real_primary_uses_epidemic_onsets` verifica definição camada 1; `test_real_gate_blocks_unresolved_choices` impede conclusão antes dos critérios aprovados; `test_secondary_stops_at_friedman` preserva ordem estatística. Se B1\* autorizado, teste exige baseline_idB1\* e E0inconclusive, sem substituir tabelas de paridade.
 - [ ] **Step 8:** `uv run pytest tests/test_run.py -k 'local_layer or noninferiority or real_primary or real_gate or secondary' -v` → FAIL.
 - [ ] **Step 9: Integrar configurações e inferência.** Camada 0 usa e1_local.toml e `inject_original_bounded`; consome o E0\* produzido pela Task 0 após decisão PA e, com ele aprovado, a não-inferioridade: limite inferior do IC 95% da média de ΔAUC-PR(B2 − B1\*) ≥ −0,02, bootstrap pareado de 10.000 reamostras sobre as 13 regiões, PA reportado à parte. Falha é custo do método, não refutação de RQ1′. Camada1 usa e1_real.toml,100seeds propostas compartilhadas entre braços, estratos ε/k e perfil de ruído fixado. Antes dos braços medir D-REACH; executar bootstrap pareado→rankplacebo→critério conjunto como na camada 2, com equivalência ε=0 e FAR válida. Reutilizar os mesmos fundos reais não cria100observações epidemiológicas independentes; explicitar inferência condicional aos fundos e injeções.
 

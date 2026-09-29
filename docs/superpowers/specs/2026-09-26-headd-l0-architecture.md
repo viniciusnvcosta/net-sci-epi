@@ -1,7 +1,7 @@
 # HEADD-Series L0 — arquitetura e decisões de implementação
 
 Data original: 26/09/2026. Atualização documental: 28/09/2026, após PR #1.
-E0 inconclusivo; B1* autorizado; E0* reprovado por `single_class:PA`. A reprodução
+E0 inconclusivo; B1\* autorizado; E0\* reprovado por `single_class:PA`. A reprodução
 técnica do pré-gate está no plano E0; não houve scoring nem decisão científica nova.
 
 ## Vocabulário de status
@@ -14,7 +14,7 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 ## 1. Objetivo, fontes e limites
 
-Construir a bancada E1′ do README §5, com baseline B1* corrigido sob D-G0/D-E0* (E0 inconclusivo), S + A, controle ε = 0, FAR de 1/60 por região-mês e 30 placebos. O resultado pode ser negativo. O prazo é 16/10/2026.
+Construir a bancada E1′ do README §5, com baseline B1\* corrigido sob D-G0/D-E0\* (E0 inconclusivo), S + A, controle ε = 0, FAR de 1/60 por região-mês e 30 placebos. O resultado pode ser negativo. O prazo é 16/10/2026.
 
 Fontes históricas lidas em 26/09 (hashes não representam a revisão atual): `AGENTS.md`, `README.md` e `pyproject.toml`, incluindo suas alterações ainda não commitadas. SHA-256 dessas versões:
 
@@ -54,7 +54,7 @@ Esta tabela preserva as observações históricas da leitura inicial. A auditori
 | D8  | `evaluation/stats.py` continua DM/Cliff após Friedman não significativo, contém resultados substitutos e fallback HAC sem pesos Bartlett; bootstrap usa RandomState.     | Portar rotinas válidas separadamente; fluxo científico, HAC e Generator requerem testes e registro de desvio.                                     |
 | D9  | `evaluation/metrics.py` usa AP como AUC-PR e um NAB simplificado com mediana dos scores avaliados.                                                                       | AP mantém essa definição. NAB legado é apenas caracterização; E1 usa alarmes do limiar calibrado, sem mediana do teste.                           |
 
-**Gate G0:** produzir `reference_audit.json` com reprodução, fontes, exceções e cobertura das 14 tarefas. Manter E0 bloqueado enquanto D1–D7 impedirem satisfazer simultaneamente referência, causalidade e contratos. Não criar um modo legado no pacote de produção para contornar o gate. Deliberar G0/D1–D7 até 29/09/2026. Se o HEAD não sustentar E0, registrar escolha explícita entre E0 inconclusivo com B1\* corrigido e autorizado, ou bloqueio total da interpretação E1′. Decisão de 27/09: saída (i), E0 inconclusivo com B1\* autorizado e gate E0\* ([registro](../../protocol-decisions.md)). B1* deve aparecer em todos os artefatos e textos; não transforma discrepância em paridade. D5 também foi resolvida em 27/09: MinT sobre previsões NB2 de contagens. A referência histórica não libera E0*.
+**Gate G0:** produzir `reference_audit.json` com reprodução, fontes, exceções e cobertura das 14 tarefas. Manter E0 bloqueado enquanto D1–D7 impedirem satisfazer simultaneamente referência, causalidade e contratos. Não criar um modo legado no pacote de produção para contornar o gate. Deliberar G0/D1–D7 até 29/09/2026. Se o HEAD não sustentar E0, registrar escolha explícita entre E0 inconclusivo com B1\* corrigido e autorizado, ou bloqueio total da interpretação E1′. Decisão de 27/09: saída (i), E0 inconclusivo com B1\* autorizado e gate E0\* ([registro](../../protocol-decisions.md)). B1\* deve aparecer em todos os artefatos e textos; não transforma discrepância em paridade. D5 também foi resolvida em 27/09: MinT sobre previsões NB2 de contagens. A referência histórica não libera E0\*.
 
 ## 4. Mapa de código e responsabilidade
 
@@ -64,25 +64,25 @@ trilhas são entregas futuras; o exporter indicado é histórico aposentado.
 
 Manter o layout do AGENTS. `tests/test_<module>.py` espelha cada módulo. Não criar serviços, factories, registry global ou camadas de repositório. Cada módulo mira 150–300 linhas e só se divide ao ultrapassar aproximadamente 400.
 
-| Arquivo                                                | Responsabilidade / tipos próprios                                                                                                                                                  |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/headd_l0/data.py`                                 | Ordem canônica, `Hierarchy`, `DataBundle`, leitura longa e contagens, proveniência dos CSVs.                                                                                       |
-| `src/headd_l0/reconcile.py`                            | Única implementação de S; bottom-up e MinT; covariância estimada apenas de erros de treino fornecidos pelo chamador.                                                               |
-| `src/headd_l0/detectors.py`                            | `DetectorConfig`, cinco wrappers mínimos PyOD e FAST-MCD próprio; `DETECTORS`.                                                                                                     |
-| `src/headd_l0/threshold.py`                            | `TailFit`, `Calibration`, POT/GPD e FAR; nenhuma dependência de rótulos T.                                                                                                         |
-| `src/headd_l0/select.py`                               | `SelectionConfig`, `SelectionResult`, competências, Q e ADWIN; `SELECTORS`.                                                                                                        |
-| `src/headd_l0/evaluate.py`                             | `DetectionOutcome`, AP, ROC-AUC, F1, NAB simplificado explicitamente nomeado, FAR e censura.                                                                                       |
-| `src/headd_l0/stats.py`                                | Bootstrap por réplica/blocos, placebo rank e sequência secundária; `BootstrapResult`, `SecondaryResult`.                                                                           |
-| `src/headd_l0/graph.py`                                | Geometria → A → W, placebos, centralidades, exportação GEXF; importa S de `reconcile`, sem duplicá-la.                                                                             |
-| `src/headd_l0/features.py`                             | `FeatureBatch`, representação local/S/vizinhos e indicadores causais; eixos explícitos.                                                                                            |
-| `src/headd_l0/simulate.py`                             | `SimConfig`, `SimResult`, `EndemicCalibration`, uma região, extensão acoplada/gêmeas e componente de surto reutilizado pela camada 1; proveniência de casos importados observados. |
-| `src/headd_l0/inject.py`                               | `InjectionConfig`, `InjectionResult`; injeção limitada da camada 0. Futuros `EpidemicInjectionConfig`/`EpidemicInjectionResult` e adaptador da camada 1; amostragem NB2 pertence a `forecast.py`.                   |
-| `src/headd_l0/run.py`                                  | `ExperimentConfig`, `ArmSpec`, `RunResult`, TOML, composição, seeds, artefatos e gates; CLI.                                                                                       |
-| `scripts/export_cdade_reference.py`                    | Histórico aposentado: exporter recuperável por MIGRATION; não recriar nem exigir na validação atual.                                                                   |
-| `tests/reference/`                                     | Pequenas fixtures determinísticas e seus manifests; nenhum resultado fabricado.                                                                                                    |
-| `configs/*.toml`                                       | Atuais: `data`, `e0_star` (preparação). Futuros: `e0_star_scoring`, `l0_graph`, `sim_single`, `e1_bench`, `e1_real`, `e1_local`; extensões só quando priorizadas.                                                                 |
-| `MIGRATION.md`                                         | Criado na primeira tarefa: componente, caminho/SHA original, caminho novo, teste, tolerância, exclusões e divergências.                                                            |
-| `notebooks/01_l0_network.ipynb`, `02_e1_results.ipynb` | Consomem resultados; não reimplementam métricas nem escolhem parâmetros.                                                                                                           |
+| Arquivo                                                | Responsabilidade / tipos próprios                                                                                                                                                                 |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/headd_l0/data.py`                                 | Ordem canônica, `Hierarchy`, `DataBundle`, leitura longa e contagens, proveniência dos CSVs.                                                                                                      |
+| `src/headd_l0/reconcile.py`                            | Única implementação de S; bottom-up e MinT; covariância estimada apenas de erros de treino fornecidos pelo chamador.                                                                              |
+| `src/headd_l0/detectors.py`                            | `DetectorConfig`, cinco wrappers mínimos PyOD e FAST-MCD próprio; `DETECTORS`.                                                                                                                    |
+| `src/headd_l0/threshold.py`                            | `TailFit`, `Calibration`, POT/GPD e FAR; nenhuma dependência de rótulos T.                                                                                                                        |
+| `src/headd_l0/select.py`                               | `SelectionConfig`, `SelectionResult`, competências, Q e ADWIN; `SELECTORS`.                                                                                                                       |
+| `src/headd_l0/evaluate.py`                             | `DetectionOutcome`, AP, ROC-AUC, F1, NAB simplificado explicitamente nomeado, FAR e censura.                                                                                                      |
+| `src/headd_l0/stats.py`                                | Bootstrap por réplica/blocos, placebo rank e sequência secundária; `BootstrapResult`, `SecondaryResult`.                                                                                          |
+| `src/headd_l0/graph.py`                                | Geometria → A → W, placebos, centralidades, exportação GEXF; importa S de `reconcile`, sem duplicá-la.                                                                                            |
+| `src/headd_l0/features.py`                             | `FeatureBatch`, representação local/S/vizinhos e indicadores causais; eixos explícitos.                                                                                                           |
+| `src/headd_l0/simulate.py`                             | `SimConfig`, `SimResult`, `EndemicCalibration`, uma região, extensão acoplada/gêmeas e componente de surto reutilizado pela camada 1; proveniência de casos importados observados.                |
+| `src/headd_l0/inject.py`                               | `InjectionConfig`, `InjectionResult`; injeção limitada da camada 0. Futuros `EpidemicInjectionConfig`/`EpidemicInjectionResult` e adaptador da camada 1; amostragem NB2 pertence a `forecast.py`. |
+| `src/headd_l0/run.py`                                  | `ExperimentConfig`, `ArmSpec`, `RunResult`, TOML, composição, seeds, artefatos e gates; CLI.                                                                                                      |
+| `scripts/export_cdade_reference.py`                    | Histórico aposentado: exporter recuperável por MIGRATION; não recriar nem exigir na validação atual.                                                                                              |
+| `tests/reference/`                                     | Pequenas fixtures determinísticas e seus manifests; nenhum resultado fabricado.                                                                                                                   |
+| `configs/*.toml`                                       | Atuais: `data`, `e0_star` (preparação). Futuros: `e0_star_scoring`, `l0_graph`, `sim_single`, `e1_bench`, `e1_real`, `e1_local`; extensões só quando priorizadas.                                 |
+| `MIGRATION.md`                                         | Criado na primeira tarefa: componente, caminho/SHA original, caminho novo, teste, tolerância, exclusões e divergências.                                                                           |
+| `notebooks/01_l0_network.ipynb`, `02_e1_results.ipynb` | Consomem resultados; não reimplementam métricas nem escolhem parâmetros.                                                                                                                          |
 
 `summing_matrix` pertence a `reconcile.py`: resolve a duplicação entre layout de graph e contrato do reconciliador no AGENTS. Expor/reutilizar a mesma função onde necessário.
 
@@ -154,13 +154,13 @@ Representação local: resíduo padronizado em t, t−1 e diferença temporal; a
 
 **Pendência PA:** comparação regional B1*/z-score selada até revisão de D-E0*,
 inclusive diagnóstico; decisão datada e responsável devem preceder o primeiro
-commit de integração E0*. Ver [procedimento e alternativas no E0](../plans/2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada).
+commit de integração E0\*. Ver [procedimento e alternativas no E0](../plans/2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada).
 Caracterização de muitas seeds usa só máscaras e está planejada, não executada;
 nenhuma substitui a 42. Toda AUC-PR acompanha prevalência positiva por tarefa,
 janela e denominador; a existência de duas classes não basta para justificar
 contraste suficiente. A definição epidemiológica de PA é decidida sem scores.
 
-As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). Continuam pendentes a faixa de R0 e o perfil do simulador (D-GT2/D-GT4), os eventos da camada 3 (D-L3) e a decisão PA antes da integração E0*. Hardware registrado em 27/09; piloto D-COST ainda pendente.
+As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). Continuam pendentes a faixa de R0 e o perfil do simulador (D-GT2/D-GT4), os eventos da camada 3 (D-L3) e a decisão PA antes da integração E0\*. Hardware registrado em 27/09; piloto D-COST ainda pendente.
 
 | Camada      | Ground truth / uso                                                                                                                                                                             | Regra                                                                                                                                                                                                              |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -226,4 +226,4 @@ Testes rápidos sem rede; integração geográfica/fixtures originais marcada; s
 3. Preservar D5 já aprovada: MinT sobre previsões de contagem, features sobre resíduos padronizados; P6 independe de P5.
 4. Obter malha com 13 regiões e conectividade compatível, ou registrar a variante antes dos placebos.
 
-Esses gates não impedem entregar o plano global, auditar o original, escrever testes dos componentes isolados ou construir S/A. Impedem anunciar baseline paritário; interpretar E1′ exige E0* aprovado sob o protocolo vigente, além de FAR e todos os demais gates aplicáveis. B1* já autorizado não basta. Os planos associados descrevem tarefas condicionais com critérios objetivos de entrada/saída.
+Esses gates não impedem entregar o plano global, auditar o original, escrever testes dos componentes isolados ou construir S/A. Impedem anunciar baseline paritário; interpretar E1′ exige E0\* aprovado sob o protocolo vigente, além de FAR e todos os demais gates aplicáveis. B1\* já autorizado não basta. Os planos associados descrevem tarefas condicionais com critérios objetivos de entrada/saída.

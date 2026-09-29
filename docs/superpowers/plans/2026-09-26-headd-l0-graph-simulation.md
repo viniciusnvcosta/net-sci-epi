@@ -21,7 +21,7 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 ## Global Constraints
 
 - Comparação regional B1*/z-score selada até revisão de D-E0*: nenhuma execução
-  diagnóstica; decisão datada deve preceder o primeiro commit de integração E0*.
+  diagnóstica; decisão datada deve preceder o primeiro commit de integração E0\*.
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
   a [decisão pendente PA](2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
@@ -50,7 +50,7 @@ Todas as Tasks 1–4 são **futuras**; seus novos símbolos/arquivos/configs/com
 ainda não existem. P4 e P6 podem avançar tecnicamente; P5 permite preparação
 científica antes de aprovar o perfil, sem iniciar o integrador. Componentes E0
 consumidos estão `implementado` e `validado tecnicamente`; isso não significa
-`gate aprovado` para E0* nem `interpretação autorizada` para E1′.
+`gate aprovado` para E0\* nem `interpretação autorizada` para E1′.
 
 Criar `src/headd_l0/graph.py`, `simulate.py`, `features.py` e `tests/test_graph.py`, `test_simulate.py`, `test_features.py`. Configs `l0_graph.toml`, `sim_single.toml`; fixtures `tests/reference/gao_single.npz` e `gao_manifest.json`. `docs/protocol-decisions.md` guarda escolhas aprovadas. Não adicionar módulo genérico de entidades/configuração.
 
@@ -171,4 +171,4 @@ Alterar x[:,90:] → features até 89 idênticas; warmup só usa passado e possu
 
 ## Critério de saída
 
-A/W e 30 draws válidos, validação single-region, ε=0 isolado, onsets auditáveis e invariância de prefixo. Os dados sintéticos não são versionados; seeds/config e fixtures pequenas permitem regeneração. D-G0 já autoriza B1*, mas E0* permanece reprovado. Esses resultados técnicos não são evidência da RQ1′ nem substituem E0*, validação do simulador, D5, FAR ou alcance.
+A/W e 30 draws válidos, validação single-region, ε=0 isolado, onsets auditáveis e invariância de prefixo. Os dados sintéticos não são versionados; seeds/config e fixtures pequenas permitem regeneração. D-G0 já autoriza B1*, mas E0* permanece reprovado. Esses resultados técnicos não são evidência da RQ1′ nem substituem E0\*, validação do simulador, D5, FAR ou alcance.
