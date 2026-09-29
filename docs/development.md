@@ -1,7 +1,8 @@
 # Desenvolvimento e reprodução
 
 O repositório dispõe dos componentes da baseline B1*, da preparação da
-camada 0, do grafo regional P4 e das features P6. Simulador acoplado e runner
+camada 0, do grafo regional P4 e das features P6, implementados e validados
+tecnicamente. P5 tem preparação científica de fonte parcial; simulador e runner
 completo de experimentos seguem os [planos de implementação](superpowers/plans/headd-l0-global.md).
 As decisões científicas vigentes estão em [protocol-decisions.md](protocol-decisions.md).
 
@@ -134,15 +135,28 @@ evidência. `adjacency()` lê o cache canônico padrão, verifica origem, nomes,
 hash e invariantes antes de devolver A. Falhas de aquisição, cardinalidade,
 geometria ou conectividade produzem diagnósticos e exit 2, sem cache aprovado.
 
+## Preparação de fonte P5
+
+A [nota científica](gao-source-preparation.md) registra fonte, hashes,
+equações, distribuições predecessoras, mediana das tabelas congeladas e
+comando de extração reproduzível sem executar o simulador. As tabelas
+oficiais rotulam 6000 T e 6000 N por ruído; para branco, CV mediano T
+`0.7695323012078741` é menor que N `0.8337873367675575`. O critério
+planejado de CV(T)>CV(N) em cada ruído permanece em vigor enquanto a
+[revisão científica](protocol-decisions.md#pending-p5-source-parity-and-profile-revision--29092026)
+está pendente. A Step 1 é parcial: `tests/reference/gao_manifest.json`,
+`gao_single.npz` e perfil de simulação aprovado ainda não existem.
+Nenhum simulador, scoring ou gate G4 foi executado/aprovado por esta nota.
+
 ## Próximas etapas
 
 1. Integrar A/W e placebos P4 e features locais/relacionais P6 ao runner,
    mantendo os gates científicos separados da validação dos componentes.
-2. Preparar P5; definir o perfil científico pendente e validar uma região antes
-   de acoplar.
-3. Antes do scoring da Task 0, confirmar a tabela regional de classes e
-   contraste sem cutoff escolhido por scores, além de features locais P6.
-   P1–P3 e a revisão regional do pré-gate foram validados tecnicamente.
+2. Completar P5 após decisão sobre paridade, critério CV e perfil científico;
+   validar uma região antes de acoplar.
+3. A Task 0 deve consumir a tabela regional de classes e contraste sem
+   cutoff escolhido por scores, P1–P3 e features locais P6, todos confirmados
+   tecnicamente; scoring/calibração seguem pendentes.
 4. Integrar os componentes ao gate E0* e respeitar os demais gates antes de
    interpretar resultados. `configs/e1_bench.toml` ainda não está disponível.
 
@@ -151,6 +165,7 @@ geometria ou conectividade produzem diagnósticos e exit 2, sem cache aprovado.
 - [README](../README.md): problema, desenho experimental e descrição do projeto.
 - [AGENTS](../AGENTS.md): regras de desenvolvimento e contratos dos componentes.
 - [Protocolo](protocol-decisions.md): decisões aprovadas e questões científicas pendentes.
+- [Preparação Gao](gao-source-preparation.md): fontes verificadas e escolhas pendentes do simulador.
 - [Migração](../MIGRATION.md): métodos portados, diferenças e testes de paridade.
 - [Proveniência](reference-provenance.md): busca D-G0a, evidências e hardware D-COST.
 - [Arquitetura](superpowers/specs/headd-l0-architecture.md) e

@@ -22,7 +22,8 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 - D-E0*-R1 (28/09) adotou ambas as classes nas 13 regiões; PA é descritivo.
   A tabela de classes/contraste e P1–P3 foram confirmadas; scoring Task 0
-  aguarda features locais P6. O pré-gate regional está implementado e pendente.
+  já dispõe das features locais P6, validadas tecnicamente; scoring Task 0
+  ainda não começou. O pré-gate regional está implementado e pendente.
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
   a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
@@ -86,9 +87,11 @@ flowchart TD
   O --> Q[Interpretação: E0* e demais gates aprovados]
 ```
 
-P4 e P6 podem avançar sem o simulador; P6 começa com grafos sintéticos.
-P5 agora permite preparação científica, sem escolher parâmetros pendentes.
-A comparação regional E0\* aguarda features locais P6 e scoring/calibração;
+P4 e P6 estão implementados e validados tecnicamente; o artefato real
+P4 permanece preservado, sem aprovação de G3. P5 tem preparação de fonte
+[registrada](../../gao-source-preparation.md), mas a Step 1 segue parcial:
+manifesto de referência, fixture e perfil científico estão pendentes.
+A comparação regional E0\* aguarda scoring/calibração;
 a tabela pré-scoring de classes/contraste e P1–P3 foram confirmadas. A autorização B1* de D-G0 não libera interpretação.
 As trilhas independentes não autorizam subagentes automaticamente; `think`,
 `default`, `background` e `longContext` continuam classificações de tarefas.
@@ -100,10 +103,10 @@ As trilhas independentes não autorizam subagentes automaticamente; `think`,
 | P0    | [E0](headd-l0-e0.md), histórico Task 1                                         | Auditoria realizada; D-G0 autoriza B1\*, E0 inconclusivo.                                        |
 | P1    | E0, validação ativa P1                                                                    | Longa, hashes, ordem canônica e coerência exata 13→1 em 132 meses (G1).                          |
 | P2    | E0, validação ativa P2                                                                    | Componentes existentes; comportamento corrigido separado de paridade de primitivas.              |
-| P3    | E0, validação ativa P3; [Experimentos](headd-l0-experiments.md), Task 0 futura | Pré-gate regional pendente; tabela/contraste e P1–P3 confirmados; Task 0 ainda exige P6. G2 exige E0*. |
-| P4    | [Grafo/simulação](headd-l0-graph-simulation.md), Task 1 futura                 | A/W, mapa, GEXF, 30 placebos e manifest; G3: nomes, graus e conectividade.                       |
-| P5    | Grafo/simulação, Tasks 2–3 futuras                                                        | Perfil aprovado antes do integrador; uma região antes do acoplamento; G4: ruídos, ε=0 e D-REACH. |
-| P6    | Grafo/simulação, Task 4 futura                                                            | Features sobre resíduos; G5: causalidade e mesma representação sob placebos.                     |
+| P3    | E0, validação ativa P3; [Experimentos](headd-l0-experiments.md), Task 0 futura | Pré-gate regional pendente; tabela/contraste, P1–P3 e P6 confirmados; scoring Task 0 futuro. G2 exige E0*. |
+| P4    | [Grafo/simulação](headd-l0-graph-simulation.md), Task 1 implementada/validada tecnicamente | A/W, mapa, GEXF, 30 placebos e manifest real preservados; G3 não aprovado. |
+| P5    | Grafo/simulação, Tasks 2–3 futuras; Step 1 parcial | Fonte caracterizada; paridade, manifesto e perfil pendentes antes do integrador; G4 não aprovado. |
+| P6    | Grafo/simulação, Task 4 implementada/validada tecnicamente | Features causais sobre resíduos; integração/manifesto no runner futuros; G5 não aprovado. |
 | P7    | Experimentos, Tasks 1–2 futuras                                                           | Runner, smoke e FAR; G6: seeds/partições independentes e única variável por braço.               |
 | P8    | Experimentos, Tasks 3–4 futuras                                                           | Camadas 0/1/2, nulos, D-COST e inferência; G7 ou conclusão inconclusiva explícita.               |
 | P9    | Experimentos, Task 5 futura                                                               | Notebooks, figuras, tabelas e README reproduzíveis.                                              |
@@ -130,10 +133,10 @@ Camada1 (injeção epidêmica+nulos paramétricos) tem prioridade sobre todos os
 - [x] D-G0a: busca concluída, sem proveniência verificável; ver `docs/reference-provenance.md`.
 - [x] Hardware D-COST registrado (27/09); atualizar somente se o ambiente do piloto mudar.
 - [x] Validar P1–P3 pela sequência ativa do plano E0; não recriar componentes/exportadores.
-- [ ] Iniciar P4/P6; testes de features independem de P5.
-- [ ] Preparar P5 e aprovar perfil antes do integrador; validar uma região antes de acoplar. Fixar faixa R0 antes da camada 1.
+- [x] Implementar e validar tecnicamente P4/P6; G3/G5 permanecem separados da integração e interpretação.
+- [ ] Completar a preparação P5 ([fonte registrada](../../gao-source-preparation.md)); aprovar perfil antes do integrador, validar uma região antes de acoplar e fixar faixa R0 antes da camada 1.
 - [x] Registrar D-E0*-R1 datada antes do primeiro commit de integração E0\*; conferir SHA deste commit na Task 0.
-- [ ] Antes do scoring Task 0, confirmar features locais P6. Tabela regional de positivos/negativos/prevalência e contraste sem cutoff escolhido por scores, e P1–P3, já confirmados.
+- [x] Confirmar features locais P6, tabela regional de classes/contraste sem cutoff por scores e P1–P3 antes do scoring Task 0. O scoring permanece futuro.
 - [ ] Executar piloto D-COST após detectores+acoplamento; aplicar 48 h/96 h antes de observar efeitos.
 - [ ] Verificar alcance D-REACH antes dos braços; células sem poder não contam como evidência negativa.
 - [ ] Avaliar o E0\* na camada 0 antes de qualquer resultado do E1′; executar camadas 0/1/2 e nulos NB2 com FAR e seeds disjuntas; separar E0\*, não-inferioridade e evidência de propagação.

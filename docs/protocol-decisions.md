@@ -22,6 +22,7 @@ Este registro distingue **decisões tomadas** de **escolhas ainda pendentes**. C
 | D-GT4   | **Decidido**, com pendência da faixa de R0             | Tamanho, truncamento e onsets definidos                                                         |
 | D-COST  | **Decidido**, com pendência do hardware                | Gatilhos de 48 h e 96 h para a escada de redução                                                |
 | D-REACH | **Decidido**                                           | ≥ 50% em ε = 0,20, por tipo de ruído                                                            |
+| P5-SRC  | **Pendente** (29/09; proposta, sem aprovação)          | Paridade científica, perfil e revisão do critério CV por ruído                                   |
 | D-L3    | **Pendente**                                           | Seleção e verificação dos eventos reais                                                         |
 | D-OPS   | **Decidido**                                           | Worktree persistente e disciplina de commits                                                    |
 
@@ -339,3 +340,42 @@ confirmar a tabela regional e o contraste acima, validar P1–P3 e as features
 locais de P6. A integração E0* da Task 0 é condicional a esses passos. E0
 permanece inconclusivo, E0* ainda não foi aprovado e a interpretação de E1′
 continua bloqueada até todas as condições aplicáveis passarem.
+
+## Pending P5 source parity and profile revision — 29/09/2026
+
+**Status:** proposta pendente; nenhuma decisão científica é aprovada por esta
+entrada. O responsável por futura aprovação não é atribuído aqui. A
+[preparação de fonte](gao-source-preparation.md) registra os hashes, equações,
+parâmetros e a extração reproduzível; a coleta anterior foi em 28/09 e a
+verificação local em 29/09. Não houve execução do simulador, fixture numérica
+ou escolha de perfil.
+
+O suplemento de Gao, equações 1–3, usa βSI, e sua equação demográfica não
+inclui σ adicional. O código predecessor de Chakraborty multiplica as
+inovações demográficas por σ antes de B, reinicia I baixo/negativo
+aleatoriamente, mantém estados mutados entre burn-ins e não aplica `seed=0`.
+O tempo-fonte não foi mapeado para dias ou semanas. Isso impede fixar uma
+trajetória de um passo sem selecionar explicitamente o alvo de paridade.
+
+As tabelas oficiais de `Code.zip` v1 dão, para ruído branco, mediana
+`CV_T=0.7695323012078741` e `CV_N=0.8337873367675575` (tabela
+`Code/Data/Simulation/Training/EWSI/EWSI_white_training.csv`, SHA256
+`c2d2684af45c975c1813ad243de2799cfaeb35b66f9734ac3ac32dc598fa82e5`).
+`Code/Code/Figures/Figure S5.R` linhas 8–10 e 21–22 rotulam as primeiras
+6000 linhas T e as últimas 6000 N. As tabelas correspondentes de S6/S7
+confirmam a mesma ordem para `env`/`dem`. Assim o critério planejado de
+`median(CV_T)>median(CV_N)` **em todos os três ruídos** contradiz o exemplo
+branco arquivado. O critério atual permanece no plano até revisão datada;
+não alterar seeds/parâmetros para satisfazê-lo. AR1 e CV dessas tabelas
+medem janelas de 400 valores de I, não incidência mensal observada.
+
+**Questões para decisão futura, antes de Task 2 Steps 2–6:** escolher equações
+do suplemento, comportamento executável predecessor ou modelo corrigido como
+alvo; definir entradas/inovações e proveniência da fixture; resolver σ
+demográfico, reinícios de I, burn-in e cruzamento; escolher perfil T/N fixo,
+unidade física, incidência/inteirização/observação e calendário mensal; e
+revisar o teste de direção de CV com distinção entre observável-fonte e
+adaptação mensal. Antes de Task 3/camada 1, aprovar perfil acoplado e faixa R0
+(D-GT2/D-GT4). A preparação Step 1 continua parcial sem fixture determinística,
+manifesto de referência e perfil aprovados. G4, E0* e interpretação E1′ não
+recebem aprovação desta nota.

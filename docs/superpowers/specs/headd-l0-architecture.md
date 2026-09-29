@@ -28,7 +28,7 @@ Fontes históricas lidas em 26/09 (hashes não representam a revisão atual): `A
 
 Referência CDADE: `/home/vinvs/projects/hybrid-theory`, commit **`fbfa609bba6cb0b0f2a9e8d73be18022aec319b7`**. As leituras de código usaram `git show HEAD:<path>`, não arquivos modificados do working tree. E0 deve fixar esse SHA completo, nunca resolver `HEAD` novamente durante uma execução. Os resultados locais não possuem, por si só, proveniência suficiente para certificar E0.
 
-Estado atual: Python ≥3.12; `src/headd_l0/`, testes e dependências do baseline já existem. P1–P2 estão implementados; P3 prepara injeção/classes, sem scoring completo. Grafo, simulador e features são futuros. Comandos atuais: [development](../../development.md).
+Estado atual: Python ≥3.12; `src/headd_l0/`, testes e dependências do baseline já existem. P1–P2 estão implementados; P3 prepara injeção/classes, sem scoring completo. P4 grafo e P6 features estão `implementado` e `validado tecnicamente`; seus gates científicos não estão aprovados. P5 tem [preparação de fonte](../../gao-source-preparation.md) parcial, com manifesto/fixture/perfil pendentes; simulador futuro. Comandos atuais: [development](../../development.md).
 
 Não implementar M, REGIC, GNN, GANF/GDN, hhh4 completo, Tycho, L4/L5 ou SEIRS+ agent-based. B-Gao, B3/Φ e variante SEIRS são extensões condicionais, não dependências da entrega principal.
 

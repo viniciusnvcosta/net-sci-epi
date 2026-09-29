@@ -271,3 +271,18 @@ hashes, source metadata, dependency versions and measured acquisition cost.
 A valid cache requires compatible provenance, canonical names, an intact hash
 and a connected simple undirected A. Acquisition status and scientific gate
 limitations are recorded in [development](docs/development.md).
+
+## P5 Gao simulator source preparation (29/09/2026)
+
+P5 is a new scientific component, not a CDADE port. The
+[source preparation note](docs/gao-source-preparation.md) identifies the Gao
+supplement/Zenodo archive, pinned Chakraborty predecessor, equations,
+parameter distributions and frozen feature-table hashes/medians. It records
+the white-noise CV direction conflict with the planned all-noise test. The
+[protocol entry](docs/protocol-decisions.md#pending-p5-source-parity-and-profile-revision--29092026)
+is **pending**, not a profile approval. The requested machine-readable
+`tests/reference/gao_manifest.json` and numeric `gao_single.npz` remain absent;
+no `simulate.py` implementation, parity fixture, simulator run or scientific
+gate result exists. P4 graph and P6 features are separate new components,
+implemented and technically validated as recorded above; neither approves
+G3/G5 or E1′ interpretation.

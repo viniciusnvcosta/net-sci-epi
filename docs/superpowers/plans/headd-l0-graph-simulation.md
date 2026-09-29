@@ -22,7 +22,8 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 - D-E0*-R1 (28/09) adotou ambas as classes nas 13 regiões; PA é descritivo.
   A tabela de classes/contraste e P1–P3 foram confirmadas; scoring Task 0
-  aguarda features locais P6. O pré-gate regional está implementado e pendente.
+  já dispõe das features locais P6, validadas tecnicamente; scoring Task 0
+  ainda não começou. O pré-gate regional está implementado e pendente.
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
   a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
@@ -47,17 +48,31 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 ## Arquivos e dependências
 
-Todas as Tasks 1–4 são **futuras**; seus novos símbolos/arquivos/configs/comandos
-ainda não existem. P4 e P6 podem avançar tecnicamente; P5 permite preparação
-científica antes de aprovar o perfil, sem iniciar o integrador. Componentes E0
-consumidos estão `implementado` e `validado tecnicamente`; isso não significa
-`gate aprovado` para E0\* nem `interpretação autorizada` para E1′.
+Task 1 (P4) e Task 4 (P6) estão `implementado` e `validado tecnicamente`.
+A aquisição P4 real foi preservada; G3 não está `gate aprovado`. Task 2
+(P5) tem [preparação de fonte](../../gao-source-preparation.md), com Step 1
+parcial e perfil/fixture pendentes; Tasks 2–3 não têm integrador. Gravação
+de nomes e elegibilidade das features no runner permanece futura. Os
+componentes E0 estão `implementado` e `validado tecnicamente`, sem
+`gate aprovado` para E0\* ou `interpretação autorizada` para E1′.
 
-Criar `src/headd_l0/graph.py`, `simulate.py`, `features.py` e `tests/test_graph.py`, `test_simulate.py`, `test_features.py`. Configs `l0_graph.toml`, `sim_single.toml`; fixtures `tests/reference/gao_single.npz` e `gao_manifest.json`. `docs/protocol-decisions.md` guarda escolhas aprovadas. Não adicionar módulo genérico de entidades/configuração.
+Existem `graph.py`, `graph_io.py`, `features.py`, testes espelhados e
+`configs/l0_graph.toml`. `simulate.py`, `test_simulate.py`,
+`configs/sim_single.toml`, `tests/reference/gao_single.npz` e
+`gao_manifest.json` permanecem futuros. `docs/protocol-decisions.md`
+guarda decisões e propostas pendentes. Não adicionar módulo genérico de
+entidades/configuração.
 
 Tarefa 1 depende só de dados/S. Tarefa 2 depende de fixtures científicas e decisões numéricas. Tarefa 3 exige tarefa 2 aprovada e grafo válido; tarefa 4 usa resíduos padronizados e W, não labels/onsets; pode começar com grafos sintéticos sem adquirir malha ou executar P5. Todos os novos contratos recebem testes. Checks ao final de cada tarefa: ruff check, ruff format --check e pytest rápido; testes slow são executados no gate indicado.
 
 ### Task 1: Geometria, A/W e placebos — default / rewiring think
+
+**Status (29/09/2026):** P4 `implementado` e `validado tecnicamente`
+(commit `61dd0cb` após correção de identidade geográfica). Aquisição
+DataSUS/PA 2013 real: 13 regiões, A conexa com 25 arestas e 30 placebos
+distintos, conexos e com graus por nó preservados; artefatos e manifest
+preservados em processed/results. O artefato foi auditado, sem aprovação
+de G3 ou interpretação E1′. Ver [development](../../development.md).
 
 **Files:** Create `src/headd_l0/graph.py`, `tests/test_graph.py`, `configs/l0_graph.toml`; Modify `MIGRATION.md` (novo componente, sem porte).
 
@@ -87,6 +102,15 @@ Grafo completo/estrela sem alternativas deve levantar RuntimeError dentro do or�
 - [ ] **Step 6:** `git add src/headd_l0/graph.py tests/test_graph.py configs/l0_graph.toml MIGRATION.md` e `git commit -m "feat: build regional adjacency and degree-preserving placebos"`.
 
 ### Task 2: Uma região e observação mensal — think
+
+**Status (29/09/2026):** Step 1 parcialmente preparado: equações, hashes,
+parâmetros predecessores e tabelas congeladas estão
+[documentados](../../gao-source-preparation.md). A direção CV para ruído
+branco da fonte contradiz o critério planejado para todos os ruídos.
+`gao_manifest.json`, fixture determinística e perfil aprovado ainda não
+existem; Steps 2–6 e integrador não começaram. A
+[proposta pendente](../../protocol-decisions.md#pending-p5-source-parity-and-profile-revision--29092026)
+não altera o teste planejado.
 
 **Files:** Create `src/headd_l0/simulate.py`, `tests/test_simulate.py`, `configs/sim_single.toml`, `tests/reference/gao_single.npz`, `tests/reference/gao_manifest.json`; Modify `docs/protocol-decisions.md`, `MIGRATION.md`.
 

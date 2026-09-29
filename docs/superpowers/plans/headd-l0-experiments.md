@@ -22,7 +22,8 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 - D-E0*-R1 (28/09) adotou ambas as classes nas 13 regiões; PA é descritivo.
   A tabela de classes/contraste e P1–P3 foram confirmadas; scoring Task 0
-  aguarda features locais P6. O pré-gate regional está implementado e pendente.
+  já dispõe das features locais P6, validadas tecnicamente; scoring Task 0
+  ainda não começou. O pré-gate regional está implementado e pendente.
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
   a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
@@ -49,11 +50,12 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 As Tasks 0–5 são **futuras**: seus novos símbolos, arquivos, configs e comandos
 não existem ainda, salvo funções explicitamente consumidas dos componentes E0.
-Status atual: preparação `implementado` e componentes `validado tecnicamente`;
-E0\* sem `gate aprovado`, E1′ sem `interpretação autorizada`. Nenhuma tarefa de
-integração/scoring E0\* começa antes da confirmação de classes/contraste regional,
-P1–P3 e features locais P6, inclusive commits da Task 1
-que integrem esse caminho. Tasks 1–5 têm pré-condições próprias além da Task 0.
+Status atual: preparação e P4/P6 `implementado`, com componentes `validado
+tecnicamente`; P5 registra fonte, mas perfil e fixture seguem pendentes.
+E0\* sem `gate aprovado`, E1′ sem `interpretação autorizada`. Classes/contraste
+regionais, P1–P3 e features locais P6 foram confirmados para a entrada da
+Task 0; integração/scoring e calibração ainda não começaram. Tasks 1–5 têm
+pré-condições próprias além da Task 0.
 
 Modificar `run.py`, `inject.py`, `tests/test_run.py`, `tests/test_inject.py`; criar configs `e1_smoke.toml`, `e1_bench.toml`, `e1_real.toml`, `e1_local.toml`, testes de integração em `tests/test_run.py`, notebooks `01_l0_network.ipynb`, `02_e1_results.ipynb`. Atualizar README/MIGRATION só nas seções correspondentes.
 
