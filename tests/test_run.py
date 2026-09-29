@@ -308,3 +308,27 @@ def test_preflight_reports_window_prevalence_pa_and_unchanged_injection(tmp_path
     assert manifest["gates"]["E0_star"]["trivial_baseline"] == "not_evaluated"
     assert manifest["negative_injected_cells"] == 110
     assert manifest["adjusted_onsets"] == 2
+
+
+@pytest.mark.parametrize("column", ["auc_pr", "n_positive", "n_negative"])
+def test_regional_gate_rejects_numeric_looking_strings_without_mutation(column):
+    frame = evidence()
+    frame[column] = frame[column].astype(object)
+    region = frame.task == "ARAGUAIA"
+    frame.loc[region, column] = frame.loc[region, column].map(str)
+    original = frame.copy(deep=True)
+
+    result = check_e0_star(True, frame, np.random.default_rng(8))
+
+    assert not result.passed
+    assert not result.conditions["thirteen_regional_tasks"]
+    assert result.lower_bound is None
+    pd.testing.assert_frame_equal(frame, original)
+
+
+def test_regional_gate_ignores_pa_string_ap_type():
+    frame = evidence()
+    frame["auc_pr"] = frame["auc_pr"].astype(object)
+    frame.loc[frame.task == "PA", "auc_pr"] = "undefined"
+    result = check_e0_star(True, frame, np.random.default_rng(8))
+    assert result.passed

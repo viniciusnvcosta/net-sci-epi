@@ -7,6 +7,7 @@ import subprocess
 import tomllib
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
+from numbers import Real
 from pathlib import Path
 
 import numpy as np
@@ -58,11 +59,15 @@ def check_e0_star(
         )
     if valid:
         regional = auc_pr.loc[auc_pr.task != "PA"]
-        numeric = (
-            regional[["auc_pr", "n_positive", "n_negative"]]
-            .apply(pd.to_numeric, errors="coerce")
-            .to_numpy(float)
+        columns = ("auc_pr", "n_positive", "n_negative")
+        valid = all(
+            regional[column]
+            .map(lambda value: isinstance(value, Real) and not isinstance(value, bool))
+            .all()
+            for column in columns
         )
+    if valid:
+        numeric = regional[list(columns)].to_numpy(float)
         counts = numeric[:, 1:]
         valid = bool(
             np.isfinite(numeric).all()
