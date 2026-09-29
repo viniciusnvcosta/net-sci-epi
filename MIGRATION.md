@@ -215,6 +215,19 @@ Reference: [Newey–West/Bartlett](https://www.statsmodels.org/dev/generated/sta
 
 Execution commands and current gate limitations: [development guide](docs/development.md).
 
+## P6 causal residual features (Graph/Simulation Task 4, 2026-09-29)
+
+`src/headd_l0/features.py` is new, not a CDADE port; no legacy parity claim
+applies. It accepts only standardized residuals supplied by D5 and produces
+full-axis local or leaf-neighbor `FeatureBatch` arrays. The names and order are
+fixed by `tests/test_features.py`; the future runner must write them into its
+manifest. Lag-one month zero and incomplete trailing-Moran windows carry zero
+placeholders and are excluded by caller eligibility. `rolling_ews` returns
+SD, signed CV, Pearson AR1, uncorrected skewness and Pearson kurtosis with an
+elementwise validity mask. Hand calculations, constant inputs and prefix
+invariance are behavior tests. Graph acquisition, scoring and simulator output
+are outside this component.
+
 ## D-E0*-R1 regional pre-gate (Task 2, 2026-09-29)
 
 `run.py` now enforces both classes and finite AP only for the 13 canonical

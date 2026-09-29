@@ -143,13 +143,15 @@ Também testar C identidade em ε=0, linhas somam 1 e orientação de W com graf
 
 ### Task 4: Representações causais e indicadores — default / Moran think
 
+**Status (29/09/2026):** P6 implementado e validado tecnicamente: 9 testes de features, 184 testes completos e ruff verde. O contrato de nomes/eixos é estável; gravação de nomes no manifest e elegibilidade no scoring aguardam o runner (Experimentos Task 4). Este status não aprova G5 nem E0*.
+
 **Files:** Create `src/headd_l0/features.py`, `tests/test_features.py`; Modify `MIGRATION.md`.
 
 **Entrada ([D5](../../protocol-decisions.md), 27/09):** as features operam sobre **resíduos padronizados** `[n_nodes,time]` produzidos pela E0 Task 3: resíduos base y − μ̂ para B0 e resíduos reconciliados y − P·μ̂ para B1\* e B2, ambos divididos pelo desvio-padrão de treino. A hierarquia entra pela reconciliação; não há features de contraste PA.
 
 **Interfaces:** `FeatureBatch` da spec; `local_features(residuals: np.ndarray) -> FeatureBatch`; `neighbor_features(residuals: np.ndarray,W: np.ndarray,window: int=12) -> FeatureBatch`; `rolling_ews(series: np.ndarray,window: int) -> tuple[np.ndarray,np.ndarray]` retorna indicadores `[time,5]` e máscara de validade mesma shape. `FEATURES` chaves local/neighbors. Não escalar com dados do teste; escalador de detector aprende no fit.
 
-- [ ] **Step 1: Escrever `test_neighbor_hand_calculation`, `test_prefix_invariance`, `test_constant_series_finite_with_invalid_mask`, `test_node_and_feature_axes`, `test_local_moran_hand_calculation`, `test_residual_inputs_only`.** O último verifica que o fit não recebe contagens brutas: os mesmos resíduos produzem as mesmas features, independentemente da escala das contagens de origem.
+- [x] **Step 1: Escrever `test_neighbor_hand_calculation`, `test_prefix_invariance`, `test_constant_series_finite_with_invalid_mask`, `test_node_and_feature_axes`, `test_local_moran_hand_calculation`, `test_residual_inputs_only`.** O último verifica que o fit não recebe contagens brutas: os mesmos resíduos produzem as mesmas features, independentemente da escala das contagens de origem.
 
 ```python
 x = np.array([[1., 2., 3.], [10., 20., 30.]])
@@ -165,10 +167,10 @@ assert np.isfinite(ews).all() and not valid[:, 1:3].any()
 
 Alterar x[:,90:] → features até 89 idênticas; warmup só usa passado e possui validade, nunca backfill.
 
-- [ ] **Step 2:** `uv run pytest tests/test_features.py -v` → FAIL.
-- [ ] **Step 3: Implementar.** Local: `(e_t,e_(t−1),e_t−e_(t−1))` sobre resíduos padronizados, eixos `[14,time,3]`. Vizinhos: `W·e_t`, `W·e_(t−1)`, `e_t−W·e_t` e Moran local, somente nas 13 folhas; runner acrescenta zeros relacionais à linha PA. Moran instantâneo `z_i*(W@z)_i/m2`, z centrado espacialmente e m2=mean(z²), depois média dos últimos 12 valores; m2 zero →0. EWS SD ddof=1, CV=SD/mean, AR1 Pearson defasada, skewness e kurtosis Pearson (normal=3); constantes →zero com máscara falsa para estatística indefinida. Lag inicial =0 e warmup excluído. Todas as features em t usam ≤t.
+- [x] **Step 2:** `uv run pytest tests/test_features.py -v` → FAIL.
+- [x] **Step 3: Implementar.** Local: `(e_t,e_(t−1),e_t−e_(t−1))` sobre resíduos padronizados, eixos `[14,time,3]`. Vizinhos: `W·e_t`, `W·e_(t−1)`, `e_t−W·e_t` e Moran local, somente nas 13 folhas; runner acrescenta zeros relacionais à linha PA. Moran instantâneo `z_i*(W@z)_i/m2`, z centrado espacialmente e m2=mean(z²), depois média dos últimos 12 valores; m2 zero →0. EWS SD ddof=1, CV=SD/mean, AR1 Pearson defasada, skewness e kurtosis Pearson (normal=3); constantes →zero com máscara falsa para estatística indefinida. Lag inicial =0 e warmup excluído. Todas as features em t usam ≤t.
 - [ ] **Step 4:** Testes/checks → PASS; substituir W real por placebo só muda valores, não shape, nomes ou janelas. Nomes de colunas estáveis são gravados no manifest.
-- [ ] **Step 5:** `git add src/headd_l0/features.py tests/test_features.py MIGRATION.md` e `git commit -m "feat: add causal residual and neighborhood features"`.
+- [x] **Step 5:** `git add src/headd_l0/features.py tests/test_features.py MIGRATION.md` e `git commit -m "feat: add causal residual and neighborhood features"`.
 
 ## Critério de saída
 
