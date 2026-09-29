@@ -2,7 +2,7 @@
 
 O repositório dispõe dos componentes da baseline B1* e da preparação da
 camada 0. Grafo, simulador acoplado, features relacionais e runner completo de
-experimentos seguem os [planos de implementação](superpowers/plans/2026-09-26-headd-l0-global.md).
+experimentos seguem os [planos de implementação](superpowers/plans/headd-l0-global.md).
 As decisões científicas vigentes estão em [protocol-decisions.md](protocol-decisions.md).
 
 ## Ambiente e comandos
@@ -69,15 +69,19 @@ rotula todos os 72 meses de teste de PA como positivos. O pré-gate retorna
 
 Para repetir uma execução existente, use uma cópia do TOML com outro `run_id`,
 mantendo seed e protocolo. Não escolha seeds ou ajuste o baseline para obter
-aprovação. O bloqueio em PA exige decisão científica explícita antes de
-interpretar E1′; a implementação dos componentes seguintes pode prosseguir.
+aprovação. Esse é o resultado histórico do código ainda vigente. D-E0*-R1 (28/09)
+autorizou condição 2 regional, com PA descritivo, sem alterar a injeção ou a
+seed 42. A decisão não aprova E0* nem libera interpretação de E1′.
 
 ## Próximas etapas
 
-1. Construir A/W e placebos conforme o plano de grafo/simulação.
-2. Definir o perfil científico pendente e validar uma região antes de acoplar.
-3. Implementar features causais e o runner de experimentos, com conjuntos
-   independentes de calibração e avaliação nulas.
+1. Validar P1–P3, construir A/W e placebos em P4, e implementar features locais
+   e relacionais em P6.
+2. Preparar P5; definir o perfil científico pendente e validar uma região antes
+   de acoplar.
+3. Antes do scoring da Task 0, confirmar a tabela regional de classes e
+   contraste sem cutoff escolhido por scores, além de P1–P3 e features locais P6.
+   Implementar a revisão de `check_e0_star` para 13 regiões; PA permanece descritivo.
 4. Integrar os componentes ao gate E0* e respeitar os demais gates antes de
    interpretar resultados. `configs/e1_bench.toml` ainda não está disponível.
 
@@ -88,8 +92,8 @@ interpretar E1′; a implementação dos componentes seguintes pode prosseguir.
 - [Protocolo](protocol-decisions.md): decisões aprovadas e questões científicas pendentes.
 - [Migração](../MIGRATION.md): métodos portados, diferenças e testes de paridade.
 - [Proveniência](reference-provenance.md): busca D-G0a, evidências e hardware D-COST.
-- [Arquitetura](superpowers/specs/2026-09-26-headd-l0-architecture.md) e
-  [plano global](superpowers/plans/2026-09-26-headd-l0-global.md): especificação e etapas de implementação.
+- [Arquitetura](superpowers/specs/headd-l0-architecture.md) e
+  [plano global](superpowers/plans/headd-l0-global.md): especificação e etapas de implementação.
 
 Os importadores transitórios foram aposentados. Fixtures e hashes permanecem
 em `tests/reference/`; o procedimento para recuperar o exportador histórico

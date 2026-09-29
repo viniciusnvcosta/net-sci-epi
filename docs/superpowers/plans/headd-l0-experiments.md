@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python ≥3.12, uv, numpy/pandas/scipy, pyarrow, notebooks/matplotlib/seaborn, pytest/ruff; componentes dos planos E0 e L0.
 
-**Spec:** [Arquitetura](../specs/2026-09-26-headd-l0-architecture.md), [plano global](2026-09-26-headd-l0-global.md), README §5; [baseline/E0](2026-09-26-headd-l0-e0.md), [grafo/simulação](2026-09-26-headd-l0-graph-simulation.md).
+**Spec:** [Arquitetura](../specs/headd-l0-architecture.md), [plano global](headd-l0-global.md), README §5; [baseline/E0](headd-l0-e0.md), [grafo/simulação](headd-l0-graph-simulation.md).
 
 ## Vocabulário de status
 
@@ -20,10 +20,11 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 ## Global Constraints
 
-- Comparação regional B1*/z-score selada até revisão de D-E0*: nenhuma execução
-  diagnóstica; decisão datada deve preceder o primeiro commit de integração E0\*.
+- D-E0*-R1 (28/09) adotou ambas as classes nas 13 regiões; PA é descritivo.
+  Scoring Task 0 aguarda tabela de classes/contraste, P1–P3 e features locais P6;
+  o código atual ainda usa a regra histórica.
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
-  a [decisão pendente PA](2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
+  a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
 - “One variable per arm.” Pool/reconciliação/seleção/limiar idênticos entre B1\*/B2/placebo; representações e parâmetros aprendidos podem diferir.
 - FAR = 1/60 por região-mês, calibrada em réplicas N independentes da avaliação.
@@ -50,7 +51,8 @@ As Tasks 0–5 são **futuras**: seus novos símbolos, arquivos, configs e coman
 não existem ainda, salvo funções explicitamente consumidas dos componentes E0.
 Status atual: preparação `implementado` e componentes `validado tecnicamente`;
 E0\* sem `gate aprovado`, E1′ sem `interpretação autorizada`. Nenhuma tarefa de
-integração/scoring E0\* começa antes da decisão PA, inclusive commits da Task 1
+integração/scoring E0\* começa antes da confirmação de classes/contraste regional,
+P1–P3 e features locais P6, inclusive commits da Task 1
 que integrem esse caminho. Tasks 1–5 têm pré-condições próprias além da Task 0.
 
 Modificar `run.py`, `inject.py`, `tests/test_run.py`, `tests/test_inject.py`; criar configs `e1_smoke.toml`, `e1_bench.toml`, `e1_real.toml`, `e1_local.toml`, testes de integração em `tests/test_run.py`, notebooks `01_l0_network.ipynb`, `02_e1_results.ipynb`. Atualizar README/MIGRATION só nas seções correspondentes.
@@ -63,10 +65,11 @@ Não criar módulos adicionais preventivamente. Se run.py exceder 400 linhas, ex
 
 ### Task 0: Integração E0\* B1\*/z-score e nulos reais — futura e condicionada
 
-**Entrada obrigatória:** decisão PA datada e registrada antes do primeiro commit
-que integre scoring E0\*. Até lá, apenas planejamento; nenhuma comparação regional,
-mesmo diagnóstica. Este trabalho depende de P1–P3 e das features locais de P6,
-mas não de grafo adquirido, perfil do simulador ou injeção epidêmica.
+**Entrada obrigatória:** D-E0*-R1 datada e commitada antes do primeiro commit
+que integre scoring E0\*. Antes de calcular scores, confirmar tabela regional de
+positivos/negativos/prevalência e discutir contraste sem cutoff selecionado por
+scores; validar P1–P3 e as features locais de P6. Esta integração não depende
+de grafo adquirido, perfil do simulador ou injeção epidêmica.
 
 **Files futuros:** Modify `src/headd_l0/forecast.py`, `src/headd_l0/run.py`,
 `tests/test_forecast.py`, `tests/test_run.py`, `MIGRATION.md`; Create
@@ -86,8 +89,9 @@ os campos atuais com outro run_id; a CLI futura opta por scoring via `--score-e0
 Sem essa flag, o comando de preparação mantém seu comportamento.
 
 - [ ] **Step 1: Verificar precedência documental.** Conferir data/responsável da
-      decisão PA e seu commit anterior à integração. Sem revisão de D-E0*, não iniciar
-      scoring; a autorização de B1* não satisfaz esta pré-condição.
+      decisão D-E0*-R1 e seu commit anterior à integração. Confirmar tabela
+      regional de classes/contraste, P1–P3 e features locais P6 antes do scoring;
+      a autorização de B1* não satisfaz o gate.
 - [ ] **Step 2: Escrever testes futuros dos nulos e integração.**
       `test_null_fit_uses_training_only`: alterar meses ≥60 não muda fit;
       `test_null_calibration_evaluation_disjoint`: IDs/streams disjuntos;
@@ -110,10 +114,12 @@ Sem essa flag, o comando de preparação mantém seu comportamento.
       FAR 1/60, tolerância observada 1/300. Thresholds numéricos podem diferir.
       Preservar o stream oficial da injeção; derivar streams de calibração, avaliação,
       detectores e bootstrap separadamente, sem realocar a injeção para uma child.
-- [ ] **Step 5: Avaliar conforme decisão registrada.** No protocolo ainda vigente,
-      `check_e0_star` exige 14 tarefas com duas classes; bootstrap pareado de 10.000
-      sobre as 13 regiões, PA excluído, limite inferior >0. Não alterar esse contrato
-      antes de decisão. Prevalências e resultados indefinidos acompanham toda AP.
+- [ ] **Step 5: Avaliar conforme D-E0*-R1.** Atualizar `check_e0_star` para
+      exigir ambas as classes nas 13 tarefas regionais; PA soma/união, prevalência,
+      cobertura e coerência descritivas, sem AUC-PR como critério. Condições 1/3/4
+      não mudam: bootstrap pareado de 10.000 sobre as 13 regiões, limite inferior
+      do IC 95% >0. Prevalências e resultados indefinidos acompanham toda AP.
+      O código atual ainda exige 14 tarefas; revisão e scoring são futuros.
 - [ ] **Step 6:** Futuro: testes/checks → PASS; comando
       `uv run python -m headd_l0.run --score-e0 configs/e0_star_scoring.toml` somente após cumprir
       a pré-condição científica. Registrar métricas, nulos, FAR, seeds e gates.
@@ -247,7 +253,7 @@ np.testing.assert_array_equal(aggregated[0], out.counts.sum(axis=0))
       esta referência preserva a numeração histórica sem duplicar trabalho.
 - [ ] **Step 7: Escrever testes das análises por camada.** `test_local_layer_uses_bounded_injection` exige `inject_original_bounded` com seeds da camada 0, PA calculado pela soma das regiões e máscara PA pela união regional; `test_e0_star_runs_before_e1` exige o E0\* avaliado antes de qualquer resultado; `test_noninferiority_resamples_regions` verifica pares B1\*/B2, bootstrap sobre as 13 regiões, limite inferior do IC ≥ −0,02 e PA reportado à parte; `test_real_primary_uses_epidemic_onsets` verifica definição camada 1; `test_real_gate_blocks_unresolved_choices` impede conclusão antes dos critérios aprovados; `test_secondary_stops_at_friedman` preserva ordem estatística. Se B1\* autorizado, teste exige baseline_idB1\* e E0inconclusive, sem substituir tabelas de paridade.
 - [ ] **Step 8:** `uv run pytest tests/test_run.py -k 'local_layer or noninferiority or real_primary or real_gate or secondary' -v` → FAIL.
-- [ ] **Step 9: Integrar configurações e inferência.** Camada 0 usa e1_local.toml e `inject_original_bounded`; consome o E0\* produzido pela Task 0 após decisão PA e, com ele aprovado, a não-inferioridade: limite inferior do IC 95% da média de ΔAUC-PR(B2 − B1\*) ≥ −0,02, bootstrap pareado de 10.000 reamostras sobre as 13 regiões, PA reportado à parte. Falha é custo do método, não refutação de RQ1′. Camada1 usa e1_real.toml,100seeds propostas compartilhadas entre braços, estratos ε/k e perfil de ruído fixado. Antes dos braços medir D-REACH; executar bootstrap pareado→rankplacebo→critério conjunto como na camada 2, com equivalência ε=0 e FAR válida. Reutilizar os mesmos fundos reais não cria100observações epidemiológicas independentes; explicitar inferência condicional aos fundos e injeções.
+- [ ] **Step 9: Integrar configurações e inferência.** Camada 0 usa e1_local.toml e `inject_original_bounded`; consome o E0\* produzido pela Task 0 após D-E0*-R1, classes/contraste e P6, e, com ele aprovado, a não-inferioridade: limite inferior do IC 95% da média de ΔAUC-PR(B2 − B1\*) ≥ −0,02, bootstrap pareado de 10.000 reamostras sobre as 13 regiões, PA reportado à parte. Falha é custo do método, não refutação de RQ1′. Camada1 usa e1_real.toml,100seeds propostas compartilhadas entre braços, estratos ε/k e perfil de ruído fixado. Antes dos braços medir D-REACH; executar bootstrap pareado→rankplacebo→critério conjunto como na camada 2, com equivalência ε=0 e FAR válida. Reutilizar os mesmos fundos reais não cria100observações epidemiológicas independentes; explicitar inferência condicional aos fundos e injeções.
 
 Preservar análise secundária: AP por região/método agregada sobre seeds antes de ranks; Friedman→Wilcoxon/Bonferroni→DM/HAC→Cliff/IC95%, interrompendo se Friedman p>.05. DM usa perdas quadráticas de alarmes0/1 versus máscara0/1 e lag12; Cliff usa AP por região. Bootstrap temporal em blocos pode diagnosticar estabilidade, mas não é o gerador nulo principal; o pulso ad hoc foi removido sem sensibilidade paralela.
 

@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python ≥3.12, uv, numpy/scipy, pandas, networkx, geobr, geopandas, libpysal, pyarrow, pytest/ruff.
 
-**Spec:** [Arquitetura §§5–8](../specs/2026-09-26-headd-l0-architecture.md), README §5, AGENTS; contratos de dados em [E0 tarefa 2](2026-09-26-headd-l0-e0.md#task-2-dados-hierarquia-e-proveniência--default).
+**Spec:** [Arquitetura §§5–8](../specs/headd-l0-architecture.md), README §5, AGENTS; contratos de dados em [E0 tarefa 2](headd-l0-e0.md#task-2-dados-hierarquia-e-proveniência--default).
 
 ## Vocabulário de status
 
@@ -20,10 +20,11 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 ## Global Constraints
 
-- Comparação regional B1*/z-score selada até revisão de D-E0*: nenhuma execução
-  diagnóstica; decisão datada deve preceder o primeiro commit de integração E0\*.
+- D-E0*-R1 (28/09) adotou ambas as classes nas 13 regiões; PA é descritivo.
+  Scoring Task 0 aguarda tabela de classes/contraste, P1–P3 e features locais P6;
+  o código atual ainda usa a regra histórica.
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
-  a [decisão pendente PA](2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
+  a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
 - “Validate a single region first”; ruídos `white`, `env`, `dem`.
 - “ε = 0 must yield zero spread from the seed beyond the endemic background”.

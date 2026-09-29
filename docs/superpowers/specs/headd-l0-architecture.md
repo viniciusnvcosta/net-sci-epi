@@ -1,8 +1,10 @@
 # HEADD-Series L0 — arquitetura e decisões de implementação
 
 Data original: 26/09/2026. Atualização documental: 28/09/2026, após PR #1.
-E0 inconclusivo; B1\* autorizado; E0\* reprovado por `single_class:PA`. A reprodução
-técnica do pré-gate está no plano E0; não houve scoring nem decisão científica nova.
+E0 inconclusivo; B1\* autorizado. O pré-gate histórico do código ainda falha
+por `single_class:PA`. D-E0*-R1 (28/09) revisou a condição 2 para ambas as
+classes nas 13 regiões, com PA descritivo; ainda não houve scoring ou aprovação
+de E0*. A reprodução técnica do pré-gate está no plano E0.
 
 ## Vocabulário de status
 
@@ -135,7 +137,7 @@ flowchart LR
   EVAL --> STAT[Bootstrap e placebos]
   G0[Auditoria de referência] --> E0[E0 inconclusivo]
   G0 --> ROUTE[B1* autorizado, D-G0 saída i]
-  ROUTE --> PA[Decisão pendente PA antes da integração]
+  ROUTE --> PA[D-E0*-R1 registrada, classes/contraste e P6 antes do scoring]
   PA --> E0S[Gate E0*]
   E0S --> STAT
 ```
@@ -152,15 +154,18 @@ Representação local: resíduo padronizado em t, t−1 e diferença temporal; a
 
 ## 7. Decisões experimentais propostas para revisão
 
-**Pendência PA:** comparação regional B1*/z-score selada até revisão de D-E0*,
-inclusive diagnóstico; decisão datada e responsável devem preceder o primeiro
-commit de integração E0\*. Ver [procedimento e alternativas no E0](../plans/2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada).
-Caracterização de muitas seeds usa só máscaras e está planejada, não executada;
-nenhuma substitui a 42. Toda AUC-PR acompanha prevalência positiva por tarefa,
-janela e denominador; a existência de duas classes não basta para justificar
-contraste suficiente. A definição epidemiológica de PA é decidida sem scores.
+**D-E0*-R1 (28/09):** condição 2 exige ambas as classes nas 13 tarefas
+regionais; PA mantém soma/união coerente, com prevalência, cobertura e coerência
+descritivas, sem AUC-PR como critério. Condições 1/3/4 não mudam. A tabela
+pré-scoring de positivos/negativos/prevalência e a discussão de contraste estão
+no [registro](../../protocol-decisions.md#d-e0-r1--revisão-regional-da-condição-2).
+A decisão antecede scores e o primeiro commit de integração E0*. Task 0 requer
+P1–P3 e features locais P6 antes do scoring; o código atual ainda usa a regra
+histórica. Ver [alternativas históricas no E0](../plans/headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada).
+Toda AUC-PR futura acompanha prevalência, janela e denominador; nenhuma seed
+substitui a 42 e não se escolhe cutoff de contraste olhando scores.
 
-As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). Continuam pendentes a faixa de R0 e o perfil do simulador (D-GT2/D-GT4), os eventos da camada 3 (D-L3) e a decisão PA antes da integração E0\*. Hardware registrado em 27/09; piloto D-COST ainda pendente.
+As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). Continuam pendentes a faixa de R0 e o perfil do simulador (D-GT2/D-GT4), os eventos da camada 3 (D-L3) e a implementação condicional de D-E0*-R1. Hardware registrado em 27/09; piloto D-COST ainda pendente.
 
 | Camada      | Ground truth / uso                                                                                                                                                                             | Regra                                                                                                                                                                                                              |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
