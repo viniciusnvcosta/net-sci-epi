@@ -240,3 +240,31 @@ retains all 14 tasks, writes PA union/coherence diagnostics, and remains pending
 until component and trivial-baseline evidence exists. The earlier
 `single_class:PA` failure remains a historical artifact; E0 is inconclusive.
 Behavior tests in `tests/test_run.py` cover this revision. No new dependency.
+
+## P4 regional graph (2026-09-29)
+
+`graph.py` and `graph_io.py` are new components, not CDADE ports. Synthetic
+behavior tests cover Queen vertex contact, canonical ordering, rejected islands,
+invalid geometry, bounded rewiring, labeled degrees, deterministic distinct
+placebos, GEXF exports and verified caches. Acquisition tests replace only the
+network boundary, retain real geometry/graph operations and verify diagnostic
+artifacts on source/cardinality/topology failures. No dependency was added.
+
+`configs/l0_graph.toml` fixes DataSUS via geobr, vintage 2013, micro regions of
+PA and `simplified=false` before acquisition. The resolved geobr 2.1.1 reader
+unions municipalities and removes interior holes; manifests record this
+upstream operation and its source hash. Local invalid geometries are rejected,
+not repaired. Original codes/names and their accent/case normalization are
+retained in an audit table, checked against all 13 canonical regions. No year,
+resolution or contiguity fallback is selected to obtain connectivity.
+
+Each placebo candidate starts from A and accepts 10×|E| double-edge swaps,
+rejecting loops, duplicate edges and disconnected proposals, within at most
+1,000×|E| attempts. At most 10,000 candidates yield 30 distinct nonoriginal
+connected graphs; exhaustion raises. Degree is preserved by node identity.
+These budgets do not establish uniform mixing. Manifests retain RNG seed,
+attempt counts, edge symmetric-difference distances, all pairwise distances,
+hashes, source metadata, dependency versions and measured acquisition cost.
+A valid cache requires compatible provenance, canonical names, an intact hash
+and a connected simple undirected A. Acquisition status and scientific gate
+limitations are recorded in [development](docs/development.md).
