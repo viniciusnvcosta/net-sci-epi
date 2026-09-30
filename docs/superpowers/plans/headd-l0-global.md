@@ -21,9 +21,12 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 ## Global Constraints
 
 - D-E0*-R1 (28/09) adotou ambas as classes nas 13 regiões; PA é descritivo.
-  A tabela de classes/contraste e P1–P3 foram confirmadas; scoring Task 0
-  já dispõe das features locais P6, validadas tecnicamente; scoring Task 0
-  ainda não começou. O pré-gate regional está implementado e pendente.
+  Task 0 executou o caminho NB2 convergente com P1–P3 e features locais P6
+  no commit limpo `017bd1a` (30/09): `implementado` e `validado tecnicamente`.
+  E0* falhou em `trivial_baseline` (limite inferior −0.20186060618499926);
+  FAR falhou em ARAGUAIA/B1*, XINGU/B1* e RIO CAETES/zscore.
+  `interpretation_allowed=false`; fallback D-GT3 pendente, não utilizado.
+  Detalhes: [execução real](../../development.md#resultado-real-e0-30092026).
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
   a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
@@ -58,11 +61,12 @@ Referência CDADE: `fbfa609bba6cb0b0f2a9e8d73be18022aec319b7`, em
 entregou os componentes corrigidos e a preparação da camada 0. O estado operacional
 está em [development](../../development.md); decisões aprovadas prevalecem sobre
 roteiros históricos. E0 permanece inconclusivo. O pré-gate histórico falhou com `single_class:PA`;
-a revisão D-E0*-R1 está implementada e o pré-gate regional está pendente de
-scoring. A decisão não aprova E0*.
+a revisão D-E0*-R1 foi consumida pelo scoring de 30/09. E0* e FAR falharam;
+a aprovação técnica do código não aprova os gates.
 
 P1–P2: `implementado`, com componentes `validado tecnicamente` pela suíte registrada
-no plano E0. P3: preparação `implementado`; comparação completa pendente, sem
+no plano E0. P3: preparação e scoring NB2 convergente `implementado`; fallback
+D-GT3 pendente. A comparação real foi executada, sem
 `gate aprovado` para E0\* e sem `interpretação autorizada` para E1′.
 D-G0a concluiu a busca sem proveniência verificável; hardware já registrado em
 [reference-provenance](../../reference-provenance.md). O piloto D-COST ainda falta.
@@ -91,8 +95,8 @@ P4 e P6 estão implementados e validados tecnicamente; o artefato real
 P4 permanece preservado, sem aprovação de G3. P5 tem preparação de fonte
 [registrada](../../gao-source-preparation.md), mas a Step 1 segue parcial:
 manifesto de referência, fixture e perfil científico estão pendentes.
-A comparação regional E0\* aguarda scoring/calibração;
-a tabela pré-scoring de classes/contraste e P1–P3 foram confirmadas. A autorização B1* de D-G0 não libera interpretação.
+A comparação regional E0\* e a calibração foram executadas em 30/09, com
+falha de E0* e FAR preservada. A autorização B1* de D-G0 não libera interpretação.
 As trilhas independentes não autorizam subagentes automaticamente; `think`,
 `default`, `background` e `longContext` continuam classificações de tarefas.
 
@@ -103,10 +107,10 @@ As trilhas independentes não autorizam subagentes automaticamente; `think`,
 | P0    | [E0](headd-l0-e0.md), histórico Task 1                                         | Auditoria realizada; D-G0 autoriza B1\*, E0 inconclusivo.                                        |
 | P1    | E0, validação ativa P1                                                                    | Longa, hashes, ordem canônica e coerência exata 13→1 em 132 meses (G1).                          |
 | P2    | E0, validação ativa P2                                                                    | Componentes existentes; comportamento corrigido separado de paridade de primitivas.              |
-| P3    | E0, validação ativa P3; [Experimentos](headd-l0-experiments.md), Task 0 futura | Pré-gate regional pendente; tabela/contraste, P1–P3 e P6 confirmados; scoring Task 0 futuro. G2 exige E0*. |
+| P3    | E0, validação ativa P3; [Experimentos](headd-l0-experiments.md), Task 0 parcial | Caminho NB2 convergente implementado/validado; E0* e FAR falharam, fallback pendente. G2 não aprovado. |
 | P4    | [Grafo/simulação](headd-l0-graph-simulation.md), Task 1 implementada/validada tecnicamente | A/W, mapa, GEXF, 30 placebos e manifest real preservados; G3 não aprovado. |
 | P5    | Grafo/simulação, Tasks 2–3 futuras; Step 1 parcial | Fonte caracterizada; paridade, manifesto e perfil pendentes antes do integrador; G4 não aprovado. |
-| P6    | Grafo/simulação, Task 4 implementada/validada tecnicamente | Features causais sobre resíduos; integração/manifesto no runner futuros; G5 não aprovado. |
+| P6    | Grafo/simulação, Task 4 implementada/validada tecnicamente | Features locais integradas ao E0*, com nomes/janelas registrados; integração relacional E1 futura; G5 não aprovado. |
 | P7    | Experimentos, Tasks 1–2 futuras                                                           | Runner, smoke e FAR; G6: seeds/partições independentes e única variável por braço.               |
 | P8    | Experimentos, Tasks 3–4 futuras                                                           | Camadas 0/1/2, nulos, D-COST e inferência; G7 ou conclusão inconclusiva explícita.               |
 | P9    | Experimentos, Task 5 futura                                                               | Notebooks, figuras, tabelas e README reproduzíveis.                                              |
@@ -136,10 +140,11 @@ Camada1 (injeção epidêmica+nulos paramétricos) tem prioridade sobre todos os
 - [x] Implementar e validar tecnicamente P4/P6; G3/G5 permanecem separados da integração e interpretação.
 - [ ] Completar a preparação P5 ([fonte registrada](../../gao-source-preparation.md)); aprovar perfil antes do integrador, validar uma região antes de acoplar e fixar faixa R0 antes da camada 1.
 - [x] Registrar D-E0*-R1 datada antes do primeiro commit de integração E0\*; conferir SHA deste commit na Task 0.
-- [x] Confirmar features locais P6, tabela regional de classes/contraste sem cutoff por scores e P1–P3 antes do scoring Task 0. O scoring permanece futuro.
+- [x] Confirmar features locais P6, tabela regional de classes/contraste sem cutoff por scores e P1–P3 antes do scoring Task 0. Scoring NB2 convergente executado em 30/09; fallback pendente.
 - [ ] Executar piloto D-COST após detectores+acoplamento; aplicar 48 h/96 h antes de observar efeitos.
 - [ ] Verificar alcance D-REACH antes dos braços; células sem poder não contam como evidência negativa.
-- [ ] Avaliar o E0\* na camada 0 antes de qualquer resultado do E1′; executar camadas 0/1/2 e nulos NB2 com FAR e seeds disjuntas; separar E0\*, não-inferioridade e evidência de propagação.
+- [x] Avaliar E0* no caminho NB2 convergente: executado em 30/09, E0*/FAR falharam; nenhuma interpretação autorizada.
+- [ ] Completar fallback D-GT3 após especificação aprovada; manter camadas E1 0/1/2 condicionadas aos gates, separadas da execução E0*.
 - [ ] Executar P7–P8 com FAR e seeds disjuntas; verificar comparabilidade antes de interpretar lead time.
 - [ ] Executar P9; reportar resultados negativos sem expandir o grafo.
 - [ ] Em cada componente: teste público, paridade ou comportamento, ruff/format/pytest, config por nome e artefatos pelo runner.

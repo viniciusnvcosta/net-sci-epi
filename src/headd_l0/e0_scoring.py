@@ -276,11 +276,13 @@ def _score_e0(cfg, leaves, n=200):
         ):
             raise ValueError("component evidence failed or changed during verification")
         mint = fit_mint(counts, fitted)
-        features = local_features(
+        feature_batch = local_features(
             standardize(
                 reconciled_residuals(counts, fitted, summing_matrix(hierarchy()), mint)
             )
-        ).values
+        )
+        features = feature_batch.values
+        manifest["settings"]["feature_names"] = list(feature_batch.names)
         pools, detector_records = [], []
         for j, seed in enumerate(streams["detectors"].spawn(14)):
             pool = []

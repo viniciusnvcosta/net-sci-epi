@@ -21,9 +21,12 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 ## Global Constraints
 
 - D-E0*-R1 (28/09) adotou ambas as classes nas 13 regiões; PA é descritivo.
-  A tabela de classes/contraste e P1–P3 foram confirmadas; scoring Task 0
-  já dispõe das features locais P6, validadas tecnicamente; scoring Task 0
-  ainda não começou. O pré-gate regional está implementado e pendente.
+  Task 0 executou o caminho NB2 convergente com P1–P3 e features locais P6
+  no commit limpo `017bd1a` (30/09): `implementado` e `validado tecnicamente`.
+  E0* falhou em `trivial_baseline` (limite inferior −0.20186060618499926);
+  FAR falhou em ARAGUAIA/B1*, XINGU/B1* e RIO CAETES/zscore.
+  `interpretation_allowed=false`; fallback D-GT3 pendente, não utilizado.
+  Detalhes: [execução real](../../development.md#resultado-real-e0-30092026).
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
   a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
@@ -52,7 +55,8 @@ Task 1 (P4) e Task 4 (P6) estão `implementado` e `validado tecnicamente`.
 A aquisição P4 real foi preservada; G3 não está `gate aprovado`. Task 2
 (P5) tem [preparação de fonte](../../gao-source-preparation.md), com Step 1
 parcial e perfil/fixture pendentes; Tasks 2–3 não têm integrador. Gravação
-de nomes e elegibilidade das features no runner permanece futura. Os
+dos nomes e janelas elegíveis das features locais no E0* está implementada;
+features relacionais/EWS no runner E1 permanecem futuras. Os
 componentes E0 estão `implementado` e `validado tecnicamente`, sem
 `gate aprovado` para E0\* ou `interpretação autorizada` para E1′.
 
@@ -167,7 +171,7 @@ Também testar C identidade em ε=0, linhas somam 1 e orientação de W com graf
 
 ### Task 4: Representações causais e indicadores — default / Moran think
 
-**Status (29/09/2026):** P6 implementado e validado tecnicamente: 9 testes de features, 184 testes completos e ruff verde. O contrato de nomes/eixos é estável; gravação de nomes no manifest e elegibilidade no scoring aguardam o runner (Experimentos Task 4). Este status não aprova G5 nem E0*.
+**Status (29/09/2026):** P6 implementado e validado tecnicamente: 9 testes de features, 184 testes completos e ruff verde. O contrato de nomes/eixos é estável. Atualização 30/09: features locais consumidas pela Task 0; nomes e janelas registrados no manifesto após correção de proveniência, sem repetir o run real. Features relacionais/EWS no runner E1 aguardam Experimentos Task 4. Este status não aprova G5; E0* falhou no run de 30/09.
 
 **Files:** Create `src/headd_l0/features.py`, `tests/test_features.py`; Modify `MIGRATION.md`.
 
@@ -198,4 +202,4 @@ Alterar x[:,90:] → features até 89 idênticas; warmup só usa passado e possu
 
 ## Critério de saída
 
-A/W e 30 draws válidos, validação single-region, ε=0 isolado, onsets auditáveis e invariância de prefixo. Os dados sintéticos não são versionados; seeds/config e fixtures pequenas permitem regeneração. D-G0 já autoriza B1*, mas E0* permanece pendente de scoring e aprovação. Esses resultados técnicos não são evidência da RQ1′ nem substituem E0\*, validação do simulador, D5, FAR ou alcance.
+A/W e 30 draws válidos, validação single-region, ε=0 isolado, onsets auditáveis e invariância de prefixo. Os dados sintéticos não são versionados; seeds/config e fixtures pequenas permitem regeneração. D-G0 já autoriza B1*, mas E0* foi pontuado em 30/09 e falhou em trivial_baseline; FAR também falhou e o fallback D-GT3 permanece pendente, não usado. Esses resultados técnicos não são evidência da RQ1′ nem substituem E0\*, validação do simulador, D5, FAR ou alcance.

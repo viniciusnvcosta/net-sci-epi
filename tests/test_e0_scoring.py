@@ -43,6 +43,11 @@ def test_e0_scoring_real_components_preserve_stream_and_report_prevalence(tmp_pa
     result = run._score_e0(cfg, leaves, n=1)
     manifest = json.loads((result / "manifest.json").read_text())
     assert manifest["status"] == "completed"
+    assert manifest["settings"].get("feature_names") == [
+        "residual",
+        "residual_lag1",
+        "residual_change",
+    ]
     assert manifest["component_evidence"]["passed"]
     assert manifest["component_evidence"]["git_sha"] == manifest["git_sha"]
     assert not manifest["interpretation_allowed"]

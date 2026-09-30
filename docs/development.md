@@ -154,11 +154,10 @@ Nenhum simulador, scoring ou gate G4 foi executado/aprovado por esta nota.
    mantendo os gates científicos separados da validação dos componentes.
 2. Completar P5 após decisão sobre paridade, critério CV e perfil científico;
    validar uma região antes de acoplar.
-3. A Task 0 deve consumir a tabela regional de classes e contraste sem
-   cutoff escolhido por scores, P1–P3 e features locais P6, todos confirmados
-   tecnicamente; scoring/calibração seguem pendentes.
-4. Integrar os componentes ao gate E0* e respeitar os demais gates antes de
-   interpretar resultados. `configs/e1_bench.toml` ainda não está disponível.
+3. Task 0: caminho NB2 convergente implementado/validado e executado;
+   completar fallback D-GT3 somente após especificação aprovada. E0*/FAR
+   falharam no run preservado de 30/09, sem ajuste posterior de parâmetros.
+4. Manter interpretação bloqueada por E0*/FAR e pelos demais gates; `configs/e1_bench.toml` ainda não está disponível.
 
 ## Documentação de referência
 
@@ -197,3 +196,30 @@ parcial mesmo se o caminho NB2 convergente concluir. Exit 2 e
 `interpretation_allowed=false` continuam esperados, qualquer que seja o
 resultado E0*/FAR. Para worktrees aninhadas, use cópia temporária do TOML com
 `raw_dir` absoluto; preserve a configuração portátil versionada.
+
+
+### Resultado real E0* (30/09/2026)
+
+`results/e0-star-scoring-20260930` foi produzido pelo commit limpo
+`017bd1a0d6cd3ecf1e8d8efe55a4826c234b3132`, seed 42, com 200 nulos de
+calibração e 200 de avaliação. Os 14 ajustes NB2 convergiram; a suíte interna
+executada no mesmo SHA passou (122 testes). O caminho convergente está
+`implementado` e `validado tecnicamente`; isso não aprova os gates.
+
+| Gate/condição | Resultado preservado |
+| --- | --- |
+| E0 | `inconclusive` |
+| E0* | `failed`: somente `trivial_baseline`; componentes e 13 tarefas válidos |
+| Limite inferior IC95% ΔAP(B1* − zscore) | `-0.20186060618499926` |
+| FAR | `failed`: ARAGUAIA/B1*, XINGU/B1*, RIO CAETES/zscore |
+| PA | Descritivo, prevalência 1, AP indefinida, fora do bootstrap regional |
+| Interpretação | `interpretation_allowed=false` |
+| Fallback D-GT3 | `pending_specification_not_used`; Task 0/Task 6 integral permanece parcial |
+
+Não houve ajuste de pool, parâmetros, seed ou gates para resgatar o resultado.
+A correção posterior de proveniência passa a registrar `FeatureBatch.names`
+(`residual`, `residual_lag1`, `residual_change`) em `settings.feature_names`
+nas novas execuções; o run de `017bd1a` permanece intacto e não foi repetido.
+Sua evidência usa SHA limpo e digest de módulos/testes Python, pyproject e
+uv.lock; o digest não cobre fixtures/arquivos auxiliares. Planos anteriores e
+pré-gates acima permanecem como histórico, não como estado do scoring atual.

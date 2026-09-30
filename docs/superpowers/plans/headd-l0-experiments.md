@@ -21,9 +21,12 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 ## Global Constraints
 
 - D-E0*-R1 (28/09) adotou ambas as classes nas 13 regiões; PA é descritivo.
-  A tabela de classes/contraste e P1–P3 foram confirmadas; scoring Task 0
-  já dispõe das features locais P6, validadas tecnicamente; scoring Task 0
-  ainda não começou. O pré-gate regional está implementado e pendente.
+  Task 0 executou o caminho NB2 convergente com P1–P3 e features locais P6
+  no commit limpo `017bd1a` (30/09): `implementado` e `validado tecnicamente`.
+  E0* falhou em `trivial_baseline` (limite inferior −0.20186060618499926);
+  FAR falhou em ARAGUAIA/B1*, XINGU/B1* e RIO CAETES/zscore.
+  `interpretation_allowed=false`; fallback D-GT3 pendente, não utilizado.
+  Detalhes: [execução real](../../development.md#resultado-real-e0-30092026).
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
   a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
@@ -48,14 +51,13 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 ## Pré-condições e mapa de arquivos
 
-As Tasks 0–5 são **futuras**: seus novos símbolos, arquivos, configs e comandos
-não existem ainda, salvo funções explicitamente consumidas dos componentes E0.
-Status atual: preparação e P4/P6 `implementado`, com componentes `validado
-tecnicamente`; P5 registra fonte, mas perfil e fixture seguem pendentes.
-E0\* sem `gate aprovado`, E1′ sem `interpretação autorizada`. Classes/contraste
-regionais, P1–P3 e features locais P6 foram confirmados para a entrada da
-Task 0; integração/scoring e calibração ainda não começaram. Tasks 1–5 têm
-pré-condições próprias além da Task 0.
+Task 0 tem caminho NB2 convergente `implementado` e `validado tecnicamente`;
+execução real `results/e0-star-scoring-20260930` no commit limpo `017bd1a`.
+E0* e FAR falharam conforme o estado acima; PA permanece descritivo e E1′ sem
+`interpretação autorizada`. Task 0 permanece parcial pelo fallback D-GT3 ainda
+sem construção/tamanho aprovados. Falha de previsão D5 bloqueia antes de MinT/AP.
+Tasks 1–5 continuam futuras, com pré-condições próprias. P4/P6 estão implementados;
+P5 registra fonte, mas perfil e fixture seguem pendentes.
 
 Modificar `run.py`, `inject.py`, `tests/test_run.py`, `tests/test_inject.py`; criar configs `e1_smoke.toml`, `e1_bench.toml`, `e1_real.toml`, `e1_local.toml`, testes de integração em `tests/test_run.py`, notebooks `01_l0_network.ipynb`, `02_e1_results.ipynb`. Atualizar README/MIGRATION só nas seções correspondentes.
 
@@ -63,9 +65,11 @@ Revisão aprovada: [D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–4, D-COST e D-REACH](.
 
 **Rota decidida:** D-G0 autorizou B1\* com E0 inconclusivo, e D5 fixou a conexão MinT: previsões NB2 um passo à frente reconciliadas por MinT(Shrink), com detectores sobre resíduos padronizados (E0 Task 3). Para interpretar E1′, exigir o E0\* aprovado (E0 Task 9, integrado na Task 0 e consumido na camada 0 da Task 4), FAR comparável e os demais gates aplicáveis válidos.
 
-Não criar módulos adicionais preventivamente. Se run.py exceder 400 linhas, extrair exclusivamente parsing/dataclasses para `config.py` com `tests/test_config.py`, mantendo orquestração em run.py e ajustando imports em um único commit. Essa divisão depende do tamanho real.
+Não criar módulos adicionais preventivamente. Se run.py exceder 400 linhas, extrair exclusivamente parsing/dataclasses para `config.py` com `tests/test_config.py`, mantendo orquestração em run.py e ajustando imports em um único commit. Essa divisão depende do tamanho real. Na Task 0, run.py atingiu 634 linhas; o
+controller aprovou a extração coesa de `e0_scoring.py`, com wrapper público e
+import local em run.py. Nenhum framework de experimentos foi acrescentado.
 
-### Task 0: Integração E0\* B1\*/z-score e nulos reais — futura e condicionada
+### Task 0: Integração E0\* B1\*/z-score e nulos reais — caminho convergente validado, fallback pendente
 
 **Entrada obrigatória:** D-E0*-R1 datada e commitada antes do primeiro commit
 que integre scoring E0\*. Antes de calcular scores, confirmar tabela regional de
@@ -73,9 +77,10 @@ positivos/negativos/prevalência e discutir contraste sem cutoff selecionado por
 scores; validar P1–P3 e as features locais de P6. Esta integração não depende
 de grafo adquirido, perfil do simulador ou injeção epidêmica.
 
-**Files futuros:** Modify `src/headd_l0/forecast.py`, `src/headd_l0/run.py`,
+**Files implementados (caminho convergente):** Modify `src/headd_l0/forecast.py`, `src/headd_l0/run.py`,
 `tests/test_forecast.py`, `tests/test_run.py`, `MIGRATION.md`; Create
-`configs/e0_star_scoring.toml`. Preservar o modo atual `configs/e0_star.toml`.
+`configs/e0_star_scoring.toml`, `src/headd_l0/e0_scoring.py` e
+`tests/test_e0_scoring.py`. Preservar o modo atual `configs/e0_star.toml`.
 
 **Interfaces:** Consome `fit_nb2`, `forecast_mean`, `fit_mint`,
 `reconciled_residuals`, `standardize`, `local_features` (P6), `DETECTORS`,
@@ -87,14 +92,15 @@ Produz tabela do gate `task,arm,auc_pr,n_positive,n_negative` e, nos artefatos,
 `prevalence=n_positive/(n_positive+n_negative)`. Produz também
 `run_e0_scoring(cfg: E0Config) -> Path` em `run.py`; reutiliza o E0Config atual,
 sem depender de ExperimentConfig/SimConfig futuros. O TOML de scoring mantém
-os campos atuais com outro run_id; a CLI futura opta por scoring via `--score-e0`.
+os campos atuais com outro run_id; a CLI opta por scoring via `--score-e0`.
 Sem essa flag, o comando de preparação mantém seu comportamento.
 
-- [ ] **Step 1: Verificar precedência documental.** Conferir data/responsável da
+- [x] **Step 1: Verificar precedência documental.** Conferir data/responsável da
       decisão D-E0*-R1 e seu commit anterior à integração. Confirmar tabela
       regional de classes/contraste, P1–P3 e features locais P6 antes do scoring;
       a autorização de B1* não satisfaz o gate.
-- [ ] **Step 2: Escrever testes futuros dos nulos e integração.**
+- [ ] **Step 2: Testes dos nulos e integração — parcial.** Caminho convergente,
+      isolamento e bloqueio de falha D5 testados; teste do fallback aguarda decisão.
       `test_null_fit_uses_training_only`: alterar meses ≥60 não muda fit;
       `test_null_calibration_evaluation_disjoint`: IDs/streams disjuntos;
       `test_null_aggregate_is_sum`: PA soma das folhas;
@@ -106,9 +112,12 @@ Sem essa flag, o comando de preparação mantém seu comportamento.
       preparação atual; `test_e0_scoring_waits_for_pa_decision`: bloqueia antes de
       calcular scores; `test_e0_ap_reports_prevalence`: AP sempre acompanha prevalência.
       Nulos completos: treino original + 72 meses amostrados, shape `[200,13,132]`.
-- [ ] **Step 3:** Futuro: `uv run pytest -o addopts='' tests/test_forecast.py tests/test_run.py -v`
-      → novos testes FAIL antes da implementação.
-- [ ] **Step 4: Integrar o mínimo após decisão.** NB2 no treino 0–59; 200 painéis
+- [x] **Step 3:** TDD executado: sampler, integração e evidência stale falharam
+      antes da implementação e passaram depois; comandos/saídas no relatório Task 6.
+- [ ] **Step 4: Integração — parcial pelo fallback.** Caminho NB2 convergente
+      implementado e executado. A construção/tamanho de blocos ainda não foi
+      aprovada; falha D5 bloqueia antes de MinT/AP, sem previsor substituto.
+      Requisito completo ainda pendente: NB2 no treino 0–59; 200 painéis
       de calibração + 200 de avaliação disjuntos, PA recalculado; falha de ajuste usa
       bootstrap em blocos do treino marcado nos artefatos conforme D-GT3, sem fallback
       silencioso. NB2 → MinT → resíduos padronizados → features locais → pool/seleção.
@@ -116,17 +125,17 @@ Sem essa flag, o comando de preparação mantém seu comportamento.
       FAR 1/60, tolerância observada 1/300. Thresholds numéricos podem diferir.
       Preservar o stream oficial da injeção; derivar streams de calibração, avaliação,
       detectores e bootstrap separadamente, sem realocar a injeção para uma child.
-- [ ] **Step 5: Avaliar conforme D-E0*-R1.** Atualizar `check_e0_star` para
+- [x] **Step 5: Avaliar conforme D-E0*-R1.** Atualizar `check_e0_star` para
       exigir ambas as classes nas 13 tarefas regionais; PA soma/união, prevalência,
       cobertura e coerência descritivas, sem AUC-PR como critério. Condições 1/3/4
       não mudam: bootstrap pareado de 10.000 sobre as 13 regiões, limite inferior
       do IC 95% >0. Prevalências e resultados indefinidos acompanham toda AP.
-      A revisão regional do pré-gate já foi implementada na Task 2; scoring
-      e calibração continuam futuros.
-- [ ] **Step 6:** Futuro: testes/checks → PASS; comando
+      Avaliação de 30/09: componentes e 13 regiões válidos; trivial_baseline
+      falhou, limite inferior −0.20186060618499926. PA descritivo, AP indefinida.
+- [x] **Step 6:** Testes/checks → PASS (234 testes, Ruff/format), execução real concluída; comando
       `uv run python -m headd_l0.run --score-e0 configs/e0_star_scoring.toml` somente após cumprir
       a pré-condição científica. Registrar métricas, nulos, FAR, seeds e gates.
-- [ ] **Step 7:** Commit futuro `feat: integrate approved E0 star scoring and null calibration`.
+- [x] **Step 7:** Commit `017bd1a` `feat: integrate approved E0 star scoring and null calibration`.
 
 ### Task 1: Runner, configs, artefatos e composição dos braços — longContext
 

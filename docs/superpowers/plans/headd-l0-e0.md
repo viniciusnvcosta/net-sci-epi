@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Validar tecnicamente os componentes B1\* existentes e a preparação E0*, mantendo E0 inconclusivo; D-E0*-R1 autoriza a condição regional, com scoring futuro condicionado.
+**Goal:** Validar tecnicamente os componentes B1\* existentes e a preparação E0*, mantendo E0 inconclusivo; D-E0*-R1 autoriza a condição regional, com caminho NB2 convergente executado e fallback D-GT3 pendente.
 
 **Architecture:** Funções numéricas no pacote plano; oráculo original exportado pelo SHA em ambiente separado. Correções metodológicas são registradas e condicionam o gate, sem contaminar produção com um modo legado. A ordem de porte permanece data, reconcile, detectors, threshold, select, evaluate, stats.
 
@@ -13,11 +13,15 @@
 ## Estado de execução
 
 P1–P2: `implementado`, com componentes `validado tecnicamente` pela evidência abaixo.
-P3: preparação e revisão regional `implementado` e `validado tecnicamente`; pré-gate
-seed 42 pendente, com PA descritivo (72/0). Scoring e calibração completos são
-**futuros e condicionados** (Experimentos Task 0). D-E0*-R1 (28/09) exige ambas
-as classes nas 13 regiões. Não há `gate aprovado` para E0\* nem
-`interpretação autorizada` para E1′.
+P3: preparação e revisão regional `implementado` e `validado tecnicamente`.
+A preparação isolada mantém pré-gate pendente, com PA descritivo (72/0).
+Experimentos Task 0 executou scoring NB2 convergente no commit limpo `017bd1a`
+em 30/09: E0* falhou em `trivial_baseline`, limite inferior
+−0.20186060618499926; FAR falhou em ARAGUAIA/B1*, XINGU/B1* e
+RIO CAETES/zscore. `interpretation_allowed=false`; fallback D-GT3 pendente e
+não utilizado. Caminho convergente implementado/validado, Task 0 ainda parcial.
+Ver [execução real](../../development.md#resultado-real-e0-30092026).
+Os registros de pré-gate abaixo preservam a evidência anterior ao scoring.
 
 ## Vocabulário de status
 
@@ -214,8 +218,9 @@ aposentados, não reinstalar dependências nem repetir passos vermelhos de módu
 existentes. Arquivos/símbolos históricos ausentes são recuperáveis pelo procedimento
 em `MIGRATION.md`, não são requisitos do ambiente atual. Checkboxes históricos
 foram retirados para não confundir implementação com aprovação científica.
-Os trechos de integração/scoring nunca executados permanecem **futuros**, conforme
-Experimentos Task 0 e a decisão pendente PA. Funções públicas atuais estão em src.
+Os rótulos futuros nos roteiros históricos descrevem aquele planejamento, não
+o estado atual: Experimentos Task 0 executou o caminho convergente em 30/09,
+após D-E0*-R1. Apenas o fallback D-GT3 continua pendente. Funções atuais estão em src.
 
 ## Estrutura e convenções dos testes
 
