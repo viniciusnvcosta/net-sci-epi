@@ -156,9 +156,14 @@ Cobertura: dados, S, baseline, A/W/placebos, simulação, features, injeção, F
 
 Para executar, ler a spec, o protocolo vigente e a sequência ativa P1–P3; a auditoria inicial já terminou. Comandos futuros e tarefas condicionadas não são autorização para scoring ou interpretação.
 
-## Aceite da revisão documental P1–P6 (28/09/2026)
+## Registro histórico — aceite da revisão documental P1–P6 (28/09/2026)
 
-Escopo desta revisão: somente `docs/`, sem código, dados, fixtures, scoring,
+Este checklist registra somente a revisão documental de 28/09, não a conclusão
+atual de P1–P6. O estado atual está na sequência acima: P5 permanece parcial,
+`gao_manifest.json` ausente e fallback D-GT3 sem especificação aprovada; E1′
+continua sem interpretação autorizada.
+
+Escopo daquela revisão: somente `docs/`, sem código, dados, fixtures, scoring,
 caracterização multiseed ou alteração de decisões aprovadas. Três blocos/commits
 locais, nesta ordem: (1) contradições de contratos/objetivo;
 (2) histórico versus validação ativa e desmembramento E0\*; (3) pendência PA.
@@ -176,7 +181,7 @@ locais, nesta ordem: (1) contradições de contratos/objetivo;
 - [x] Verificar diff exclusivamente documental e ausência de erros de whitespace
       antes de cada commit. Não incluir alterações preexistentes do usuário; sem push.
 
-Comandos atuais de auditoria documental (da raiz):
+Comandos daquela auditoria documental (históricos; da raiz):
 
 ```bash
 rg -n 'implementado|validado tecnicamente|gate aprovado|interpretação autorizada' docs/superpowers/plans docs/superpowers/specs
@@ -186,8 +191,9 @@ git diff --name-only 830e9fe51a725cacbc926d445f276d1d85638806 -- | rg -n -v '^do
 
 A última busca deve imprimir zero linhas (exit 1 de `rg` = nenhum caminho proibido).
 Para verificar links locais/âncoras, executar o trecho abaixo; links web não fazem
-parte desse check. Símbolos atuais consumidos pela Task 0 estão nos módulos citados;
-P6 e APIs novas são explicitamente futuros. Não tratar exemplos históricos como API atual.
+parte desse check histórico. Na revisão de 28/09, P6 e as APIs novas ainda eram
+futuros; esse rótulo não descreve o P6 implementado/validado nem o scoring
+concluído em 30/09. Não tratar exemplos históricos como API atual.
 
 ````bash
 python3 - <<'PYLINKS'
