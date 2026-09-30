@@ -175,3 +175,25 @@ Os importadores transitórios foram aposentados. Fixtures e hashes permanecem
 em `tests/reference/`; o procedimento para recuperar o exportador histórico
 está no registro de migração. O histórico de commits substitui inventários
 intermediários de tarefas, versões de ferramentas e contagens de testes.
+
+## Scoring E0* (Task 6, 30/09/2026)
+
+```bash
+uv run python -m headd_l0.run --score-e0 configs/e0_star_scoring.toml
+```
+
+O comando preserva a preparação original, recusa sobrescrita e exige que
+D-E0*-R1 seja ancestral do código. Ajusta NB2/MinT/pool somente no treino,
+usa 200 nulos de calibração e 200 de avaliação com streams disjuntos e
+registra AP/prevalência das regiões; PA fica descritivo. O manifesto registra
+os defaults efetivos, seeds, convergência, evidência executada dos componentes,
+FAR e bootstrap regional de 10.000 amostras. `components.log` contém a suíte
+executada para o SHA e hash do código. Os artefatos `.npz` preservam os nulos
+e scores; `far.parquet` separa FAR calibrada da observada.
+
+Falha de ajuste D5 impede MinT e AP e deixa manifesto explícito. O fallback
+D-GT3 continua pendente de construção/tamanho de bloco aprovados: Task 6 é
+parcial mesmo se o caminho NB2 convergente concluir. Exit 2 e
+`interpretation_allowed=false` continuam esperados, qualquer que seja o
+resultado E0*/FAR. Para worktrees aninhadas, use cópia temporária do TOML com
+`raw_dir` absoluto; preserve a configuração portátil versionada.

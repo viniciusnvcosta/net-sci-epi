@@ -241,6 +241,18 @@ def run_preflight(cfg: E0Config, counts: np.ndarray) -> Path:
     return path
 
 
+def run_e0_scoring(cfg: E0Config) -> Path:
+    """Score the approved E0* regional gate and 200+200 independent NB2 nulls.
+
+    Args:
+        cfg: Existing E0 configuration with a new artifact directory/run ID.
+    """
+    # Defer this import: scoring consumes the gate and preparation contracts above.
+    from headd_l0.e0_scoring import _score_e0  # noqa: PLC0415
+
+    return _score_e0(cfg, load_sivep(cfg.raw_dir).counts)
+
+
 def main() -> int:
     """Prepare layer 0; exit 2 while E0* cannot authorize E1 interpretation."""
 
@@ -248,8 +260,14 @@ def main() -> int:
         description="Prepare E0* injection and class diagnostics"
     )
     parser.add_argument("config", type=Path)
-    cfg = load_config(parser.parse_args().config)
-    result = run_preflight(cfg, load_sivep(Path(cfg.raw_dir)).counts)
+    parser.add_argument("--score-e0", action="store_true")
+    args = parser.parse_args()
+    cfg = load_config(args.config)
+    result = (
+        run_e0_scoring(cfg)
+        if args.score_e0
+        else run_preflight(cfg, load_sivep(Path(cfg.raw_dir)).counts)
+    )
     print(
         f"Artifacts: {result}; E0 inconclusive; E0* does not authorize interpretation."
     )

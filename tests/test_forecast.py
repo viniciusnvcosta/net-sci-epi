@@ -80,3 +80,51 @@ def test_real_sivep_series_converge():
     assert fit.coefficients.shape == (14, 6)
     assert fit.converged.all()
     assert (fit.alpha > 0).all()
+
+
+def test_null_sampling_deterministic_integer_shape_and_moments():
+    from headd_l0 import forecast
+    from headd_l0.forecast import NB2Fit
+
+    fit = NB2Fit(
+        np.array([[np.log(20), 0, 0, 0, 0, 0]]), np.array([0.2]), np.array([True]), 60
+    )
+    assert hasattr(forecast, "sample_nb2"), "NB2 null sampler is missing"
+    first = forecast.sample_nb2(fit, np.arange(60, 132), 200, np.random.default_rng(4))
+    second = forecast.sample_nb2(fit, np.arange(60, 132), 200, np.random.default_rng(4))
+    assert first.shape == (200, 1, 72)
+    assert np.issubdtype(first.dtype, np.integer) and (first >= 0).all()
+    np.testing.assert_array_equal(first, second)
+    assert first.mean() == pytest.approx(20, abs=0.4)
+    assert first.var() == pytest.approx(100, abs=5)
+
+
+@pytest.mark.parametrize(
+    "defect", ["failed", "alpha", "coefficients", "shape", "n", "months"]
+)
+def test_null_sampling_rejects_invalid_fit_or_request(defect):
+    from headd_l0 import forecast
+    from headd_l0.forecast import NB2Fit
+
+    coefficients = np.zeros((1, 6))
+    alpha, converged, months, n = np.array([0.2]), np.array([True]), np.arange(72), 2
+    if defect == "failed":
+        converged[0] = False
+    elif defect == "alpha":
+        alpha[0] = -1
+    elif defect == "coefficients":
+        coefficients[0, 0] = np.nan
+    elif defect == "shape":
+        coefficients = np.zeros((1, 5))
+    elif defect == "n":
+        n = 0
+    else:
+        months = np.zeros((2, 2))
+    assert hasattr(forecast, "sample_nb2"), "NB2 null sampler is missing"
+    with pytest.raises(ValueError):
+        forecast.sample_nb2(
+            NB2Fit(coefficients, alpha, converged, 60),
+            months,
+            n,
+            np.random.default_rng(1),
+        )

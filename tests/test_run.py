@@ -332,3 +332,29 @@ def test_regional_gate_ignores_pa_string_ap_type():
     frame.loc[frame.task == "PA", "auc_pr"] = "undefined"
     result = check_e0_star(True, frame, np.random.default_rng(8))
     assert result.passed
+
+
+@pytest.mark.parametrize("score", [False, True])
+def test_cli_preparation_and_scoring_paths(tmp_path, monkeypatch, score):
+    from types import SimpleNamespace
+
+    from headd_l0 import run
+
+    leaves = np.load(Path(__file__).parent / "reference/data.npz")["counts"].T.copy()
+    leaves[0] = 0
+    monkeypatch.setattr(run, "load_sivep", lambda path: SimpleNamespace(counts=leaves))
+    config = tmp_path / "cli.toml"
+    config.write_text(
+        f'run_id="cli"\nroot_seed=42\nraw_dir="raw"\noutput_dir="{tmp_path}"\n'
+    )
+    monkeypatch.setattr(
+        "sys.argv", ["headd_l0.run", *(["--score-e0"] if score else []), str(config)]
+    )
+    assert run.main() == 2
+    manifest = json.loads((tmp_path / "cli/manifest.json").read_text())
+    assert not manifest["interpretation_allowed"]
+    assert (tmp_path / "cli/fits.parquet").exists() is score
+    if score:
+        assert manifest["failure_reason"] == "D5_forecast_unavailable"
+    else:
+        assert "status" not in manifest

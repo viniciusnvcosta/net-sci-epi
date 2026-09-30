@@ -286,3 +286,24 @@ no `simulate.py` implementation, parity fixture, simulator run or scientific
 gate result exists. P4 graph and P6 features are separate new components,
 implemented and technically validated as recorded above; neither approves
 G3/G5 or E1′ interpretation.
+
+## Task 6 — approved E0* scoring integration (30/09/2026)
+
+`forecast.sample_nb2` and `e0_scoring.py` are new orchestration, not CDADE
+parity ports. They consume the existing corrected B1* components and unchanged
+local P6 features after decision `50f8b3f` (D-E0*-R1). The preparation entry
+point remains unchanged; `run.run_e0_scoring` and `--score-e0` select scoring.
+Training is raw months 0–59; pool training excludes lag placeholder month 0.
+Nulls retain the training prefix and sample 72 NB2 months, with coherent PA,
+200 calibration panels and 200 independent evaluation panels. The injection
+keeps the root RNG, including its unmodified negative injected cells.
+
+Behavior tests cover NB2 moments/integer draws/determinism, failed D5 fits,
+training isolation, calibration/evaluation separation, component source
+identity, injection preservation, regional prevalence and CLI dispatch.
+Existing detector/selector/threshold defaults are unchanged. Component suites
+are executed by the runner and tied to SHA plus source digest; each output
+records the applicable model/fallback diagnostics. Failed base fits block
+before MinT/AP. D-GT3 block-bootstrap construction remains unspecified and
+unimplemented; Task 6 remains partial. E0 stays inconclusive and no E1 gate
+is authorized by this integration. No dependency was added.
