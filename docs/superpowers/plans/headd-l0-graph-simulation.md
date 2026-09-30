@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python ≥3.12, uv, numpy/scipy, pandas, networkx, geobr, geopandas, libpysal, pyarrow, pytest/ruff.
 
-**Spec:** [Arquitetura §§5–8](../specs/2026-09-26-headd-l0-architecture.md), README §5, AGENTS; contratos de dados em [E0 tarefa 2](2026-09-26-headd-l0-e0.md#task-2-dados-hierarquia-e-proveniência--default).
+**Spec:** [Arquitetura §§5–8](../specs/headd-l0-architecture.md), README §5, AGENTS; contratos de dados em [E0 tarefa 2](headd-l0-e0.md#task-2-dados-hierarquia-e-proveniência--default).
 
 ## Vocabulário de status
 
@@ -20,10 +20,15 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 ## Global Constraints
 
-- Comparação regional B1*/z-score selada até revisão de D-E0*: nenhuma execução
-  diagnóstica; decisão datada deve preceder o primeiro commit de integração E0\*.
+- D-E0*-R1 (28/09) adotou ambas as classes nas 13 regiões; PA é descritivo.
+  Task 0 executou o caminho NB2 convergente com P1–P3 e features locais P6
+  no commit limpo `017bd1a` (30/09): `implementado` e `validado tecnicamente`.
+  E0* falhou em `trivial_baseline` (limite inferior −0.20186060618499926);
+  FAR falhou em ARAGUAIA/B1*, XINGU/B1* e RIO CAETES/zscore.
+  `interpretation_allowed=false`; fallback D-GT3 pendente, não utilizado.
+  Detalhes: [execução real](../../development.md#resultado-real-e0-30092026).
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
-  a [decisão pendente PA](2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
+  a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
 - “Validate a single region first”; ruídos `white`, `env`, `dem`.
 - “ε = 0 must yield zero spread from the seed beyond the endemic background”.
@@ -46,17 +51,32 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 ## Arquivos e dependências
 
-Todas as Tasks 1–4 são **futuras**; seus novos símbolos/arquivos/configs/comandos
-ainda não existem. P4 e P6 podem avançar tecnicamente; P5 permite preparação
-científica antes de aprovar o perfil, sem iniciar o integrador. Componentes E0
-consumidos estão `implementado` e `validado tecnicamente`; isso não significa
-`gate aprovado` para E0\* nem `interpretação autorizada` para E1′.
+Task 1 (P4) e Task 4 (P6) estão `implementado` e `validado tecnicamente`.
+A aquisição P4 real foi preservada; G3 não está `gate aprovado`. Task 2
+(P5) tem [preparação de fonte](../../gao-source-preparation.md), com Step 1
+parcial e perfil/fixture pendentes; Tasks 2–3 não têm integrador. Gravação
+dos nomes e janelas elegíveis das features locais no E0* está implementada;
+features relacionais/EWS no runner E1 permanecem futuras. Os
+componentes E0 estão `implementado` e `validado tecnicamente`, sem
+`gate aprovado` para E0\* ou `interpretação autorizada` para E1′.
 
-Criar `src/headd_l0/graph.py`, `simulate.py`, `features.py` e `tests/test_graph.py`, `test_simulate.py`, `test_features.py`. Configs `l0_graph.toml`, `sim_single.toml`; fixtures `tests/reference/gao_single.npz` e `gao_manifest.json`. `docs/protocol-decisions.md` guarda escolhas aprovadas. Não adicionar módulo genérico de entidades/configuração.
+Existem `graph.py`, `graph_io.py`, `features.py`, testes espelhados e
+`configs/l0_graph.toml`. `simulate.py`, `test_simulate.py`,
+`configs/sim_single.toml`, `tests/reference/gao_single.npz` e
+`gao_manifest.json` permanecem futuros. `docs/protocol-decisions.md`
+guarda decisões e propostas pendentes. Não adicionar módulo genérico de
+entidades/configuração.
 
 Tarefa 1 depende só de dados/S. Tarefa 2 depende de fixtures científicas e decisões numéricas. Tarefa 3 exige tarefa 2 aprovada e grafo válido; tarefa 4 usa resíduos padronizados e W, não labels/onsets; pode começar com grafos sintéticos sem adquirir malha ou executar P5. Todos os novos contratos recebem testes. Checks ao final de cada tarefa: ruff check, ruff format --check e pytest rápido; testes slow são executados no gate indicado.
 
 ### Task 1: Geometria, A/W e placebos — default / rewiring think
+
+**Status (29/09/2026):** P4 `implementado` e `validado tecnicamente`
+(commit `61dd0cb` após correção de identidade geográfica). Aquisição
+DataSUS/PA 2013 real: 13 regiões, A conexa com 25 arestas e 30 placebos
+distintos, conexos e com graus por nó preservados; artefatos e manifest
+preservados em processed/results. O artefato foi auditado, sem aprovação
+de G3 ou interpretação E1′. Ver [development](../../development.md).
 
 **Files:** Create `src/headd_l0/graph.py`, `tests/test_graph.py`, `configs/l0_graph.toml`; Modify `MIGRATION.md` (novo componente, sem porte).
 
@@ -86,6 +106,15 @@ Grafo completo/estrela sem alternativas deve levantar RuntimeError dentro do or�
 - [ ] **Step 6:** `git add src/headd_l0/graph.py tests/test_graph.py configs/l0_graph.toml MIGRATION.md` e `git commit -m "feat: build regional adjacency and degree-preserving placebos"`.
 
 ### Task 2: Uma região e observação mensal — think
+
+**Status (29/09/2026):** Step 1 parcialmente preparado: equações, hashes,
+parâmetros predecessores e tabelas congeladas estão
+[documentados](../../gao-source-preparation.md). A direção CV para ruído
+branco da fonte contradiz o critério planejado para todos os ruídos.
+`gao_manifest.json`, fixture determinística e perfil aprovado ainda não
+existem; Steps 2–6 e integrador não começaram. A
+[proposta pendente](../../protocol-decisions.md#pending-p5-source-parity-and-profile-revision--29092026)
+não altera o teste planejado.
 
 **Files:** Create `src/headd_l0/simulate.py`, `tests/test_simulate.py`, `configs/sim_single.toml`, `tests/reference/gao_single.npz`, `tests/reference/gao_manifest.json`; Modify `docs/protocol-decisions.md`, `MIGRATION.md`.
 
@@ -142,13 +171,15 @@ Também testar C identidade em ε=0, linhas somam 1 e orientação de W com graf
 
 ### Task 4: Representações causais e indicadores — default / Moran think
 
+**Status (29/09/2026):** P6 implementado e validado tecnicamente: 9 testes de features, 184 testes completos e ruff verde. O contrato de nomes/eixos é estável. Atualização 30/09: features locais consumidas pela Task 0; nomes e janelas registrados no manifesto após correção de proveniência, sem repetir o run real. Features relacionais/EWS no runner E1 aguardam Experimentos Task 4. Este status não aprova G5; E0* falhou no run de 30/09.
+
 **Files:** Create `src/headd_l0/features.py`, `tests/test_features.py`; Modify `MIGRATION.md`.
 
 **Entrada ([D5](../../protocol-decisions.md), 27/09):** as features operam sobre **resíduos padronizados** `[n_nodes,time]` produzidos pela E0 Task 3: resíduos base y − μ̂ para B0 e resíduos reconciliados y − P·μ̂ para B1\* e B2, ambos divididos pelo desvio-padrão de treino. A hierarquia entra pela reconciliação; não há features de contraste PA.
 
 **Interfaces:** `FeatureBatch` da spec; `local_features(residuals: np.ndarray) -> FeatureBatch`; `neighbor_features(residuals: np.ndarray,W: np.ndarray,window: int=12) -> FeatureBatch`; `rolling_ews(series: np.ndarray,window: int) -> tuple[np.ndarray,np.ndarray]` retorna indicadores `[time,5]` e máscara de validade mesma shape. `FEATURES` chaves local/neighbors. Não escalar com dados do teste; escalador de detector aprende no fit.
 
-- [ ] **Step 1: Escrever `test_neighbor_hand_calculation`, `test_prefix_invariance`, `test_constant_series_finite_with_invalid_mask`, `test_node_and_feature_axes`, `test_local_moran_hand_calculation`, `test_residual_inputs_only`.** O último verifica que o fit não recebe contagens brutas: os mesmos resíduos produzem as mesmas features, independentemente da escala das contagens de origem.
+- [x] **Step 1: Escrever `test_neighbor_hand_calculation`, `test_prefix_invariance`, `test_constant_series_finite_with_invalid_mask`, `test_node_and_feature_axes`, `test_local_moran_hand_calculation`, `test_residual_inputs_only`.** O último verifica que o fit não recebe contagens brutas: os mesmos resíduos produzem as mesmas features, independentemente da escala das contagens de origem.
 
 ```python
 x = np.array([[1., 2., 3.], [10., 20., 30.]])
@@ -164,11 +195,11 @@ assert np.isfinite(ews).all() and not valid[:, 1:3].any()
 
 Alterar x[:,90:] → features até 89 idênticas; warmup só usa passado e possui validade, nunca backfill.
 
-- [ ] **Step 2:** `uv run pytest tests/test_features.py -v` → FAIL.
-- [ ] **Step 3: Implementar.** Local: `(e_t,e_(t−1),e_t−e_(t−1))` sobre resíduos padronizados, eixos `[14,time,3]`. Vizinhos: `W·e_t`, `W·e_(t−1)`, `e_t−W·e_t` e Moran local, somente nas 13 folhas; runner acrescenta zeros relacionais à linha PA. Moran instantâneo `z_i*(W@z)_i/m2`, z centrado espacialmente e m2=mean(z²), depois média dos últimos 12 valores; m2 zero →0. EWS SD ddof=1, CV=SD/mean, AR1 Pearson defasada, skewness e kurtosis Pearson (normal=3); constantes →zero com máscara falsa para estatística indefinida. Lag inicial =0 e warmup excluído. Todas as features em t usam ≤t.
+- [x] **Step 2:** `uv run pytest tests/test_features.py -v` → FAIL.
+- [x] **Step 3: Implementar.** Local: `(e_t,e_(t−1),e_t−e_(t−1))` sobre resíduos padronizados, eixos `[14,time,3]`. Vizinhos: `W·e_t`, `W·e_(t−1)`, `e_t−W·e_t` e Moran local, somente nas 13 folhas; runner acrescenta zeros relacionais à linha PA. Moran instantâneo `z_i*(W@z)_i/m2`, z centrado espacialmente e m2=mean(z²), depois média dos últimos 12 valores; m2 zero →0. EWS SD ddof=1, CV=SD/mean, AR1 Pearson defasada, skewness e kurtosis Pearson (normal=3); constantes →zero com máscara falsa para estatística indefinida. Lag inicial =0 e warmup excluído. Todas as features em t usam ≤t.
 - [ ] **Step 4:** Testes/checks → PASS; substituir W real por placebo só muda valores, não shape, nomes ou janelas. Nomes de colunas estáveis são gravados no manifest.
-- [ ] **Step 5:** `git add src/headd_l0/features.py tests/test_features.py MIGRATION.md` e `git commit -m "feat: add causal residual and neighborhood features"`.
+- [x] **Step 5:** `git add src/headd_l0/features.py tests/test_features.py MIGRATION.md` e `git commit -m "feat: add causal residual and neighborhood features"`.
 
 ## Critério de saída
 
-A/W e 30 draws válidos, validação single-region, ε=0 isolado, onsets auditáveis e invariância de prefixo. Os dados sintéticos não são versionados; seeds/config e fixtures pequenas permitem regeneração. D-G0 já autoriza B1*, mas E0* permanece reprovado. Esses resultados técnicos não são evidência da RQ1′ nem substituem E0\*, validação do simulador, D5, FAR ou alcance.
+A/W e 30 draws válidos, validação single-region, ε=0 isolado, onsets auditáveis e invariância de prefixo. Os dados sintéticos não são versionados; seeds/config e fixtures pequenas permitem regeneração. D-G0 já autoriza B1*, mas E0* foi pontuado em 30/09 e falhou em trivial_baseline; FAR também falhou e o fallback D-GT3 permanece pendente, não usado. Esses resultados técnicos não são evidência da RQ1′ nem substituem E0\*, validação do simulador, D5, FAR ou alcance.

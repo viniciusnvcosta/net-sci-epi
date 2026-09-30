@@ -46,15 +46,15 @@ def test_e0_rejects_invalid_task_evidence(defect):
 
     frame = evidence()
     if defect == "missing":
-        frame = frame.iloc[1:]
+        frame = frame.drop(index=2)
     elif defect == "duplicate":
-        frame = pd.concat([frame, frame.iloc[:1]])
+        frame = pd.concat([frame, frame.iloc[2:3]])
     elif defect == "single_class":
-        frame.loc[0, "n_negative"] = 0
+        frame.loc[2, "n_negative"] = 0
     elif defect == "nan":
-        frame.loc[0, "auc_pr"] = np.nan
+        frame.loc[2, "auc_pr"] = np.nan
     else:
-        frame.loc[0, "task"] = "unknown"
+        frame.loc[2, "task"] = "unknown"
     result = check_e0_star(True, frame, np.random.default_rng(8))
     assert not result.passed and result.reasons
 
@@ -72,7 +72,7 @@ def test_e0_bootstrap_excludes_pa_and_pairs_by_name():
 def test_e0_rejects_different_labels_between_arms():
 
     frame = evidence()
-    frame.loc[0, ["n_positive", "n_negative"]] = [11, 61]
+    frame.loc[2, ["n_positive", "n_negative"]] = [11, 61]
     assert not check_e0_star(True, frame, np.random.default_rng(8)).passed
 
 
@@ -85,8 +85,8 @@ def test_e0_recorded_inconclusive(tmp_path):
     result = run_preflight(cfg, fixture["counts"].T)
     manifest = json.loads((result / "manifest.json").read_text())
     assert manifest["gates"]["E0"]["status"] == "inconclusive"
-    assert manifest["gates"]["E0_star"]["status"] == "failed"
-    assert "single_class:PA" in manifest["gates"]["E0_star"]["reasons"]
+    assert manifest["gates"]["E0_star"]["status"] == "pending"
+    assert manifest["gates"]["E0_star"]["reasons"] == []
     assert manifest["interpretation_allowed"] is False
     assert manifest["baseline_id"] == "B1*"
     assert manifest["reference_sha"].startswith("fbfa609")
@@ -186,3 +186,175 @@ def test_manifest_git_identity_does_not_depend_on_working_directory(
     )
     result = run_preflight(cfg, fixture["counts"].T)
     assert json.loads((result / "manifest.json").read_text())["git_sha"] == expected
+
+
+def test_regional_gate_allows_single_class_pa_with_undefined_ap():
+    frame = evidence()
+    frame.loc[frame.task == "PA", ["auc_pr", "n_positive", "n_negative"]] = [
+        np.nan,
+        72,
+        0,
+    ]
+    result = check_e0_star(True, frame, np.random.default_rng(8))
+    assert result.passed
+    assert result.conditions["thirteen_regional_tasks"]
+    assert result.lower_bound == pytest.approx(0.1)
+
+
+def test_regional_gate_allows_omitting_pa():
+    frame = evidence().query("task != 'PA'")
+    assert check_e0_star(True, frame, np.random.default_rng(8)).passed
+
+
+@pytest.mark.parametrize("defect", ["duplicate", "unknown"])
+def test_regional_gate_rejects_structurally_invalid_pa_rows(defect):
+    frame = evidence()
+    if defect == "duplicate":
+        frame = pd.concat([frame, frame.iloc[:1]])
+    else:
+        frame.loc[0, "task"] = "unknown"
+    assert not check_e0_star(True, frame, np.random.default_rng(8)).passed
+
+
+@pytest.mark.parametrize(
+    "column,value",
+    [
+        ("n_positive", 10.5),
+        ("n_positive", 0),
+        ("n_negative", 61),
+        ("auc_pr", 1.1),
+        ("arm", "wrong"),
+    ],
+)
+def test_regional_gate_rejects_malformed_regional_evidence(column, value):
+    frame = evidence()
+    if column == "n_positive" and isinstance(value, float):
+        frame[column] = frame[column].astype(float)
+    frame.loc[2, column] = value
+    result = check_e0_star(True, frame, np.random.default_rng(8))
+    assert not result.passed
+    assert not result.conditions["thirteen_regional_tasks"]
+
+
+def test_preflight_reports_window_prevalence_pa_and_unchanged_injection(tmp_path):
+    from headd_l0.inject import InjectionConfig, inject_original_bounded
+
+    fixture = np.load(Path(__file__).parent / "reference/data.npz")
+    leaves = fixture["counts"].T
+    cfg = E0Config("audit", 42, tmp_path / "raw", tmp_path)
+    path = run_preflight(cfg, leaves)
+    manifest = json.loads((path / "manifest.json").read_text())
+    saved = np.load(path / "injection.npz")
+    direct = inject_original_bounded(
+        leaves, np.random.default_rng(42), InjectionConfig()
+    )
+    np.testing.assert_array_equal(saved["counts"], direct.counts)
+    np.testing.assert_array_equal(saved["mask"], direct.mask)
+    np.testing.assert_array_equal(saved["onset"], direct.onset)
+    tasks = pd.read_parquet(path / "tasks.parquet")
+    assert tasks.task.tolist() == ["PA", *hierarchy().leaves]
+    assert tasks.n_positive.tolist() == [
+        72,
+        29,
+        29,
+        26,
+        18,
+        22,
+        22,
+        20,
+        15,
+        21,
+        17,
+        20,
+        21,
+        14,
+    ]
+    assert tasks.n_negative.tolist() == [
+        0,
+        43,
+        43,
+        46,
+        54,
+        50,
+        50,
+        52,
+        57,
+        51,
+        55,
+        52,
+        51,
+        58,
+    ]
+    assert (tasks.denominator == 72).all()
+    assert (tasks.window_start == 60).all()
+    assert (tasks.window_end == 131).all()
+    np.testing.assert_allclose(tasks.positive_prevalence, tasks.n_positive / 72)
+    assert tasks.role.tolist() == ["descriptive", *(["regional"] * 13)]
+    assert tasks.in_gate.tolist() == [False, *([True] * 13)]
+    pa = json.loads((path / "pa_diagnostics.json").read_text())
+    assert pa == {
+        "positive_prevalence": 1.0,
+        "union_coverage_months": 72,
+        "denominator": 72,
+        "counts_coherent": True,
+        "labels_union_coherent": True,
+    }
+    assert manifest["e0_star_revision"] == "D-E0*-R1"
+    assert (
+        manifest["e0_star_decision_commit"]
+        == "50f8b3f29bacc4747329addf80cee6719fe3c7fc"
+    )
+    assert manifest["gates"]["E0_star"]["components"] == "not_evaluated"
+    assert manifest["gates"]["E0_star"]["trivial_baseline"] == "not_evaluated"
+    assert manifest["negative_injected_cells"] == 110
+    assert manifest["adjusted_onsets"] == 2
+
+
+@pytest.mark.parametrize("column", ["auc_pr", "n_positive", "n_negative"])
+def test_regional_gate_rejects_numeric_looking_strings_without_mutation(column):
+    frame = evidence()
+    frame[column] = frame[column].astype(object)
+    region = frame.task == "ARAGUAIA"
+    frame.loc[region, column] = frame.loc[region, column].map(str)
+    original = frame.copy(deep=True)
+
+    result = check_e0_star(True, frame, np.random.default_rng(8))
+
+    assert not result.passed
+    assert not result.conditions["thirteen_regional_tasks"]
+    assert result.lower_bound is None
+    pd.testing.assert_frame_equal(frame, original)
+
+
+def test_regional_gate_ignores_pa_string_ap_type():
+    frame = evidence()
+    frame["auc_pr"] = frame["auc_pr"].astype(object)
+    frame.loc[frame.task == "PA", "auc_pr"] = "undefined"
+    result = check_e0_star(True, frame, np.random.default_rng(8))
+    assert result.passed
+
+
+@pytest.mark.parametrize("score", [False, True])
+def test_cli_preparation_and_scoring_paths(tmp_path, monkeypatch, score):
+    from types import SimpleNamespace
+
+    from headd_l0 import run
+
+    leaves = np.load(Path(__file__).parent / "reference/data.npz")["counts"].T.copy()
+    leaves[0] = 0
+    monkeypatch.setattr(run, "load_sivep", lambda path: SimpleNamespace(counts=leaves))
+    config = tmp_path / "cli.toml"
+    config.write_text(
+        f'run_id="cli"\nroot_seed=42\nraw_dir="raw"\noutput_dir="{tmp_path}"\n'
+    )
+    monkeypatch.setattr(
+        "sys.argv", ["headd_l0.run", *(["--score-e0"] if score else []), str(config)]
+    )
+    assert run.main() == 2
+    manifest = json.loads((tmp_path / "cli/manifest.json").read_text())
+    assert not manifest["interpretation_allowed"]
+    assert (tmp_path / "cli/fits.parquet").exists() is score
+    if score:
+        assert manifest["failure_reason"] == "D5_forecast_unavailable"
+    else:
+        assert "status" not in manifest

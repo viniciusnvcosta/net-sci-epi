@@ -1,8 +1,14 @@
 # HEADD-Series L0 — arquitetura e decisões de implementação
 
-Data original: 26/09/2026. Atualização documental: 28/09/2026, após PR #1.
-E0 inconclusivo; B1\* autorizado; E0\* reprovado por `single_class:PA`. A reprodução
-técnica do pré-gate está no plano E0; não houve scoring nem decisão científica nova.
+Data original: 26/09/2026. Atualização documental: 30/09/2026.
+E0 inconclusivo; B1\* autorizado. O pré-gate histórico falhou por
+`single_class:PA`. D-E0*-R1 (28/09) revisou a condição 2 para ambas as
+classes nas 13 regiões, com PA descritivo. Scoring NB2 convergente executado
+no commit limpo `017bd1a` (30/09): E0* falhou em trivial_baseline, limite inferior
+−0.20186060618499926; FAR falhou em ARAGUAIA/B1*, XINGU/B1* e
+RIO CAETES/zscore. `interpretation_allowed=false`. Task 0 tem caminho
+convergente implementado/validado; fallback D-GT3 pendente, não usado.
+Detalhes: [execução real](../../development.md#resultado-real-e0-30092026).
 
 ## Vocabulário de status
 
@@ -26,7 +32,7 @@ Fontes históricas lidas em 26/09 (hashes não representam a revisão atual): `A
 
 Referência CDADE: `/home/vinvs/projects/hybrid-theory`, commit **`fbfa609bba6cb0b0f2a9e8d73be18022aec319b7`**. As leituras de código usaram `git show HEAD:<path>`, não arquivos modificados do working tree. E0 deve fixar esse SHA completo, nunca resolver `HEAD` novamente durante uma execução. Os resultados locais não possuem, por si só, proveniência suficiente para certificar E0.
 
-Estado atual: Python ≥3.12; `src/headd_l0/`, testes e dependências do baseline já existem. P1–P2 estão implementados; P3 prepara injeção/classes, sem scoring completo. Grafo, simulador e features são futuros. Comandos atuais: [development](../../development.md).
+Estado atual: Python ≥3.12; `src/headd_l0/`, testes e dependências do baseline já existem. P1–P2 estão implementados; P3 prepara injeção/classes; Task 0 integra e executou scoring NB2 convergente, com fallback ainda pendente. P4 grafo e P6 features estão `implementado` e `validado tecnicamente`; seus gates científicos não estão aprovados. P5 tem [preparação de fonte](../../gao-source-preparation.md) parcial, com manifesto/fixture/perfil pendentes; simulador futuro. Comandos atuais: [development](../../development.md).
 
 Não implementar M, REGIC, GNN, GANF/GDN, hhh4 completo, Tycho, L4/L5 ou SEIRS+ agent-based. B-Gao, B3/Φ e variante SEIRS são extensões condicionais, não dependências da entrega principal.
 
@@ -58,8 +64,8 @@ Esta tabela preserva as observações históricas da leitura inicial. A auditori
 
 ## 4. Mapa de código e responsabilidade
 
-O mapa combina contratos atuais do baseline com contratos **futuros** de grafo,
-features, simulador, runner completo e camada 1. Nomes/arquivos ausentes nessas
+O mapa combina contratos atuais de baseline, grafo/features e scoring E0*
+com contratos **futuros** de simulador, runner E1 completo e camada 1. Nomes/arquivos ausentes nessas
 trilhas são entregas futuras; o exporter indicado é histórico aposentado.
 
 Manter o layout do AGENTS. `tests/test_<module>.py` espelha cada módulo. Não criar serviços, factories, registry global ou camadas de repositório. Cada módulo mira 150–300 linhas e só se divide ao ultrapassar aproximadamente 400.
@@ -77,10 +83,11 @@ Manter o layout do AGENTS. `tests/test_<module>.py` espelha cada módulo. Não c
 | `src/headd_l0/features.py`                             | `FeatureBatch`, representação local/S/vizinhos e indicadores causais; eixos explícitos.                                                                                                           |
 | `src/headd_l0/simulate.py`                             | `SimConfig`, `SimResult`, `EndemicCalibration`, uma região, extensão acoplada/gêmeas e componente de surto reutilizado pela camada 1; proveniência de casos importados observados.                |
 | `src/headd_l0/inject.py`                               | `InjectionConfig`, `InjectionResult`; injeção limitada da camada 0. Futuros `EpidemicInjectionConfig`/`EpidemicInjectionResult` e adaptador da camada 1; amostragem NB2 pertence a `forecast.py`. |
-| `src/headd_l0/run.py`                                  | `ExperimentConfig`, `ArmSpec`, `RunResult`, TOML, composição, seeds, artefatos e gates; CLI.                                                                                                      |
+| `src/headd_l0/run.py`                                  | Atuais: `E0Config`, preparação, gate, CLI e wrapper `run_e0_scoring`. Futuros: `ExperimentConfig`, `ArmSpec`, `RunResult` e runner E1.                                                                                                      |
+| `src/headd_l0/e0_scoring.py` | Integração NB2/MinT/features locais/pool/seleção, 200+200 nulos, evidência de componentes e artefatos E0*. |
 | `scripts/export_cdade_reference.py`                    | Histórico aposentado: exporter recuperável por MIGRATION; não recriar nem exigir na validação atual.                                                                                              |
 | `tests/reference/`                                     | Pequenas fixtures determinísticas e seus manifests; nenhum resultado fabricado.                                                                                                                   |
-| `configs/*.toml`                                       | Atuais: `data`, `e0_star` (preparação). Futuros: `e0_star_scoring`, `l0_graph`, `sim_single`, `e1_bench`, `e1_real`, `e1_local`; extensões só quando priorizadas.                                 |
+| `configs/*.toml`                                       | Atuais: `data`, `e0_star` (preparação), `e0_star_scoring`, `l0_graph`. Futuros: `sim_single`, `e1_bench`, `e1_real`, `e1_local`; extensões só quando priorizadas.                                 |
 | `MIGRATION.md`                                         | Criado na primeira tarefa: componente, caminho/SHA original, caminho novo, teste, tolerância, exclusões e divergências.                                                                           |
 | `notebooks/01_l0_network.ipynb`, `02_e1_results.ipynb` | Consomem resultados; não reimplementam métricas nem escolhem parâmetros.                                                                                                                          |
 
@@ -135,7 +142,7 @@ flowchart LR
   EVAL --> STAT[Bootstrap e placebos]
   G0[Auditoria de referência] --> E0[E0 inconclusivo]
   G0 --> ROUTE[B1* autorizado, D-G0 saída i]
-  ROUTE --> PA[Decisão pendente PA antes da integração]
+  ROUTE --> PA[D-E0*-R1 registrada, classes/contraste e P6 antes do scoring]
   PA --> E0S[Gate E0*]
   E0S --> STAT
 ```
@@ -152,15 +159,18 @@ Representação local: resíduo padronizado em t, t−1 e diferença temporal; a
 
 ## 7. Decisões experimentais propostas para revisão
 
-**Pendência PA:** comparação regional B1*/z-score selada até revisão de D-E0*,
-inclusive diagnóstico; decisão datada e responsável devem preceder o primeiro
-commit de integração E0\*. Ver [procedimento e alternativas no E0](../plans/2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada).
-Caracterização de muitas seeds usa só máscaras e está planejada, não executada;
-nenhuma substitui a 42. Toda AUC-PR acompanha prevalência positiva por tarefa,
-janela e denominador; a existência de duas classes não basta para justificar
-contraste suficiente. A definição epidemiológica de PA é decidida sem scores.
+**D-E0*-R1 (28/09):** condição 2 exige ambas as classes nas 13 tarefas
+regionais; PA mantém soma/união coerente, com prevalência, cobertura e coerência
+descritivas, sem AUC-PR como critério. Condições 1/3/4 não mudam. A tabela
+pré-scoring de positivos/negativos/prevalência e a discussão de contraste estão
+no [registro](../../protocol-decisions.md#d-e0-r1--revisão-regional-da-condição-2).
+A decisão antecede scores e o primeiro commit de integração E0*. Task 0 requer
+features locais P6 antes do scoring; P1–P3 e a regra regional estão
+validados tecnicamente. Ver [alternativas históricas no E0](../plans/headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada).
+Toda AUC-PR futura acompanha prevalência, janela e denominador; nenhuma seed
+substitui a 42 e não se escolhe cutoff de contraste olhando scores.
 
-As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). Continuam pendentes a faixa de R0 e o perfil do simulador (D-GT2/D-GT4), os eventos da camada 3 (D-L3) e a decisão PA antes da integração E0\*. Hardware registrado em 27/09; piloto D-COST ainda pendente.
+As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). Continuam pendentes a faixa de R0 e o perfil do simulador (D-GT2/D-GT4), os eventos da camada 3 (D-L3) e a construção/tamanho do fallback D-GT3 de E0*. O caminho NB2 convergente foi executado, com E0*/FAR reprovados. Hardware registrado em 27/09; piloto D-COST ainda pendente.
 
 | Camada      | Ground truth / uso                                                                                                                                                                             | Regra                                                                                                                                                                                                              |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -221,7 +231,7 @@ Testes rápidos sem rede; integração geográfica/fixtures originais marcada; s
 
 ## 10. Questões que impedem execução automática
 
-1. Registrar decisão sobre PA antes do primeiro commit de integração/scoring E0*. D-G0 está resolvido; E0 permanece inconclusivo e E0* reprovado.
+1. D-E0*-R1 foi registrada antes da integração; PA é descritivo. E0* e FAR falharam na execução de 30/09, mantendo interpretação bloqueada. A especificação do fallback D-GT3 permanece pendente.
 2. Aprovar as convenções da §7 e parâmetros numéricos da simulação antes de E1; documentar se o critério de equivalência é aceito.
 3. Preservar D5 já aprovada: MinT sobre previsões de contagem, features sobre resíduos padronizados; P6 independe de P5.
 4. Obter malha com 13 regiões e conectividade compatível, ou registrar a variante antes dos placebos.

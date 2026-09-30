@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python ≥3.12, uv, numpy, pandas, scipy, scikit-learn/PyOD, river, networkx, geobr/geopandas/libpysal, pyarrow, pytest e ruff.
 
-**Spec:** [Arquitetura e decisões](../specs/2026-09-26-headd-l0-architecture.md), [AGENTS.md](../../../AGENTS.md), [README §5](../../../README.md#5--protocolo-experimental-e1).
+**Spec:** [Arquitetura e decisões](../specs/headd-l0-architecture.md), [AGENTS.md](../../../AGENTS.md), [README §5](../../../README.md#5--protocolo-experimental-e1).
 
 ## Vocabulário de status
 
@@ -20,10 +20,15 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 ## Global Constraints
 
-- Comparação regional B1*/z-score selada até revisão de D-E0*: nenhuma execução
-  diagnóstica; decisão datada deve preceder o primeiro commit de integração E0\*.
+- D-E0*-R1 (28/09) adotou ambas as classes nas 13 regiões; PA é descritivo.
+  Task 0 executou o caminho NB2 convergente com P1–P3 e features locais P6
+  no commit limpo `017bd1a` (30/09): `implementado` e `validado tecnicamente`.
+  E0* falhou em `trivial_baseline` (limite inferior −0.20186060618499926);
+  FAR falhou em ARAGUAIA/B1*, XINGU/B1* e RIO CAETES/zscore.
+  `interpretation_allowed=false`; fallback D-GT3 pendente, não utilizado.
+  Detalhes: [execução real](../../development.md#resultado-real-e0-30092026).
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
-  a [decisão pendente PA](2026-09-26-headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
+  a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
 
 - “Raw data is immutable.”
 - “Counts, not proportions.”
@@ -55,10 +60,13 @@ Referência CDADE: `fbfa609bba6cb0b0f2a9e8d73be18022aec319b7`, em
 `~/projects/hybrid-theory`. A [PR #1](https://github.com/viniciusnvcosta/net-sci-epi/pull/1)
 entregou os componentes corrigidos e a preparação da camada 0. O estado operacional
 está em [development](../../development.md); decisões aprovadas prevalecem sobre
-roteiros históricos. E0 permanece inconclusivo; E0\* falha com `single_class:PA`.
+roteiros históricos. E0 permanece inconclusivo. O pré-gate histórico falhou com `single_class:PA`;
+a revisão D-E0*-R1 foi consumida pelo scoring de 30/09. E0* e FAR falharam;
+a aprovação técnica do código não aprova os gates.
 
 P1–P2: `implementado`, com componentes `validado tecnicamente` pela suíte registrada
-no plano E0. P3: preparação `implementado`; comparação completa pendente, sem
+no plano E0. P3: preparação e scoring NB2 convergente `implementado`; fallback
+D-GT3 pendente. A comparação real foi executada, sem
 `gate aprovado` para E0\* e sem `interpretação autorizada` para E1′.
 D-G0a concluiu a busca sem proveniência verificável; hardware já registrado em
 [reference-provenance](../../reference-provenance.md). O piloto D-COST ainda falta.
@@ -70,7 +78,7 @@ flowchart TD
   C[Resíduos e componentes existentes] --> M[P6: features locais e vizinhas]
   J --> M
   F[Grafo sintético de teste] --> M
-  D[Decisão científica sobre PA] --> I[Integração E0* B1*/z-score]
+  D[D-E0*-R1 registrada] --> I[Integração E0* B1*/z-score]
   V --> I
   M --> I
   R[Perfil científico aprovado] --> K[P5: uma região validada]
@@ -83,10 +91,12 @@ flowchart TD
   O --> Q[Interpretação: E0* e demais gates aprovados]
 ```
 
-P4 e P6 podem avançar sem o simulador; P6 começa com grafos sintéticos.
-P5 agora permite preparação científica, sem escolher parâmetros pendentes.
-A comparação regional E0\* está selada até a decisão sobre PA, inclusive para
-fins diagnósticos. A autorização B1* de D-G0 não libera interpretação.
+P4 e P6 estão implementados e validados tecnicamente; o artefato real
+P4 permanece preservado, sem aprovação de G3. P5 tem preparação de fonte
+[registrada](../../gao-source-preparation.md), mas a Step 1 segue parcial:
+manifesto de referência, fixture e perfil científico estão pendentes.
+A comparação regional E0\* e a calibração foram executadas em 30/09, com
+falha de E0* e FAR preservada. A autorização B1* de D-G0 não libera interpretação.
 As trilhas independentes não autorizam subagentes automaticamente; `think`,
 `default`, `background` e `longContext` continuam classificações de tarefas.
 
@@ -94,13 +104,13 @@ As trilhas independentes não autorizam subagentes automaticamente; `think`,
 
 | Etapa | Plano / trabalho ativo                                                                    | Saída e condição de avanço                                                                       |
 | ----- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| P0    | [E0](2026-09-26-headd-l0-e0.md), histórico Task 1                                         | Auditoria realizada; D-G0 autoriza B1\*, E0 inconclusivo.                                        |
+| P0    | [E0](headd-l0-e0.md), histórico Task 1                                         | Auditoria realizada; D-G0 autoriza B1\*, E0 inconclusivo.                                        |
 | P1    | E0, validação ativa P1                                                                    | Longa, hashes, ordem canônica e coerência exata 13→1 em 132 meses (G1).                          |
 | P2    | E0, validação ativa P2                                                                    | Componentes existentes; comportamento corrigido separado de paridade de primitivas.              |
-| P3    | E0, validação ativa P3; [Experimentos](2026-09-26-headd-l0-experiments.md), Task 0 futura | Pré-gate reprovado; integração B1*/z-score condicionada à decisão PA. G2 exige E0*, não só D-G0. |
-| P4    | [Grafo/simulação](2026-09-26-headd-l0-graph-simulation.md), Task 1 futura                 | A/W, mapa, GEXF, 30 placebos e manifest; G3: nomes, graus e conectividade.                       |
-| P5    | Grafo/simulação, Tasks 2–3 futuras                                                        | Perfil aprovado antes do integrador; uma região antes do acoplamento; G4: ruídos, ε=0 e D-REACH. |
-| P6    | Grafo/simulação, Task 4 futura                                                            | Features sobre resíduos; G5: causalidade e mesma representação sob placebos.                     |
+| P3    | E0, validação ativa P3; [Experimentos](headd-l0-experiments.md), Task 0 parcial | Caminho NB2 convergente implementado/validado; E0* e FAR falharam, fallback pendente. G2 não aprovado. |
+| P4    | [Grafo/simulação](headd-l0-graph-simulation.md), Task 1 implementada/validada tecnicamente | A/W, mapa, GEXF, 30 placebos e manifest real preservados; G3 não aprovado. |
+| P5    | Grafo/simulação, Tasks 2–3 futuras; Step 1 parcial | Fonte caracterizada; paridade, manifesto e perfil pendentes antes do integrador; G4 não aprovado. |
+| P6    | Grafo/simulação, Task 4 implementada/validada tecnicamente | Features locais integradas ao E0*, com nomes/janelas registrados; integração relacional E1 futura; G5 não aprovado. |
 | P7    | Experimentos, Tasks 1–2 futuras                                                           | Runner, smoke e FAR; G6: seeds/partições independentes e única variável por braço.               |
 | P8    | Experimentos, Tasks 3–4 futuras                                                           | Camadas 0/1/2, nulos, D-COST e inferência; G7 ou conclusão inconclusiva explícita.               |
 | P9    | Experimentos, Task 5 futura                                                               | Notebooks, figuras, tabelas e README reproduzíveis.                                              |
@@ -110,8 +120,8 @@ As trilhas independentes não autorizam subagentes automaticamente; `think`,
 | Período     | Prioridade                                                          | Evidência / dependência                                                              |
 | ----------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | 26–27/09    | Auditoria, componentes e D-G0 realizados                            | Histórico e MIGRATION; sem refazer porte.                                            |
-| 28/09–01/10 | Validar P1–P3; iniciar P4/P6 e preparar P5                          | Pré-gate esperado; grafo/features verificáveis; decisão PA e perfil ainda pendentes. |
-| 02–06/10    | Uma região/acoplamento após perfil; integração E0\* após decisão PA | Piloto ~02/10 condicionado ao simulador disponível; G4/G5 e gate E0\* distintos.     |
+| 28/09–01/10 | Validar P1–P3; iniciar P4/P6 e preparar P5                          | Pré-gate antigo esperado; D-E0*-R1 registrada; perfil ainda pendente. |
+| 02–06/10    | Uma região/acoplamento após perfil; Task 0 após tabela/contraste, P1–P3 e P6 | Piloto ~02/10 condicionado ao simulador disponível; G4/G5 e gate E0\* distintos.     |
 | 07–08/10    | Smoke, calibração independente e custos                             | Gates prévios satisfeitos; projeção de 9.000 réplicas × 33 braços.                   |
 | 09–11/10    | Bancadas sintética e semi-real condicionais                         | Manifests, FAR e gates; não selecionar runs nem prometer desbloqueio.                |
 | 12–13/10    | Inferência somente com autorização                                  | Bootstrap, placebos, estatística real e centralidade.                                |
@@ -126,13 +136,15 @@ Camada1 (injeção epidêmica+nulos paramétricos) tem prioridade sobre todos os
 - [x] Executar P0 e decidir G0: saída (i) em 27/09, E0 inconclusivo e B1\* autorizado; D2, D3, D5 e D6 decididos ([registro](../../protocol-decisions.md)).
 - [x] D-G0a: busca concluída, sem proveniência verificável; ver `docs/reference-provenance.md`.
 - [x] Hardware D-COST registrado (27/09); atualizar somente se o ambiente do piloto mudar.
-- [ ] Validar P1–P3 pela sequência ativa do plano E0; não recriar componentes/exportadores.
-- [ ] Iniciar P4/P6; testes de features independem de P5.
-- [ ] Preparar P5 e aprovar perfil antes do integrador; validar uma região antes de acoplar. Fixar faixa R0 antes da camada 1.
-- [ ] Verificar decisão PA datada e anterior ao primeiro commit de integração E0\* (Experimentos Task 0).
+- [x] Validar P1–P3 pela sequência ativa do plano E0; não recriar componentes/exportadores.
+- [x] Implementar e validar tecnicamente P4/P6; G3/G5 permanecem separados da integração e interpretação.
+- [ ] Completar a preparação P5 ([fonte registrada](../../gao-source-preparation.md)); aprovar perfil antes do integrador, validar uma região antes de acoplar e fixar faixa R0 antes da camada 1.
+- [x] Registrar D-E0*-R1 datada antes do primeiro commit de integração E0\*; conferir SHA deste commit na Task 0.
+- [x] Confirmar features locais P6, tabela regional de classes/contraste sem cutoff por scores e P1–P3 antes do scoring Task 0. Scoring NB2 convergente executado em 30/09; fallback pendente.
 - [ ] Executar piloto D-COST após detectores+acoplamento; aplicar 48 h/96 h antes de observar efeitos.
 - [ ] Verificar alcance D-REACH antes dos braços; células sem poder não contam como evidência negativa.
-- [ ] Avaliar o E0\* na camada 0 antes de qualquer resultado do E1′; executar camadas 0/1/2 e nulos NB2 com FAR e seeds disjuntas; separar E0\*, não-inferioridade e evidência de propagação.
+- [x] Avaliar E0* no caminho NB2 convergente: executado em 30/09, E0*/FAR falharam; nenhuma interpretação autorizada.
+- [ ] Completar fallback D-GT3 após especificação aprovada; manter camadas E1 0/1/2 condicionadas aos gates, separadas da execução E0*.
 - [ ] Executar P7–P8 com FAR e seeds disjuntas; verificar comparabilidade antes de interpretar lead time.
 - [ ] Executar P9; reportar resultados negativos sem expandir o grafo.
 - [ ] Em cada componente: teste público, paridade ou comportamento, ruff/format/pytest, config por nome e artefatos pelo runner.
@@ -144,9 +156,14 @@ Cobertura: dados, S, baseline, A/W/placebos, simulação, features, injeção, F
 
 Para executar, ler a spec, o protocolo vigente e a sequência ativa P1–P3; a auditoria inicial já terminou. Comandos futuros e tarefas condicionadas não são autorização para scoring ou interpretação.
 
-## Aceite da revisão documental P1–P6 (28/09/2026)
+## Registro histórico — aceite da revisão documental P1–P6 (28/09/2026)
 
-Escopo desta revisão: somente `docs/`, sem código, dados, fixtures, scoring,
+Este checklist registra somente a revisão documental de 28/09, não a conclusão
+atual de P1–P6. O estado atual está na sequência acima: P5 permanece parcial,
+`gao_manifest.json` ausente e fallback D-GT3 sem especificação aprovada; E1′
+continua sem interpretação autorizada.
+
+Escopo daquela revisão: somente `docs/`, sem código, dados, fixtures, scoring,
 caracterização multiseed ou alteração de decisões aprovadas. Três blocos/commits
 locais, nesta ordem: (1) contradições de contratos/objetivo;
 (2) histórico versus validação ativa e desmembramento E0\*; (3) pendência PA.
@@ -164,7 +181,7 @@ locais, nesta ordem: (1) contradições de contratos/objetivo;
 - [x] Verificar diff exclusivamente documental e ausência de erros de whitespace
       antes de cada commit. Não incluir alterações preexistentes do usuário; sem push.
 
-Comandos atuais de auditoria documental (da raiz):
+Comandos daquela auditoria documental (históricos; da raiz):
 
 ```bash
 rg -n 'implementado|validado tecnicamente|gate aprovado|interpretação autorizada' docs/superpowers/plans docs/superpowers/specs
@@ -174,8 +191,9 @@ git diff --name-only 830e9fe51a725cacbc926d445f276d1d85638806 -- | rg -n -v '^do
 
 A última busca deve imprimir zero linhas (exit 1 de `rg` = nenhum caminho proibido).
 Para verificar links locais/âncoras, executar o trecho abaixo; links web não fazem
-parte desse check. Símbolos atuais consumidos pela Task 0 estão nos módulos citados;
-P6 e APIs novas são explicitamente futuros. Não tratar exemplos históricos como API atual.
+parte desse check histórico. Na revisão de 28/09, P6 e as APIs novas ainda eram
+futuros; esse rótulo não descreve o P6 implementado/validado nem o scoring
+concluído em 30/09. Não tratar exemplos históricos como API atual.
 
 ````bash
 python3 - <<'PYLINKS'
@@ -203,7 +221,7 @@ PYLINKS
 
 | Item | Destino                                                                       |
 | ---- | ----------------------------------------------------------------------------- |
-| A1   | E0: comparação regional selada; Experimentos Task 0 condicionada.             |
+| A1   | E0: bloqueio histórico; D-E0*-R1 permite Task 0 condicionada a classes/contraste, P1–P3 e P6.             |
 | A2   | E0: critérios independentes de scores.                                        |
 | A3   | E0: registro/precedência; registro de pendência em protocolo.                 |
 | A4   | E0: coluna de atividades permitidas na tabela de alternativas.                |

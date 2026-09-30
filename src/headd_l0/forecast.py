@@ -97,3 +97,44 @@ def forecast_mean(fit: NB2Fit, months: np.ndarray) -> np.ndarray:
         months: Month indices to forecast, 0 = 2009-01.
     """
     return np.exp(fit.coefficients @ harmonic_design(months).T)
+
+
+def sample_nb2(
+    fit: NB2Fit, months: np.ndarray, n: int, rng: np.random.Generator
+) -> np.ndarray:
+    """Draw integer NB2 panels ``[n, series, months]`` from valid converged fits.
+
+    Args:
+        fit: Training-only NB2 fit; failed fits require a separate decision.
+        months: Nonnegative integer month indices to sample.
+        n: Positive number of independent panels.
+        rng: Dedicated null-generation stream.
+    """
+    months = np.asarray(months)
+    coefficients, alpha = np.asarray(fit.coefficients), np.asarray(fit.alpha)
+    if (
+        type(n) is not int
+        or n < 1
+        or months.ndim != 1
+        or not months.size
+        or not np.isfinite(months).all()
+        or (months < 0).any()
+        or (months != np.floor(months)).any()
+        or coefficients.ndim != 2
+        or coefficients.shape[1] != 6
+        or not coefficients.shape[0]
+        or not np.isfinite(coefficients).all()
+        or alpha.shape != (len(coefficients),)
+        or not np.isfinite(alpha).all()
+        or (alpha <= 0).any()
+        or np.asarray(fit.converged).shape != alpha.shape
+        or not np.asarray(fit.converged).all()
+    ):
+        raise ValueError("NB2 sampling requires valid converged fits and dimensions")
+    mean = forecast_mean(fit, months)
+    if not np.isfinite(mean).all() or (mean <= 0).any():
+        raise ValueError("NB2 sampling requires finite positive forecast means")
+    shape = (n, len(alpha), len(months))
+    return rng.negative_binomial(
+        1 / alpha[:, None], 1 / (1 + alpha[:, None] * mean), size=shape
+    )
