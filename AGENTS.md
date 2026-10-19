@@ -60,7 +60,7 @@ These guidelines are working if diffs contain fewer unnecessary changes, fewer r
 
 Test whether geographic adjacency **A** between the 13 health regions of Pará, fed to the CDADE ensemble as neighbour features, shortens outbreak detection lead time at a fixed false-alarm rate — and whether that gain vanishes under degree-preserving placebo graphs. Full protocol: `README.md` §5.
 
-## Scope (deadline: 16/10/2026)
+## Scope (deadline: 23/10/2026)
 
 **In scope:** S (summing matrix), A (queen contiguity), placebo graphs, Φ as species layers (exploratory, real data only), the metapopulation simulator, the ported CDADE baseline, arms B0/B1/B2/B2-placebo (B-Gao and B3 optional), evaluation and statistics.
 

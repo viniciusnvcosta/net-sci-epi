@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "run_id": "e0-star-scoring-20260930",
+  "executed_at": "2026-09-30T03:15:02.441629+00:00",
+  "git_sha": "017bd1a0d6cd3ecf1e8d8efe55a4826c234b3132",
+  "reference_sha": "fbfa609bba6cb0b0f2a9e8d73be18022aec319b7",
+  "root_seed": 42,
+  "calibration_null_panels": 200,
+  "evaluation_null_panels": 200,
+  "fits_converged": 14,
+  "fallback_status": "pending_specification_not_used",
+  "interpretation_allowed": false,
+  "gates": {
+    "E0": "inconclusive",
+    "E0_star": "failed",
+    "E0_star_reasons": [
+      "trivial_baseline"
+    ],
+    "delta_ap_ci95_lower": -0.20186060618499926,
+    "FAR": "failed",
+    "FAR_failed_pairs": [
+      "ARAGUAIA/B1*",
+      "XINGU/B1*",
+      "RIO CAETES/zscore"
+    ]
+  },
+  "artifact_sha256": {
+    "manifest.json": "bb1a09b6889eef9121e16973a9363ab6a7ec122e98475cc97a5e56d0fd0bc420",
+    "metrics.parquet": "bbb7918b2f15dc8de32493bd861cc60661832a7952221437e7e96d884d49410e",
+    "far.parquet": "a7055b8623a1f9ee9d8773f912c067266bbe2cc4b504bbf053373ef252bff836",
+    "detector_fits.parquet": "5601f3e673653132fd77b987472392e9c7b343e013edb8e4c6297e726e609dec",
+    "pa_diagnostics.json": "efa34d5c05573af01481cbb101c1c1cfae877f2914e99640b18599cab761a2b3"
+  }
+}

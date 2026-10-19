@@ -2,20 +2,26 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Validar tecnicamente os componentes B1\* existentes e a preparação E0*, mantendo E0 inconclusivo e a comparação regional selada até decisão sobre PA.
+**Goal:** Validar tecnicamente os componentes B1\* existentes e a preparação E0*, mantendo E0 inconclusivo; D-E0*-R1 autoriza a condição regional, com caminho NB2 convergente executado e fallback D-GT3 pendente.
 
 **Architecture:** Funções numéricas no pacote plano; oráculo original exportado pelo SHA em ambiente separado. Correções metodológicas são registradas e condicionam o gate, sem contaminar produção com um modo legado. A ordem de porte permanece data, reconcile, detectors, threshold, select, evaluate, stats.
 
 **Tech Stack:** Python ≥3.12, uv, numpy, pandas, scipy, PyOD, river, scikit-learn, pyarrow, pytest, ruff.
 
-**Spec:** [Arquitetura §§1–7 e 9–10](../specs/2026-09-26-headd-l0-architecture.md); [plano global](2026-09-26-headd-l0-global.md).
+**Spec:** [Arquitetura §§1–7 e 9–10](../specs/headd-l0-architecture.md); [plano global](headd-l0-global.md).
 
 ## Estado de execução
 
 P1–P2: `implementado`, com componentes `validado tecnicamente` pela evidência abaixo.
-P3: preparação `implementado`; pré-gate reprovado em PA com seed 42. Scoring e
-calibração completos são **futuros e condicionados** (Experimentos Task 0).
-Não há `gate aprovado` para E0\* nem `interpretação autorizada` para E1′.
+P3: preparação e revisão regional `implementado` e `validado tecnicamente`.
+A preparação isolada mantém pré-gate pendente, com PA descritivo (72/0).
+Experimentos Task 0 executou scoring NB2 convergente no commit limpo `017bd1a`
+em 30/09: E0* falhou em `trivial_baseline`, limite inferior
+−0.20186060618499926; FAR falhou em ARAGUAIA/B1*, XINGU/B1* e
+RIO CAETES/zscore. `interpretation_allowed=false`; fallback D-GT3 pendente e
+não utilizado. Caminho convergente implementado/validado, Task 0 ainda parcial.
+Ver [execução real](../../development.md#resultado-real-e0-30092026).
+Os registros de pré-gate abaixo preservam a evidência anterior ao scoring.
 
 ## Vocabulário de status
 
@@ -53,39 +59,44 @@ Aplicar [D-G0, D-E0\*, D5 e D-GT1](../../protocol-decisions.md) (27/09): saída 
 ## Sequência ativa de validação P1–P3
 
 **Files atuais:** `src/headd_l0/`, `tests/`, `configs/data.toml`, `configs/e0_star.toml`,
-`MIGRATION.md`. São insumos de verificação; esta revisão não os modifica.
+`MIGRATION.md`. A revisão regional atualiza run, testes e documentação; não executa scores.
 **Interfaces atuais:** `load_sivep` → `DataBundle`; previsões/resíduos de
 `forecast.py`/`reconcile.py`; `inject_original_bounded` → `InjectionResult`;
 `run_preflight` → diretório de artefatos. Não compor scores dos braços nesta sequência.
 
-- [ ] **P1 — Verificar dados e hierarquia.** Rodar
+- [x] **P1 — Verificar dados e hierarquia.** Rodar
       `uv run --locked pytest -o addopts='' tests/test_data.py tests/test_reference.py -q`.
       Esperado: PASS, hashes/ordem canônica, painel 13×132, soma exata de positivos e
       testes no PA. Conferir `MIGRATION.md`; tolerância zero nas primitivas portadas.
-- [ ] **P2 — Verificar componentes existentes.** Rodar
+- [x] **P2 — Verificar componentes existentes.** Rodar
       `uv run --locked pytest -o addopts='' tests/test_forecast.py tests/test_reconcile.py tests/test_detectors.py tests/test_threshold.py tests/test_select.py tests/test_evaluate.py tests/test_stats.py -q`.
       Esperado: PASS; fit só no treino, MinT sobre previsões, orientação dos seis
       detectores, EVT/FAR, seleção causal, censura e parada após Friedman.
       Testes unitários usam fixtures; não são comparação B1\*/z-score nos dados reais.
-- [ ] **P3 — Verificar preparação e classes.** Rodar
+- [x] **P3 — Verificar preparação e classes.** Rodar
       `uv run --locked pytest -o addopts='' tests/test_inject.py tests/test_run.py -q`.
       Esperado: PASS; duração completa, onset ajustado sem redraw, PA soma/união,
-      negativos preservados, determinismo e gate reprovado em PA.
-- [ ] **Reproduzir o pré-gate sem scoring.** Rodar
+      negativos preservados, determinismo e gate regional pendente.
+- [x] **Reproduzir o pré-gate sem scoring.** Rodar
       `uv run --locked python -m headd_l0.run configs/e0_star.toml` se o run_id ainda
       não existir; caso contrário usar cópia temporária do TOML com novo run_id,
       mantendo seed 42, caminhos e protocolo. Os artefatos ficam em `results/<run_id>/`.
-      Exigir exit 2, `gates.E0.status="inconclusive"`, `gates.E0_star.status="failed"`,
-      `reasons=["single_class:PA"]`, `interpretation_allowed=false` e componentes/
+      Exigir exit 2, `gates.E0.status="inconclusive"`, `gates.E0_star.status="pending"`,
+      `reasons=[]`, `interpretation_allowed=false` e componentes/
       baseline trivial `not_evaluated`. PA tem 72 positivos/0 negativos; registrar
       110 células negativas introduzidas e 2 onsets ajustados, sem clipping/redraw.
 - [ ] **Resultado inesperado:** exit 0, outro motivo ou divergência dos campos
-      acima é regressão/discrepância: interromper a entrega documental e investigar
+      acima é regressão/discrepância: investigar
       comando, SHA, config e artefatos. Não mudar expectativas/seed/rótulos para passar.
-      Uma correção de código fica fora desta entrega documental.
-- [ ] **Checks globais:** `uv run --locked pytest -o addopts='' -q`,
+      Preservar a seed e a injeção.
+- [x] **Checks globais:** `uv run --locked pytest -o addopts='' -q`,
       `uv run --locked ruff check .`, `uv run --locked ruff format --check .`.
       Registrar data, SHA, comandos e resultados; nenhum PASS libera E0\*.
+
+A execução revisada de 29/09/2026 validou P1 (22), P2 (106) e P3 (43)
+testes. O pré-gate real e seus metadados estão no relatório Task 2 em
+`.superpowers/sdd/headd-l0-global/task-2-report.md`. Essa validação não inclui
+scores, thresholds ou aprovação de E0*.
 
 ## Evidência técnica registrada
 
@@ -106,6 +117,10 @@ confirmados; scoring não executado. Para repetir, criar nova cópia conforme P3
 não reutilizar o caminho temporário histórico.
 
 ## Decisão pendente sobre PA — comparação regional selada
+
+**Registro histórico anterior a D-E0*-R1 (28/09):** a alternativa regional foi
+selecionada em decisão científica independente de scores. O pré-gate abaixo é
+evidência válida do código antigo, não resultado do gate revisado.
 
 A união das anomalias regionais marca **72/72 meses** de teste de PA na seed 42.
 Sem meses negativos, sua AUC-PR não tem contraste para discriminar ordenações;
@@ -137,7 +152,7 @@ descritivos, tabelas e figuras, deve acompanhar a prevalência positiva da taref
 janela e denominador. Médias devem permitir consultar as prevalências por tarefa;
 prevalência original desconhecida é explicitamente ausente, nunca inventada.
 
-### Alternativas — nenhuma selecionada
+### Alternativas — registro histórico; gate regional selecionado em D-E0*-R1
 
 | Alternativa                         | Consequência                                                                                                                                                                                                              | O que pode ser executado enquanto isso                                                                                       |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
@@ -147,6 +162,10 @@ prevalência original desconhecida é explicitamente ausente, nunca inventada.
 | Redefinir o rótulo de PA            | Mantém a injeção e muda apenas o ground truth de PA, por exemplo um critério de magnitude agregado. Altera D-GT1 confirmado em 28/09, não o cenário de injeção; exige decisão datada e preservação do resultado anterior. | Mesmas atividades; formular justificativa epidemiológica do rótulo sem consultar scores.                                     |
 
 ### Registro e precedência
+
+**Status histórico:** a decisão exigida foi acrescentada como D-E0*-R1 em
+28/09/2026 e deve ser commitada antes de qualquer integração de scoring.
+As instruções abaixo registram a precedência que motivou a revisão.
 
 A [pendência registrada](../../protocol-decisions.md#pendência-pa--registro-documental-de-28092026)
 não escolhe alternativa. A decisão científica futura deve ter data, responsável,
@@ -199,8 +218,9 @@ aposentados, não reinstalar dependências nem repetir passos vermelhos de módu
 existentes. Arquivos/símbolos históricos ausentes são recuperáveis pelo procedimento
 em `MIGRATION.md`, não são requisitos do ambiente atual. Checkboxes históricos
 foram retirados para não confundir implementação com aprovação científica.
-Os trechos de integração/scoring nunca executados permanecem **futuros**, conforme
-Experimentos Task 0 e a decisão pendente PA. Funções públicas atuais estão em src.
+Os rótulos futuros nos roteiros históricos descrevem aquele planejamento, não
+o estado atual: Experimentos Task 0 executou o caminho convergente em 30/09,
+após D-E0*-R1. Apenas o fallback D-GT3 continua pendente. Funções atuais estão em src.
 
 ## Estrutura e convenções dos testes
 
@@ -439,7 +459,7 @@ assert check_e0_star(True, b1_star_wins, rng).conditions["trivial_baseline"]
 ```
 
 - **Step 2:** `uv run pytest tests/test_inject.py tests/test_run.py tests/test_detectors.py -k 'bounded or original or classes or zscore or e0' -v` → FAIL.
-- **Step 3: Implementar.** `inject_original_bounded` reproduz `cdade/data/synthetic.py` (índices, tipos e direções na ordem original) e acrescenta duração inteira uniforme em [3,6] para level shift/drift; onsets propostos sorteados em 60–131 e ajustados por `min(onset, 132 − duração)` para caber integralmente. Somente as folhas recebem injeções com stream compartilhado; PA é sua soma e sua máscara é a união regional, conforme D5/D-GT1 confirmados em 28/09; negativos introduzidos são registrados, sem clipping. Condições do E0\*: (1) testes de comportamento dos componentes; (2) 14 tarefas com as duas classes; (3) AUC-PR média de B1\* nas 13 regiões acima da do z-score móvel, com limite inferior do IC 95% da diferença pareada > 0 (bootstrap sobre regiões, 10.000 reamostras) e alarmes do z-score pela mesma calibração FAR; (4) números do original apenas descritivos. `configs/e0_star.toml` fixa SHA de referência, seed e `baseline_id = "B1*"`.
+- **Step 3: Implementar.** `inject_original_bounded` reproduz `cdade/data/synthetic.py` (índices, tipos e direções na ordem original) e acrescenta duração inteira uniforme em [3,6] para level shift/drift; onsets propostos sorteados em 60–131 e ajustados por `min(onset, 132 − duração)` para caber integralmente. Somente as folhas recebem injeções com stream compartilhado; PA é sua soma e sua máscara é a união regional, conforme D5/D-GT1 confirmados em 28/09; negativos introduzidos são registrados, sem clipping. Condições vigentes do E0\* por D-E0*-R1: (1) testes de comportamento dos componentes; (2) ambas as classes nas 13 tarefas regionais, com PA descritivo (soma, união, prevalência e coerência; AUC-PR de PA fora do critério); (3) AUC-PR média de B1\* nas 13 regiões acima da do z-score móvel, com limite inferior do IC 95% da diferença pareada > 0 (bootstrap sobre regiões, 10.000 reamostras) e alarmes do z-score pela mesma calibração FAR; (4) números do original apenas descritivos. `configs/e0_star.toml` fixa SHA de referência, seed e `baseline_id = "B1*"`.
 - **Step 4:** Testes/checks → PASS. A execução do E0\* ocorre na camada 0 do runner (Experimentos Task 0 (futura, condicionada)), antes de qualquer resultado do E1′; falha em (1)–(3) torna o E1′ inconclusivo e não autoriza ajustar B1\*. O manifest registra `gates.E0.status = "inconclusive"` e `gates.E0_star`.
 - **Step 5:** `git add src/headd_l0/inject.py tests/test_inject.py src/headd_l0/run.py tests/test_run.py src/headd_l0/detectors.py tests/test_detectors.py configs/e0_star.toml MIGRATION.md` e `git commit -m "feat: bound layer-0 injection and gate B1* with E0*"`.
 
@@ -447,5 +467,5 @@ assert check_e0_star(True, b1_star_wins, rng).conditions["trivial_baseline"]
 
 Executar primeiro a sequência ativa P1–P3; consultar o histórico apenas para
 contratos e proveniência. Continuar P4/P6 e preparação condicionada de P5.
-Integração de scoring E0\* exige decisão PA anterior ao primeiro commit;
+Integração de scoring E0\* exige o commit anterior de D-E0*-R1, confirmação da tabela regional de classes/contraste sem cutoff escolhido por scores, P1–P3 e features locais P6;
 D-G0 não substitui E0*, FAR, validação do simulador ou demais gates.

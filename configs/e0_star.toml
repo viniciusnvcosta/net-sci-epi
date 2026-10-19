@@ -1,5 +1,5 @@
 # Paths are relative to the execution directory: run from the project root.
-# Preparation only. Scoring/calibration belongs to Experiments Task 4.
+# Preparation only. Scoring/calibration belongs to Experiments Task 0.
 # Exit 2 means E0* does not authorize E1 interpretation; inspect manifest.json.
 run_id = "e0-star-preflight"
 root_seed = 42
