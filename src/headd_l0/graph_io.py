@@ -37,7 +37,9 @@ from headd_l0.reconcile import summing_matrix
 
 GEOBR_SOURCE = Path(inspect.getfile(geobr.read_health_region))
 # DataSUS/geobr healthregions_2013.parquet, v2.0.0 catalog (original resolution).
-# Source SHA256: 42de74c7506a5ce52b46ba4d5abdde6b321eebf649b09c08f641fc2e56d8918e
+HEALTH_REGIONS_2013_SHA256 = (
+    "42de74c7506a5ce52b46ba4d5abdde6b321eebf649b09c08f641fc2e56d8918e"
+)
 PA_HEALTH_REGIONS_2013 = {
     15001: "ARAGUAIA",
     15002: "BAIXO AMAZONAS",
@@ -173,6 +175,17 @@ def _artifacts(regions: gpd.GeoDataFrame, cfg: GraphConfig, manifest: dict) -> N
 
 
 def _preserve_sources(path: Path, manifest: dict) -> None:
+    source_asset = cache_dir() / "healthregions_2013.parquet"
+    if not source_asset.is_file():
+        raise FileNotFoundError(
+            "healthregions_2013.parquet with the required SHA-256 is absent"
+        )
+    observed_sha256 = _sha(source_asset)
+    if observed_sha256 != HEALTH_REGIONS_2013_SHA256:
+        raise ValueError(
+            "healthregions_2013.parquet SHA-256 mismatch: "
+            f"expected {HEALTH_REGIONS_2013_SHA256}, observed {observed_sha256}"
+        )
     downloaded = []
     for source in sorted(cache_dir().glob("*.parquet")):
         if source.name.startswith(("healthregions_2013", "metadata_geobr_v2")):

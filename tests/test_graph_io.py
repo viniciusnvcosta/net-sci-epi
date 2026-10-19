@@ -14,6 +14,20 @@ from headd_l0 import graph, graph_io
 from headd_l0.data import hierarchy
 
 
+@pytest.fixture(autouse=True)
+def verified_geobr_cache(tmp_path, monkeypatch):
+    cached = tmp_path / "verified-geobr-cache"
+    cached.mkdir()
+    asset = cached / "healthregions_2013.parquet"
+    asset.write_bytes(b"verified test source")
+    monkeypatch.setattr(graph_io, "cache_dir", lambda: cached)
+    monkeypatch.setattr(
+        graph_io,
+        "HEALTH_REGIONS_2013_SHA256",
+        hashlib.sha256(asset.read_bytes()).hexdigest(),
+    )
+
+
 def acquisition_fixture():
     names = hierarchy().leaves
     return (
@@ -171,6 +185,11 @@ def test_download_provenance_and_municipality_dissolve(tmp_path, monkeypatch):
     )
     asset = "healthregions_2013.parquet"
     municipalities.to_parquet(cached / asset)
+    monkeypatch.setattr(
+        graph_io,
+        "HEALTH_REGIONS_2013_SHA256",
+        hashlib.sha256((cached / asset).read_bytes()).hexdigest(),
+    )
     url = f"https://github.com/ipea/geobr_prep_data/releases/download/v2.0.0/{asset}"
     pd.DataFrame([{"file_name": asset, "download_url": url}]).to_parquet(
         cached / "metadata_geobr_v2.parquet"
@@ -197,6 +216,22 @@ def test_download_provenance_and_municipality_dissolve(tmp_path, monkeypatch):
     canonical = gpd.read_parquet(tmp_path / "processed/regions.parquet")
     assert canonical.name.tolist() == list(hierarchy().leaves)
     assert canonical.loc[0, "geometry"].equals(box(0, 0, 1, 1))
+
+
+@pytest.mark.parametrize("contents", [None, b"wrong source"])
+def test_acquisition_blocks_unverified_source_asset(tmp_path, monkeypatch, contents):
+    cached = tmp_path / "geobr-cache"
+    cached.mkdir()
+    if contents is not None:
+        (cached / "healthregions_2013.parquet").write_bytes(contents)
+    monkeypatch.setattr(graph_io, "cache_dir", lambda: cached)
+    monkeypatch.setattr(graph_io.geobr, "read_health_region", fake_download)
+
+    assert graph_io.main([str(config_file(tmp_path))]) == 2
+    manifest = json.loads((tmp_path / "results/test-graph/manifest.json").read_text())
+    assert manifest["status"] == "blocked"
+    assert "source_cache_error" in manifest
+    assert "SHA-256" in manifest["source_cache_error"]
 
 
 @pytest.mark.parametrize(
