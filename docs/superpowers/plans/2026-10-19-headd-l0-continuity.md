@@ -41,7 +41,7 @@
 - Modify: `docs/development.md`
 - Modify: `README.md`
 
-- [ ] **Step 1: Verificar os resumos JSON**
+- [x] **Step 1: Verificar os resumos JSON**
 
 Run:
 
@@ -52,7 +52,7 @@ python -m json.tool docs/evidence/pr-2/graph-summary.json >/dev/null
 
 Expected: ambos os comandos retornam exit 0.
 
-- [ ] **Step 2: Verificar os hashes contra os artefatos locais**
+- [x] **Step 2: Verificar os hashes contra os artefatos locais**
 
 Run:
 
@@ -69,12 +69,12 @@ sha256sum results/e0-star-scoring-20260930/manifest.json \
 
 Expected: os digests coincidem com `docs/evidence/pr-2/*.json`.
 
-- [ ] **Step 3: Atualizar o texto preliminar sem reinterpretar os gates**
+- [x] **Step 3: Atualizar o texto preliminar sem reinterpretar os gates**
 
 Documentar no README/desenvolvimento: E0 inconclusivo, E0*/FAR falharam,
 P4/P6 validados tecnicamente, P5 pendente e nova data 23/10/2026.
 
-- [ ] **Step 4: Verificar a documentação**
+- [x] **Step 4: Verificar a documentação**
 
 Run:
 
@@ -84,12 +84,15 @@ rg -n "23/10/2026|interpretation_allowed=false|E0\*.*failed" README.md docs
 
 Expected: prazo e bloqueios aparecem sem afirmação de E1 interpretável.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add README.md docs/development.md docs/evidence/pr-2
 git commit -m "docs: preserve preliminary evidence and revised deadline"
 ```
+
+Concluída em 19/10/2026 no commit `083c1c7`; JSON válido, dez hashes conferidos
+contra os artefatos locais e linguagem de gates revisada.
 
 ### Task 2: Resolver o gate científico P5 antes de codificar
 
@@ -97,7 +100,7 @@ git commit -m "docs: preserve preliminary evidence and revised deadline"
 - Modify: `docs/protocol-decisions.md`
 - Modify: `docs/gao-source-preparation.md`
 - Modify: `docs/superpowers/specs/headd-l0-architecture.md`
-- Test: `tests/reference/gao_manifest.json`
+- Create: `tests/reference/gao_manifest.json`
 
 - [ ] **Step 1: Reabrir a evidência congelada**
 
@@ -106,11 +109,19 @@ nem alterar o critério enquanto a decisão estiver pendente.
 
 - [ ] **Step 2: Apresentar a decisão ao responsável científico**
 
-Submeter, com os valores observados, as duas opções delimitadas:
+Submeter, com os valores observados, duas decisões independentes:
 
-1. paridade com os rótulos/tabelas oficiais, tratando CV branco como resultado
-   que pode inverter a direção; ou
-2. gate direcional AR1/CV original, que mantém P5 bloqueado para ruído branco.
+1. alvo de paridade: equações do suplemento, executável predecessor ou modelo
+   explicitamente corrigido; e
+2. critério de separação: paridade com os rótulos/tabelas oficiais, aceitando a
+   direção observada de CV branco, ou gate AR1/CV direcional anterior, que
+   mantém P5 bloqueado para ruído branco.
+
+A decisão do perfil deve ainda fixar: estados/inputs determinísticos, `dt`,
+inovações e saída esperada de um passo; escala demográfica, resets, burn-in,
+crossing e tempo físico; incidência latente, integerização, θ, calendário e
+intervalos parciais; conversão de N/transmissão, estados iniciais, parâmetros
+endêmicos/sazonais, comprimento de treino e janelas T/N.
 
 Stop condition: não implementar simulador antes de aprovação explícita e
 datada de uma opção. A decisão deve dizer se substitui ou apenas qualifica o
@@ -122,18 +133,17 @@ Adicionar ID, data, racional, tabelas/hashes e critérios exatos. Criar
 `tests/reference/gao_manifest.json` apontando para a fixture aprovada e seu
 SHA-256; não versionar dados de licença incerta sem autorização.
 
-- [ ] **Step 4: Testar o contrato do manifesto**
+- [ ] **Step 4: Validar o manifesto sem criar um commit vermelho**
 
-Adicionar a `tests/test_simulate.py` um teste que falha para hash, shape,
-rótulos ou perfil divergente. Antes da implementação, confirmar que o teste
-falha porque `headd_l0.simulate` ainda não existe.
+Validar JSON, hashes, shape, rótulos e completude do perfil com um comando de
+leitura descartável. O teste automatizado do manifesto será escrito no início
+da Task 3 e commitado junto com a implementação que o faz passar.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add docs/protocol-decisions.md docs/gao-source-preparation.md \
-  docs/superpowers/specs/headd-l0-architecture.md tests/reference/gao_manifest.json \
-  tests/test_simulate.py
+  docs/superpowers/specs/headd-l0-architecture.md tests/reference/gao_manifest.json
 git commit -m "docs: approve Gao parity profile for P5"
 ```
 
@@ -146,9 +156,10 @@ git commit -m "docs: approve Gao parity profile for P5"
 
 - [ ] **Step 1: Escrever os testes de contrato**
 
-Cobrir `SimConfig` congelada, `SimResult`, shapes `(1, 132)`, seeds via
-`Generator`, ruídos `white/env/dem`, clipping de compartimentos, somas semanais
-para meses e observação binomial por θ.
+Começar pelo contrato de `tests/reference/gao_manifest.json`: hash, shape,
+rótulos e perfil divergentes devem falhar. Cobrir também `SimConfig` congelada,
+`SimResult`, shapes `(1, 132)`, seeds via `Generator`, ruídos `white/env/dem`,
+clipping de compartimentos, somas semanais para meses e observação binomial por θ.
 
 - [ ] **Step 2: Executar o teste e observar a falha**
 
@@ -338,9 +349,12 @@ predefinidas. Lead time é primário; AUC-PR e NAB são secundários.
 
 - [ ] **Step 4: Gerar notebook e tabelas a partir dos artefatos**
 
-O notebook deve ler `results/<run_id>/`, verificar o manifest e falhar com
-mensagem explícita se `interpretation_allowed=false`. Nesse caso, ainda deve
-produzir o relatório descritivo de limitações, sem conclusões de efeito.
+O notebook deve ler `results/<run_id>/` e verificar o manifest. Se
+`interpretation_allowed=false`, deve primeiro persistir tabelas/figuras
+descritivas marcadas como não interpretáveis e o relatório de limitações; em
+seguida, o comando exportador termina com exit 2 e mensagem explícita. Se a
+interpretação estiver autorizada, produz também a inferência e termina com
+exit 0.
 
 - [ ] **Step 5: Verificação final**
 

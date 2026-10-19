@@ -5,6 +5,7 @@
   "git_sha": "7208531475b658ab34ff33d823455a4a12121509",
   "root_seed": 42,
   "source_year": 2013,
+  "source_asset_sha256": "42de74c7506a5ce52b46ba4d5abdde6b321eebf649b09c08f641fc2e56d8918e",
   "contiguity": "queen",
   "regions": 13,
   "edges": 25,
@@ -16,6 +17,27 @@
     "all_degree_preserving": true,
     "all_distinct": true
   },
+  "validation_notes": {
+    "exact_identity_validator_executed_in_run": false,
+    "exact_identity_validator_commit": "61dd0cb",
+    "manifest_pairs_inspected_post_hoc": true,
+    "name_mapping_version_in_run": null
+  },
+  "post_hoc_name_mapping": [
+    {"code": 15001, "name": "ARAGUAIA"},
+    {"code": 15002, "name": "BAIXO AMAZONAS"},
+    {"code": 15003, "name": "CARAJAS"},
+    {"code": 15004, "name": "LAGO DE TUCURUI"},
+    {"code": 15006, "name": "METROPOLITANA I"},
+    {"code": 15007, "name": "METROPOLITANA II"},
+    {"code": 15008, "name": "METROPOLITANA III"},
+    {"code": 15009, "name": "RIO CAETES"},
+    {"code": 15010, "name": "TAPAJOS"},
+    {"code": 15011, "name": "TOCANTINS"},
+    {"code": 15012, "name": "XINGU"},
+    {"code": 15013, "name": "MARAJO I"},
+    {"code": 15014, "name": "MARAJO II"}
+  ],
   "interpretation_allowed": false,
   "artifact_sha256": {
     "manifest.json": "7136fce0e4f5f95c38c4952b19bc3a1efd41875f30ef2a4cbdac472e24bef38f",

@@ -116,6 +116,12 @@ por candidato. Distâncias por diferença simétrica de arestas: 16–34 para A
 e 18–38 entre draws. Isso não demonstra amostragem uniforme nem aprova
 G3/E1; o manifest mantém `interpretation_allowed=false`.
 
+Esse run antecede o validador exato de código↔nome de `61dd0cb`: os 13 pares
+registrados no manifest coincidem com o mapeamento canônico em conferência
+_post hoc_, mas `name_mapping_version` não foi gravado. A evidência portátil
+expõe essa limitação; uma nova aquisição deve passar também pelo validador e
+pelo SHA-256 obrigatório da fonte antes de receber status `ready`.
+
 Artefatos em `data/processed/graph/`: fonte e geometrias canônicas, mapas,
 `adjacency.npy`, `W.npy`, `S.npy`, `placebos.npy`, centralidades e GEXFs
 separados de S/A/30 placebos. O manifest também fica em
