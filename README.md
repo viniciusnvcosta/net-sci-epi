@@ -198,14 +198,14 @@ dev = ["ipykernel>=7.3.0", "jupyter>=1.1.1", "pytest", "ruff"]
 
 Ferramentas externas: **Gephi** para as figuras do grafo (exportação via `nx.write_gexf`, uma camada por arquivo).
 
-## 9 · Cronograma até 16/10/2026
+## 9 · Cronograma até 23/10/2026
 
 | Período     | Entrega                                                                                                                                    |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | 25/09–01/10 | Contrato de dados e teste de coerência de S; construção de A e mapa; simulador de uma região validado contra Gao; extensão para 13 regiões |
 | 02/10–08/10 | Porte do baseline CDADE (ver `AGENTS.md`); features de vizinhança; placebos; calibração nas réplicas nulas; execução de B0–B2-placebo      |
 | 09/10–13/10 | Bancada semi-real no SIVEP; bootstrap e análise de centralidade; B-Gao e B3 se houver tempo                                                |
-| 14/10–16/10 | Redação de Metodologia e Resultados Preliminares                                                                                           |
+| 14/10–23/10 | Consolidação, reprodução, redação de Metodologia e Resultados Preliminares                                                                 |
 
 ## 10 · Limitações
 

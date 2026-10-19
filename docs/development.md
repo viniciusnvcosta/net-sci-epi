@@ -5,6 +5,8 @@ camada 0, do grafo regional P4 e das features P6, implementados e validados
 tecnicamente. P5 tem preparação científica de fonte parcial; simulador e runner
 completo de experimentos seguem os [planos de implementação](superpowers/plans/headd-l0-global.md).
 As decisões científicas vigentes estão em [protocol-decisions.md](protocol-decisions.md).
+Os resumos portáteis e hashes dos artefatos preservados pelo PR #2 estão em
+[`docs/evidence/pr-2/`](evidence/pr-2/README.md).
 
 ## Ambiente e comandos
 

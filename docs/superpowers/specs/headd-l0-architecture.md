@@ -20,7 +20,7 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 
 ## 1. Objetivo, fontes e limites
 
-Construir a bancada E1′ do README §5, com baseline B1\* corrigido sob D-G0/D-E0\* (E0 inconclusivo), S + A, controle ε = 0, FAR de 1/60 por região-mês e 30 placebos. O resultado pode ser negativo. O prazo é 16/10/2026.
+Construir a bancada E1′ do README §5, com baseline B1\* corrigido sob D-G0/D-E0\* (E0 inconclusivo), S + A, controle ε = 0, FAR de 1/60 por região-mês e 30 placebos. O resultado pode ser negativo. O prazo dos resultados preliminares é 23/10/2026.
 
 Fontes históricas lidas em 26/09 (hashes não representam a revisão atual): `AGENTS.md`, `README.md` e `pyproject.toml`, incluindo suas alterações ainda não commitadas. SHA-256 dessas versões:
 
