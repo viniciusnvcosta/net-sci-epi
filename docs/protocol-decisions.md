@@ -20,8 +20,8 @@ Este registro distingue **decisões tomadas** de **escolhas ainda pendentes**. C
 | D-GT2   | **Decidido**, com pendência de parâmetros do simulador | Injeção epidêmica com proveniência explícita de casos importados                                |
 | D-GT3   | **Decidido**                                           | Nulo paramétrico NB2 com tendência e dois pares de harmônicos                                   |
 | D-GT4   | **Decidido**, com pendência da faixa de R0             | Tamanho, truncamento e onsets definidos                                                         |
-| D-COST  | **Decidido**, com pendência do hardware                | Gatilhos de 48 h e 96 h para a escada de redução                                                |
-| D-REACH | **Decidido**                                           | ≥ 50% em ε = 0,20, por tipo de ruído                                                            |
+| D-COST  | **Aferido** (20/10); execução bloqueada                | Degraus (a)+(b); runner não representa o subconjunto T dos placebos                              |
+| D-REACH | **Aferido** (20/10)                                    | ≥ 50% em ε = 0,20 nos três ruídos, com 200 T/célula                                              |
 | P5-SRC  | **Pendente** (29/09; proposta, sem aprovação)          | Paridade científica, perfil e revisão do critério CV por ruído                                   |
 | D-P5-IMPL | **Implementação autorizada** (19/10); ratificação científica pendente | Perfil técnico das equações 1–3 e fixture própria; G4 pendente, interpretação bloqueada |
 | D-L3    | **Pendente**                                           | Seleção e verificação dos eventos reais                                                         |
@@ -435,3 +435,65 @@ válidas são diagnósticos, sem tuning de CV branco.
 **Limite:** G4, D-GT2/D-GT4 para inferência e interpretação E1′ não recebem
 aprovação. Ratificação futura deve citar o perfil e seus diagnósticos;
 qualquer revisão será datada antes de usar resultados científicos.
+
+## D-COST/D-REACH — execução condicionada de 20/10/2026
+
+**Escopo:** aplicação operacional das decisões existentes na Task 6, sobre
+`bcfa9eefb3a0c3b3ec308ecec3bb9c12daa7b034`; nenhuma ratificação científica
+nova. Hardware, método, projeções, evidências e hashes estão na
+[proveniência](reference-provenance.md#d-cost-e-execução-condicionada--20102026).
+
+**D-COST:** a decisão foi congelada em `2026-10-20T18:32:09.299278Z`, antes
+de abrir qualquer efeito E1. Smoke: 33,46 s e 471.148 KiB; probe da primeira
+réplica fixa com seis detectores: 66,13 s e 423.020 KiB. O cálculo assume
+ajustes NB2 válidos e não usa as falhas do smoke para baratear a projeção.
+Desenho completo: 193,95–246,87 h; após (a): 135,22–172,10 h; após (a)+(b):
+82,29–104,74 h. São cenários de reuso de features, não intervalos estatísticos.
+
+Aplicam-se **(a) e depois (b)**: 200 T + 200 N/célula, 200 nulos de calibração
+e 30 placebos nos índices T `0000`–`0099` de cada célula; B2 usa exatamente
+essas mesmas T na comparação com placebos. O pareamento B2/B1* pode usar as
+200 T. Nenhuma redução altera L0 ou a ordem do protocolo. O limite superior
+do cenário reduzido ainda supera 96 h; (c) não remove trabalho porque não há
+B-Gao, B3/Φ ou SEIRS configurados. Não se escolheu outro orçamento.
+
+**Gate de execução bloqueante:** `ExperimentConfig` só possui
+`n_transition` global. `run()` exige o conjunto completo dos 33 braços e
+chama `_score()` para todos eles em cada réplica; não há seleção de T por
+braço. Usar 100 T globalmente cortaria indevidamente B0/B1*/B2; usar 200 T
+para todos não aplicaria (a); truncar artefatos depois não reduz o custo e
+não implementa o desenho autorizado. Além disso, o runner intercala
+simulação e scoring, exigindo passe prévio separado para D-REACH.
+Não houve mudança de código/config, workaround de scoring, nem execução de
+`configs/e1_bench.toml`. Corrigir essa representação requer nova tarefa de
+produção; a Task 6 só autoriza documentação.
+
+**Pré-requisitos aferidos:** Queen cache válido; três calibrações endêmicas
+`ready`, com todas as 13 regiões dentro da tolerância fixa por ruído.
+D-REACH executou 200 T/célula, com seeds do runner, antes de qualquer braço
+da bancada. Frações com onset em vizinho:
+
+| Ruído | ε = 0 | ε = 0,05 | ε = 0,20 |
+| --- | ---: | ---: | ---: |
+| white | 0/200 | 163/200 | 165/200 (82,5%) |
+| env | 0/200 | 112/200 | 132/200 (66%) |
+| dem | 0/200 | 148/200 | 153/200 (76,5%) |
+
+O critério de ≥50% em ε=0,20 passa por ruído, sem tuning; isto não é efeito
+de detecção. No controle ε=0, todas as 600 T têm zero onset não-semente e
+contagens não-semente iguais às gêmeas. Os 30 placebos Queen são distintos,
+conexos e preservam graus por região.
+
+**Auditoria limitada ao smoke:** mesmos IDs e denominadores nos 33 braços,
+censura e indisponibilidade preservadas; D5 falha em 5/12 réplicas e FAR
+passa em apenas 28/858 pares. Dados de calibração/avaliação incompletos
+permanecem explícitos. Estes são gates técnicos do smoke com três detectores,
+não estimativas da bancada com seis. Não se compararam braços nem se abriram
+valores de lead time/ganho; não houve estatística.
+
+**Estado final:** envelope `results/task6-execution-20261020/manifest.json`
+com `status=blocked`; `bench.status=not_executed`, D-REACH `passed`,
+D5/FAR da bancada `not_evaluated`. O smoke tem artefatos próprios e não
+substitui métricas da bancada. E0 `inconclusive`, E0* `failed`, G4 e
+ratificação científica `pending`, `interpretation_allowed=false`.
+P8/P9/Task 7 não foram executadas.
