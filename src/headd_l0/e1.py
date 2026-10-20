@@ -46,6 +46,7 @@ class ExperimentConfig:
     selector: str = "meta_des"
     threshold: str = "evt_gpd"
     baseline_id: str = "B1*"
+    n_placebo_transition_per_cell: int | None = None
 
     def __post_init__(self) -> None:
         for key in ("noise_types", "epsilon_levels", "detectors", "calibration_dirs"):
@@ -78,6 +79,13 @@ class ExperimentConfig:
                 )
             )
             or self.n_placebos != 30
+            or (
+                self.n_placebo_transition_per_cell is not None
+                and (
+                    type(self.n_placebo_transition_per_cell) is not int
+                    or not 1 <= self.n_placebo_transition_per_cell <= self.n_transition
+                )
+            )
             or not self.detectors
             or not set(self.detectors) <= DETECTORS.keys()
             or len(set(self.detectors)) != len(self.detectors)
@@ -135,6 +143,20 @@ def build_arms(n_placebos: int) -> tuple[ArmSpec, ...]:
             for i in range(n_placebos)
         ),
     )
+
+
+def arms_for_replicate(
+    cfg: ExperimentConfig,
+    arms: tuple[ArmSpec, ...],
+    partition: str,
+    label: str,
+    index: int,
+) -> tuple[ArmSpec, ...]:
+    """Return arms scored for this address in the approved transition subset."""
+    limit = cfg.n_placebo_transition_per_cell
+    if limit is None or partition != "evaluation" or label != "T" or index < limit:
+        return arms
+    return tuple(arm for arm in arms if arm.name in {"B0", "B1*", "B2"})
 
 
 def _digest(array):
@@ -229,6 +251,7 @@ def _replicates(cfg, weights, streams, hazards):
                         "epsilon": epsilon,
                         "partition": partition,
                         "label": label,
+                        "replicate_index": i,
                         "seed_region": seed_region,
                         **_seed_record(seed),
                         "simulation_params": json.dumps(result.params, sort_keys=True),
@@ -243,12 +266,23 @@ def _replicates(cfg, weights, streams, hazards):
                     yield record, result, detector_seed
 
 
-def _score(counts, cfg, arms, graphs, seed):
+def _score(counts, cfg, arms, graphs, seed, address=None):
     """Fit D5 once, then use identical components/seeds for all representations."""
+    active_arms = (
+        arms
+        if address is None
+        else arms_for_replicate(
+            cfg,
+            arms,
+            address["partition"],
+            address["label"],
+            address["replicate_index"],
+        )
+    )
     observed = np.vstack((counts.sum(axis=0), counts))
     fit = fit_nb2(observed, cfg.train_months)
     fitted = forecast_mean(fit, np.arange(132))
-    scores = np.full((len(arms), 13, 72), np.nan)
+    scores = np.full((len(active_arms), 13, 72), np.nan)
     shared = {"forecasts": fitted, "coherent_forecasts": np.full_like(fitted, np.nan)}
     valid = bool(
         fit.converged.all()
@@ -263,6 +297,7 @@ def _score(counts, cfg, arms, graphs, seed):
         "forecast_alpha": fit.alpha.tolist(),
         "detector_seed": _seed_record(seed),
         "pool_fits": 0,
+        "active_arms": [arm.name for arm in active_arms],
     }
     if not valid:
         return scores, shared, audit
@@ -280,7 +315,7 @@ def _score(counts, cfg, arms, graphs, seed):
     }
     local = {key: FEATURES["local"](value).values for key, value in residuals.items()}
     cache = {}
-    for a, arm in enumerate(arms):
+    for a, arm in enumerate(active_arms):
         features = local[arm.residuals][1:]
         if arm.graph_id:
             relational = FEATURES["neighbors"](

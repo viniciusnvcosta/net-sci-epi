@@ -305,7 +305,9 @@ def run(cfg: ExperimentConfig, *, arms: tuple[ArmSpec, ...] | None = None) -> Ru
         for record, result, seed in _replicates(
             cfg, row_normalize(graphs["observed"]), streams, hazards
         ):
-            score, derived, audit = _score(result.counts, cfg, arms, graphs, seed)
+            score, derived, audit = _score(
+                result.counts, cfg, arms, graphs, seed, record
+            )
             records.append({**record, **audit})
             scores.append(score)
             for key, value in {

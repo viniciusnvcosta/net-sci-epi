@@ -40,6 +40,7 @@ def _write_scores(path, records, scores, arms):
         ),
     ) as writer:
         for record, values in zip(records, scores, strict=True):
+            active = record.get("active_arms", [arm.name for arm in arms])
             frame = pd.DataFrame(
                 {
                     **{
@@ -52,9 +53,9 @@ def _write_scores(path, records, scores, arms):
                             "label",
                         )
                     },
-                    "arm": np.repeat([arm.name for arm in arms], 13 * 72),
-                    "task": np.tile(np.repeat(names, 72), len(arms)),
-                    "month": np.tile(np.arange(60, 132), len(arms) * 13),
+                    "arm": np.repeat(active, 13 * 72),
+                    "task": np.tile(np.repeat(names, 72), len(active)),
+                    "month": np.tile(np.arange(60, 132), len(active) * 13),
                     "score": values.ravel(),
                 }
             )
@@ -72,8 +73,23 @@ def _far(cfg, records, scores, arms):
         ]
         for a, arm in enumerate(arms):
             for j, task in enumerate(hierarchy().leaves):
-                cal = np.asarray([scores[i][a, j] for i in calibration]).ravel()
-                ev = np.asarray([scores[i][a, j] for i in evaluation]).ravel()
+                cal_values, eval_values = [], []
+                for i in calibration:
+                    active = records.iloc[i].get("active_arms", [x.name for x in arms])
+                    cal_values.append(
+                        scores[i][active.index(arm.name), j]
+                        if arm.name in active
+                        else np.full(72, np.nan)
+                    )
+                for i in evaluation:
+                    active = records.iloc[i].get("active_arms", [x.name for x in arms])
+                    eval_values.append(
+                        scores[i][active.index(arm.name), j]
+                        if arm.name in active
+                        else np.full(72, np.nan)
+                    )
+                cal = np.asarray(cal_values).ravel()
+                ev = np.asarray(eval_values).ravel()
                 complete = bool(np.isfinite(cal).all() and np.isfinite(ev).all())
                 cal, ev = cal[np.isfinite(cal)], ev[np.isfinite(ev)]
                 row = {
@@ -124,12 +140,16 @@ def _outcomes(cfg, records, scores, onsets, arms, far):
         }
         for j, task in enumerate(hierarchy().leaves):
             paired = {}
+            active = record.get("active_arms", [arm.name for arm in arms])
             for a, arm in enumerate(arms):
+                if arm.name not in active:
+                    continue
+                score_index = active.index(arm.name)
                 gate = lookup.loc[record.noise, record.epsilon, arm.name, task]
                 eligible = bool(record.fit_valid and pd.notna(gate.threshold))
                 alarms = np.zeros(132, dtype=bool)
                 if eligible:
-                    alarms[60:] = scores[i][a, j] > gate.threshold
+                    alarms[60:] = scores[i][score_index, j] > gate.threshold
                 timing = asdict(
                     detection_outcome(alarms, int(onsets[i][j]), cfg.window, cfg.window)
                 )
@@ -160,7 +180,7 @@ def _outcomes(cfg, records, scores, onsets, arms, far):
             if record.label == "T":
                 observed = paired["B2"]
                 for arm in arms:
-                    if arm.name == "B2":
+                    if arm.name == "B2" or arm.name not in paired:
                         continue
                     reference = paired[arm.name]
                     comparable = observed["far_passed"] and reference["far_passed"]
@@ -257,6 +277,24 @@ def _manifest(cfg, streams, arms, reference_sha):
         "graph_source": cfg.graph_source,
         "endemic_source": cfg.endemic_source,
         "arms": [asdict(arm) for arm in arms],
+        "budget_policy": {
+            "placebo_transition_limit_per_cell": cfg.n_placebo_transition_per_cell,
+            "placebo_transition_indices": list(
+                range(cfg.n_placebo_transition_per_cell or cfg.n_transition)
+            ),
+            "primary_B2_vs_B1_transition_n_per_cell": cfg.n_transition,
+            "B2_vs_placebo_transition_n_per_cell": (
+                cfg.n_placebo_transition_per_cell or cfg.n_transition
+            ),
+            "calibration_n_per_arm_cell": cfg.n_calibration,
+            "null_evaluation_n_per_arm_cell": cfg.n_null,
+            "active_transition_n_per_arm_per_cell": {
+                "B0": cfg.n_transition,
+                "B1*": cfg.n_transition,
+                "B2": cfg.n_transition,
+                "placebos": cfg.n_placebo_transition_per_cell or cfg.n_transition,
+            },
+        },
         "settings": {
             "detectors": cfg.detectors,
             "selection": asdict(SelectionConfig(window=cfg.window, k=cfg.selection_k)),

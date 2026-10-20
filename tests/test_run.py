@@ -432,7 +432,8 @@ def test_e1_configs_load_without_running_the_bench(tmp_path):
         bench.n_null,
         bench.n_calibration,
         bench.n_placebos,
-    ) == (500, 500, 200, 30)
+        bench.n_placebo_transition_per_cell,
+    ) == (200, 200, 200, 30, 100)
     assert set(bench.detectors) == {"pca", "lof", "knn", "hbos", "iforest", "mcd"}
     assert bench.selection_k == 5
     assert not list(tmp_path.iterdir())
