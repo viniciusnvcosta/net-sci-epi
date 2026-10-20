@@ -61,6 +61,20 @@ def test_smoke_keeps_all_arms_and_subset_scoring_preserves_active_scores():
     assert len(arms_for_replicate(cfg, arms, "evaluation", "T", 1)) == 33
     full, _, _ = _score(counts, cfg, arms, graphs, seed)
     cut_cfg = replace(cfg, n_placebo_transition_per_cell=1)
+    permuted_arms = tuple(reversed(arms))
+    eligible, _, eligible_audit = _score(
+        counts,
+        cut_cfg,
+        permuted_arms,
+        graphs,
+        seed,
+        {"partition": "evaluation", "label": "T", "replicate_index": 0},
+    )
+    full_by_name = dict(zip((arm.name for arm in arms), full, strict=True))
+    eligible_by_name = dict(zip(eligible_audit["active_arms"], eligible, strict=True))
+    assert {"B0", "B1*", "B2", "B2-placebo-00"} <= eligible_by_name.keys()
+    for name, score in eligible_by_name.items():
+        np.testing.assert_array_equal(score, full_by_name[name])
     reduced, _, audit = _score(
         counts,
         cut_cfg,
