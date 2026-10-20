@@ -4,7 +4,7 @@
 
 **Goal:** Entregar até 23/10/2026 um pacote preliminar reproduzível do estado científico atual e preparar, sem antecipar decisões pendentes, a continuação P5–P9 da bancada E1′.
 
-**Architecture:** O fechamento preliminar reutiliza os artefatos imutáveis de E0* e P4, publica somente resumos/hash pequenos e mantém `interpretation_allowed=false`. A continuação segue gates sequenciais: decisão P5 → simulador de uma região → acoplamento → runner/FAR → E1 técnico → inferência condicionada → relatório.
+**Architecture:** O fechamento preliminar reutiliza os artefatos imutáveis de E0\* e P4, publica somente resumos/hash pequenos e mantém `interpretation_allowed=false`. A continuação segue gates sequenciais: decisão P5 → simulador de uma região → acoplamento → runner/FAR → E1 técnico → inferência condicionada → relatório.
 
 **Tech Stack:** Python ≥3.12, uv, numpy, pandas, scipy, scikit-learn/PyOD, river, networkx, geobr/geopandas/libpysal, pyarrow, pytest, ruff e GitHub Actions.
 
@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - O prazo de resultados preliminares é 23/10/2026.
-- E0 permanece inconclusivo; E0* e FAR falharam no run preservado de 30/09.
+- E0 permanece inconclusivo; E0\* e FAR falharam no run preservado de 30/09.
 - `interpretation_allowed=false` até que uma decisão de protocolo explícita altere o gate.
 - Não ajustar pool, parâmetros, seed, tolerância FAR ou perfil Gao para resgatar resultados.
 - Dados brutos são imutáveis; artefatos derivados são regeneráveis e ficam fora do Git.
@@ -36,6 +36,7 @@
 ### Task 1: Fechar o pacote preliminar reproduzível
 
 **Files:**
+
 - Verify: `docs/evidence/pr-2/e0-star-summary.json`
 - Verify: `docs/evidence/pr-2/graph-summary.json`
 - Modify: `docs/development.md`
@@ -71,7 +72,7 @@ Expected: os digests coincidem com `docs/evidence/pr-2/*.json`.
 
 - [x] **Step 3: Atualizar o texto preliminar sem reinterpretar os gates**
 
-Documentar no README/desenvolvimento: E0 inconclusivo, E0*/FAR falharam,
+Documentar no README/desenvolvimento: E0 inconclusivo, E0\*/FAR falharam,
 P4/P6 validados tecnicamente, P5 pendente e nova data 23/10/2026.
 
 - [x] **Step 4: Verificar a documentação**
@@ -97,6 +98,7 @@ contra os artefatos locais e linguagem de gates revisada.
 ### Task 2: Resolver o gate científico P5 antes de codificar
 
 **Files:**
+
 - Modify: `docs/protocol-decisions.md`
 - Modify: `docs/gao-source-preparation.md`
 - Modify: `docs/superpowers/specs/headd-l0-architecture.md`
@@ -150,6 +152,7 @@ git commit -m "docs: approve Gao parity profile for P5"
 ### Task 3: Implementar e validar o simulador de uma região
 
 **Files:**
+
 - Create: `src/headd_l0/simulate.py`
 - Modify: `tests/test_simulate.py`
 - Modify: `configs/simulation.toml`
@@ -197,6 +200,7 @@ git commit -m "feat: add approved single-region outbreak simulator"
 ### Task 4: Adicionar acoplamento, twin run e onsets
 
 **Files:**
+
 - Modify: `src/headd_l0/simulate.py`
 - Modify: `tests/test_simulate.py`
 - Create: `src/headd_l0/calibrate.py`
@@ -237,6 +241,7 @@ git commit -m "feat: couple regional simulations with shared twin noise"
 ### Task 5: Integrar o runner P7 e calibrar FAR sem vazamento
 
 **Files:**
+
 - Modify: `src/headd_l0/run.py`
 - Modify: `src/headd_l0/threshold.py`
 - Modify: `tests/test_run.py`
@@ -246,7 +251,7 @@ git commit -m "feat: couple regional simulations with shared twin noise"
 
 - [ ] **Step 1: Escrever teste end-to-end mínimo**
 
-Usar 1 ruído × 2 ε × 2 T + 2 N. Verificar braços B0/B1*/B2/30 placebos,
+Usar 1 ruído × 2 ε × 2 T + 2 N. Verificar braços B0/B1\*/B2/30 placebos,
 mesmos replicates/features compartilháveis, uma variável relacional por braço,
 streams disjuntos e manifest completo.
 
@@ -284,6 +289,7 @@ git commit -m "feat: wire deterministic E1 smoke runner and FAR gate"
 ### Task 6: Executar D-COST, D-REACH e a bancada condicionada
 
 **Files:**
+
 - Modify: `docs/reference-provenance.md`
 - Modify: `docs/protocol-decisions.md`
 - Output: `results/<new-run-id>/manifest.json`
@@ -324,6 +330,7 @@ git commit -m "docs: record E1 cost reach and execution gates"
 ### Task 7: Calcular P8 e produzir P9 sem ultrapassar os gates
 
 **Files:**
+
 - Modify: `src/headd_l0/evaluate.py`
 - Modify: `src/headd_l0/stats.py`
 - Modify: `tests/test_evaluate.py`
@@ -377,6 +384,6 @@ git commit -m "feat: report gated E1 preliminary results"
 
 Se P5 não estiver decidido ou qualquer gate posterior falhar até 23/10, a
 entrega preliminar é o pacote reproduzível do estado atual: E0 inconclusivo,
-E0*/FAR falhos, P4/P6 tecnicamente validados, P5 pendente, hashes e limitações.
+E0\*/FAR falhos, P4/P6 tecnicamente validados, P5 pendente, hashes e limitações.
 Isso é uma conclusão válida do protocolo; não autoriza tuning nem expansão do
 grafo. Tasks 2–7 continuam sequencialmente após decisão explícita.
