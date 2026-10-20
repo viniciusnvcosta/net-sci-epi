@@ -294,3 +294,171 @@ def test_generator_is_required():
 
     with pytest.raises(TypeError):
         simulate(SimConfig(), np.zeros((1, 1)), 42)
+
+
+def _ring_weights():
+    weights = np.zeros((13, 13))
+    for i in range(13):
+        weights[i, (i - 1) % 13] = weights[i, (i + 1) % 13] = 0.5
+    return weights
+
+
+def test_thirteen_region_shape_comes_from_weights():
+    from headd_l0.simulate import SimConfig, simulate
+
+    result = simulate(SimConfig(), _ring_weights(), np.random.default_rng(42))
+    assert result.counts.shape == result.twin_counts.shape == (13, 132)
+    assert result.onset.shape == (13,)
+    assert np.issubdtype(result.counts.dtype, np.integer)
+    assert (result.counts >= 0).all()
+    assert (result.twin_counts >= 0).all()
+
+
+@pytest.mark.parametrize("epsilon", [0, 0.2, 1])
+def test_coupled_flow_uses_receiver_beta_and_row_weights(epsilon):
+    from headd_l0.simulate import SimConfig, _integrate
+
+    # At day 2555, only seed 1 has R0=1.6; all other R0 values remain 0.8.
+    # Unequal directed weights catch transposing W or applying the sender's beta.
+    weights = np.array([[0, 1, 0], [0.25, 0, 0.75], [1, 0, 0]])
+    cfg = SimConfig(epsilon=epsilon, seed_region=1, endemic_hazard=0)
+    latent, _, _ = _integrate(
+        cfg,
+        np.array([2555, 2556]),
+        np.array([[90000.0, 10.0], [80000.0, 30.0], [70000.0, 50.0]]),
+        np.zeros((1, 3, 2)),
+        "T",
+        weights,
+    )
+    expected = np.array(
+        [
+            0.8 * (1 / 14 + 1 / 365) * (10 + 20 * epsilon) * 0.9,
+            1.6 * (1 / 14 + 1 / 365) * (30 + 10 * epsilon) * 0.8,
+            0.8 * (1 / 14 + 1 / 365) * (50 - 40 * epsilon) * 0.7,
+        ]
+    )
+    np.testing.assert_allclose(latent.sum(axis=0), expected, rtol=0, atol=1e-12)
+
+
+@pytest.mark.parametrize("noise", ["white", "env", "dem"])
+def test_zero_coupling_has_exactly_no_remote_excess(noise):
+    from headd_l0.simulate import SimConfig, simulate
+
+    result = simulate(
+        SimConfig(noise=noise, epsilon=0, seed_region=5),
+        _ring_weights(),
+        np.random.default_rng(42),
+    )
+    remote = np.arange(13) != 5
+    np.testing.assert_array_equal(result.counts[remote], result.twin_counts[remote])
+    np.testing.assert_array_equal(result.onset[remote], -1)
+    assert result.onset[5] == 75
+    assert result.seed_region == 5
+    assert not np.array_equal(result.counts[5], result.twin_counts[5])
+
+
+@pytest.mark.parametrize("noise", ["white", "env", "dem"])
+def test_coupled_twin_matches_separate_null_with_the_same_fixed_draws(noise):
+    from headd_l0.simulate import SimConfig, simulate
+
+    generators = [
+        np.random.default_rng(np.random.SeedSequence(71).spawn(1)[0]) for _ in range(3)
+    ]
+    cfg = SimConfig(noise=noise, epsilon=0.2)
+    result = simulate(cfg, _ring_weights(), generators[0])
+    repeated = simulate(cfg, _ring_weights(), generators[1])
+    null = simulate(
+        SimConfig(noise=noise, epsilon=0.2, label="N"),
+        _ring_weights(),
+        generators[2],
+    )
+    np.testing.assert_array_equal(result.counts, repeated.counts)
+    np.testing.assert_array_equal(result.onset, repeated.onset)
+    np.testing.assert_array_equal(result.twin_counts, null.counts)
+    np.testing.assert_array_equal(null.counts, null.twin_counts)
+    np.testing.assert_array_equal(null.onset, -1)
+    np.testing.assert_array_equal(result.counts[:, :72], result.twin_counts[:, :72])
+    assert all(
+        generators[0].bit_generator.state == rng.bit_generator.state
+        for rng in generators[1:]
+    )
+    assert np.any(result.counts[1:] != result.twin_counts[1:])
+    for i in range(1, 13):
+        exceedances = np.flatnonzero(
+            result.counts[i] - result.twin_counts[i]
+            > 2 * np.std(result.twin_counts[i, :60], ddof=1)
+        )
+        assert result.onset[i] == (exceedances[0] if len(exceedances) else -1)
+
+
+def test_remote_onsets_use_strict_frozen_training_sd_and_censoring():
+    from headd_l0.simulate import SimConfig, _onsets
+
+    twin = np.zeros((5, 132))
+    # This training sample has mean=10 and sample variance exactly 60.
+    twin[1:3] = 10
+    twin[1:3, :59] = 9
+    twin[1:3, 59] = 69
+    # SD is sqrt(60): ddof=0 would incorrectly accept an excess of 15.4.
+    counts = twin.copy()
+    counts[1, 70:73] += [15.4, 2 * np.sqrt(60), 16]
+    counts[1:3, 100:] = twin[1:3, 100:] = 1000000
+    counts[3, 90] = 1
+    np.testing.assert_array_equal(
+        _onsets(counts, twin, SimConfig()), [75, 72, -1, 90, -1]
+    )
+    np.testing.assert_array_equal(_onsets(counts, twin, SimConfig(label="N")), -1)
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"epsilon": -0.01},
+        {"epsilon": 1.01},
+        {"epsilon": np.nan},
+        {"seed_region": -1},
+        {"seed_region": 0.5},
+        {"seed_region": True},
+        {"endemic_hazard": -1},
+        {"endemic_hazard": np.nan},
+        {"endemic_hazard": (0, np.inf)},
+    ],
+)
+def test_invalid_coupled_configuration_is_rejected(change):
+    from headd_l0.simulate import SimConfig
+
+    with pytest.raises(ValueError):
+        SimConfig(**change)
+
+
+@pytest.mark.parametrize(
+    "weights", [np.zeros((0, 0)), np.ones((2, 3)), np.ones((13, 13)), np.ones(13)]
+)
+def test_weights_must_be_square_and_row_normalized(weights):
+    from headd_l0.simulate import SimConfig, simulate
+
+    with pytest.raises(ValueError):
+        simulate(SimConfig(), weights, np.random.default_rng(42))
+
+
+@pytest.mark.parametrize(
+    "change", [{"seed_region": 13}, {"endemic_hazard": (0.001, 0.002)}]
+)
+def test_region_configuration_matches_weights(change):
+    from headd_l0.simulate import SimConfig, simulate
+
+    with pytest.raises(ValueError):
+        simulate(SimConfig(**change), _ring_weights(), np.random.default_rng(42))
+
+
+def test_regional_endemic_hazards_enter_the_local_flow():
+    from headd_l0.simulate import SimConfig, _integrate
+
+    latent, _, _ = _integrate(
+        SimConfig(endemic_hazard=(0, 0.001)),
+        np.array([0, 1]),
+        np.array([[100000.0, 0], [100000.0, 0]]),
+        np.zeros((1, 2, 2)),
+        "N",
+    )
+    np.testing.assert_allclose(latent.sum(axis=0), [0, 110], rtol=0, atol=1e-12)
