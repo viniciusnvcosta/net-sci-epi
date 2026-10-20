@@ -358,3 +358,270 @@ def test_cli_preparation_and_scoring_paths(tmp_path, monkeypatch, score):
         assert manifest["failure_reason"] == "D5_forecast_unavailable"
     else:
         assert "status" not in manifest
+
+
+def _smoke_config(tmp_path, run_id):
+    from dataclasses import replace
+
+    from headd_l0 import run
+
+    assert hasattr(run, "ExperimentConfig"), "missing E1 runner configuration"
+    cfg = run.load_config(Path("configs/e1_smoke.toml"))
+    return replace(cfg, output_dir=tmp_path, run_id=run_id)
+
+
+@pytest.fixture(scope="module")
+def e1_runs(tmp_path_factory):
+    import sys
+    from collections import Counter
+    from dataclasses import replace
+
+    from headd_l0 import run
+    from headd_l0.forecast import fit_nb2
+    from headd_l0.reconcile import fit_mint
+    from headd_l0.simulate import simulate
+
+    cfg = _smoke_config(tmp_path_factory.mktemp("e1"), "first")
+    tracked = {fn.__code__: fn.__name__ for fn in (simulate, fit_nb2, fit_mint)}
+    calls = Counter()
+
+    def count_real_calls(frame, event, _arg):
+        if event == "call" and frame.f_code in tracked:
+            calls[tracked[frame.f_code]] += 1
+
+    previous = sys.getprofile()
+    state = np.random.get_state()
+    sys.setprofile(count_real_calls)
+    try:
+        first = run.run(cfg)
+    finally:
+        sys.setprofile(previous)
+    records = pd.read_parquet(first.path / "replicates.parquet")
+    assert calls == {
+        "simulate": 12,
+        "fit_nb2": 12,
+        "fit_mint": int(records.fit_valid.sum()),
+    }
+    for before, after in zip(state, np.random.get_state(), strict=True):
+        np.testing.assert_equal(before, after)
+    second = run.run(
+        replace(cfg, run_id="second"),
+        arms=tuple(reversed(run.build_arms(cfg.n_placebos))),
+    )
+    return cfg, first, second
+
+
+def test_e1_configs_load_without_running_the_bench(tmp_path):
+    from headd_l0 import run
+
+    cfg = _smoke_config(tmp_path, "smoke")
+    assert (cfg.noise_types, cfg.epsilon_levels) == (("white",), (0.0, 0.2))
+    assert (cfg.n_transition, cfg.n_null, cfg.n_calibration, cfg.n_placebos) == (
+        2,
+        2,
+        2,
+        30,
+    )
+    bench = run.load_config(Path("configs/e1_bench.toml"))
+    assert (bench.noise_types, bench.epsilon_levels) == (
+        ("white", "env", "dem"),
+        (0, 0.05, 0.2),
+    )
+    assert (
+        bench.n_transition,
+        bench.n_null,
+        bench.n_calibration,
+        bench.n_placebos,
+    ) == (500, 500, 200, 30)
+    assert set(bench.detectors) == {"pca", "lof", "knn", "hbos", "iforest", "mcd"}
+    assert bench.selection_k == 5
+    assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("detectors", ("missing",)),
+        ("selector", "missing"),
+        ("threshold", "missing"),
+        ("reconciliation", "missing"),
+        ("root_seed", True),
+        ("run_id", "../escape"),
+        ("noise_types", ("wrong",)),
+        ("n_null", 0),
+        ("target_far", 0.1),
+    ],
+)
+def test_e1_configuration_rejects_invalid_execution(field, value, tmp_path):
+    from dataclasses import replace
+
+    cfg = _smoke_config(tmp_path, "invalid")
+    with pytest.raises(ValueError):
+        replace(cfg, **{field: value})
+
+
+def test_e1_has_exact_matrix_and_shared_replicates(e1_runs):
+    _, first, _ = e1_runs
+    records = pd.read_parquet(first.path / "replicates.parquet")
+    scores = pd.read_parquet(first.path / "scores.parquet")
+    metrics = pd.read_parquet(first.path / "metrics.parquet")
+    arms = {"B0", "B1*", "B2", *(f"B2-placebo-{i:02d}" for i in range(30))}
+    assert set(scores.arm) == arms
+    assert len(records) == 12  # Eight evaluation + four calibration; twins aren't N.
+    assert records.replicate_id.is_unique
+    assert records.groupby(["epsilon", "partition", "label"]).size().tolist() == [2] * 6
+    assert set(records.noise) == {"white"}
+    assert len(metrics) == 8 * 33 * 13
+    assert len(scores) == 12 * 33 * 13 * 72
+    assert (scores.groupby(["replicate_id", "task"]).arm.nunique() == 33).all()
+    assert metrics.groupby(["replicate_id", "task"]).onset.nunique().eq(1).all()
+    assert (
+        metrics.groupby(["replicate_id", "task"])
+        .timing_denominator.nunique()
+        .eq(1)
+        .all()
+    )
+    assert scores.score.notna().any(), "smoke must execute the real scoring pipeline"
+    assert metrics.loc[metrics.onset == -1, "restricted_lead"].isna().all()
+    missed = metrics.query("onset >= 0 and not detected and alarm_available")
+    assert missed.censored.all()
+    assert missed.restricted_lead.notna().all()
+
+
+def test_e1_saved_data_replays_from_disjoint_named_streams(e1_runs):
+    from headd_l0.graph import row_normalize
+    from headd_l0.simulate import SimConfig, simulate
+
+    _, first, _ = e1_runs
+    manifest = json.loads((first.path / "manifest.json").read_text())
+    records = pd.read_parquet(first.path / "replicates.parquet")
+    shared = np.load(first.path / "shared.npz")
+    graph = np.load(first.path / "graphs.npz")["observed"]
+    keys = [tuple(x) for x in records.spawn_key]
+    assert len(set(keys)) == 12
+    assert {
+        key[0] for key in records.query("partition == 'calibration'").spawn_key
+    } == {1}
+    assert {key[0] for key in records.query("partition == 'evaluation'").spawn_key} == {
+        2
+    }
+    for i, row in records.iterrows():
+        seed = np.random.SeedSequence(int(row.entropy), spawn_key=tuple(row.spawn_key))
+        result = simulate(
+            SimConfig(
+                noise=row.noise,
+                label=row.label,
+                epsilon=row.epsilon,
+                seed_region=int(row.seed_region),
+            ),
+            row_normalize(graph),
+            np.random.default_rng(seed),
+        )
+        np.testing.assert_array_equal(shared["counts"][i], result.counts)
+        np.testing.assert_array_equal(shared["twin_counts"][i], result.twin_counts)
+        np.testing.assert_array_equal(shared["onset"][i], result.onset)
+    assert manifest["work"]["simulation_calls"] == 12
+    assert manifest["work"]["forecast_fits"] == 12
+    assert manifest["work"]["mint_fits"] == int(records.fit_valid.sum())
+    assert manifest["work"]["pool_fits"] < int(records.fit_valid.sum()) * 33 * 13
+    coherent = shared["coherent_forecasts"][records.fit_valid]
+    np.testing.assert_allclose(coherent[:, 0], coherent[:, 1:].sum(axis=1), atol=1e-9)
+
+
+def test_e1_manifest_and_artifacts_are_deterministic_under_arm_reordering(e1_runs):
+    from hashlib import sha256
+
+    _, first, second = e1_runs
+    manifests = [
+        json.loads((r.path / "manifest.json").read_text()) for r in (first, second)
+    ]
+    required = {
+        "config",
+        "config_sha256",
+        "git_sha",
+        "git_dirty",
+        "versions",
+        "seeds",
+        "simulation_profile",
+        "graph_hashes",
+        "partitions",
+        "gates",
+        "effective_sizes",
+        "artifact_sha256",
+        "nondeterministic_fields",
+    }
+    assert required <= manifests[0].keys()
+    for result, manifest in zip((first, second), manifests, strict=True):
+        for name, digest in manifest["artifact_sha256"].items():
+            assert sha256((result.path / name).read_bytes()).hexdigest() == digest
+        assert manifest["interpretation_allowed"] is False
+        assert manifest["gates"]["G4"]["status"] == "pending"
+        assert manifest["gates"]["E0_star"]["status"] == "failed"
+        assert len(set(manifest["graph_hashes"].values())) == 31
+        assert manifest["settings"]["detectors"] == ["pca", "knn", "hbos"]
+        assert manifest["settings"]["selection"]["k"] == 2
+        assert manifest["graph_source"] == "synthetic_cycle_smoke_only"
+        assert manifest["endemic_source"] == "fixed_profile_smoke_only"
+        for key in manifest["nondeterministic_fields"]:
+            target = manifest
+            parts = key.split(".")
+            for part in parts[:-1]:
+                target = target[part]
+            del target[parts[-1]]
+    assert manifests[0] == manifests[1]
+    pd.testing.assert_frame_equal(first.metrics, second.metrics)
+
+
+def test_e1_thresholds_use_only_calibration_and_far_blocks_comparisons(e1_runs):
+    from headd_l0.threshold import calibration_report
+
+    _, first, _ = e1_runs
+    scores = pd.read_parquet(first.path / "scores.parquet")
+    far = pd.read_parquet(first.path / "far.parquet")
+    metrics = pd.read_parquet(first.path / "metrics.parquet")
+    comparisons = pd.read_parquet(first.path / "comparisons.parquet")
+    assert len(far) == 2 * 33 * 13
+    assert not far.passed.all()
+    assert len(comparisons) == 4 * 32 * 13
+    for row in far.itertuples():
+        selected = scores.loc[
+            (scores.epsilon == row.epsilon)
+            & (scores.arm == row.arm)
+            & (scores.task == row.task)
+        ]
+        calibration = (
+            selected.query("partition == 'calibration'").score.dropna().to_numpy()
+        )
+        evaluation = (
+            selected.query("partition == 'evaluation' and label == 'N'")
+            .score.dropna()
+            .to_numpy()
+        )
+        if len(calibration) and len(evaluation):
+            expected = calibration_report(calibration, 1 / 60)
+            assert row.threshold == expected.threshold
+            assert row.calibration_n == len(calibration)
+            assert row.n == len(evaluation)
+            assert row.observed_far == np.mean(evaluation > row.threshold)
+    failed = far.loc[~far.passed]
+    for row in failed.itertuples():
+        affected = comparisons.loc[
+            (comparisons.epsilon == row.epsilon)
+            & (comparisons.task == row.task)
+            & ((comparisons.arm == row.arm) | (comparisons.reference == row.arm))
+        ]
+        assert not affected.far_comparable.any()
+        assert affected.blocked_reason.str.contains("FAR").all()
+    assert not comparisons.interpretation_allowed.any()
+    assert not metrics.interpretation_allowed.any()
+    assert set(metrics.arm) == set(far.arm)
+
+
+def test_e1_run_is_immutable(e1_runs):
+    from headd_l0 import run
+
+    cfg, first, _ = e1_runs
+    before = (first.path / "manifest.json").read_bytes()
+    with pytest.raises(FileExistsError):
+        run.run(cfg)
+    assert (first.path / "manifest.json").read_bytes() == before

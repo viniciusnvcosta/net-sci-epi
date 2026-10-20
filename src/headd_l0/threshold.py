@@ -28,6 +28,42 @@ class Calibration:
     method: str
 
 
+@dataclass(frozen=True)
+class FARCheck:
+    """Independent null alarm count, eligible denominator and comparability gate."""
+
+    alarms: int
+    n: int
+    observed_far: float
+    passed: bool
+
+
+def check_far(alarms: np.ndarray, target_far: float, tolerance: float) -> FARCheck:
+    """Check evaluation-null alarms against an inclusive pre-registered FAR band.
+
+    Args:
+        alarms: Binary vector containing eligible evaluation-null months only.
+        target_far: Calibration target, fixed before evaluation.
+        tolerance: Allowed absolute deviation on either side of the target.
+    """
+    values = np.asarray(alarms)
+    if (
+        values.ndim != 1
+        or not values.size
+        or not np.isin(values, [0, 1]).all()
+        or not 0 < target_far < 1
+        or not 0 <= tolerance < target_far
+    ):
+        raise ValueError("invalid evaluation alarms or FAR band")
+    observed = float(values.mean())
+    return FARCheck(
+        int(values.sum()),
+        values.size,
+        observed,
+        target_far - tolerance <= observed <= target_far + tolerance,
+    )
+
+
 class _TailError(ValueError):
     """A valid sample cannot support the requested GPD fit."""
 

@@ -14,6 +14,18 @@ import numpy as np
 import pandas as pd
 
 from headd_l0.data import hierarchy, load_sivep
+from headd_l0.e1 import (
+    ArmSpec,
+    ExperimentConfig,
+    RunResult,
+    _digest,
+    _inputs,
+    _replicates,
+    _score,
+    build_arms,
+)
+from headd_l0.e1_artifacts import _artifacts, _manifest
+from headd_l0.graph import row_normalize
 from headd_l0.inject import InjectionConfig, inject_original_bounded
 from headd_l0.stats import task_bootstrap
 
@@ -133,12 +145,12 @@ class E0Config:
             object.__setattr__(self, name, Path(value).expanduser())
 
 
-def load_config(path: Path) -> E0Config:
-    """Read TOML; execution fields are required and validated by E0Config."""
+def load_config(path: Path) -> E0Config | ExperimentConfig:
+    """Read E0 or explicitly named E1 TOML without executing an experiment."""
     with Path(path).open("rb") as handle:
         values = tomllib.load(handle)
     try:
-        return E0Config(**values)
+        return (ExperimentConfig if "name" in values else E0Config)(**values)
     except TypeError as exc:
         raise ValueError(f"invalid E0 configuration: {exc}") from exc
 
@@ -253,6 +265,107 @@ def run_e0_scoring(cfg: E0Config) -> Path:
     return _score_e0(cfg, load_sivep(cfg.raw_dir).counts)
 
 
+def run(cfg: ExperimentConfig, *, arms: tuple[ArmSpec, ...] | None = None) -> RunResult:
+    """Run all synthetic replicates once and persist immutable technical evidence.
+
+    Args:
+        cfg: Validated smoke/bench design, including explicit input sources.
+        arms: Optional permutation of the complete arm set; RNG is order-stable.
+    """
+    canonical = build_arms(cfg.n_placebos)
+    if arms is not None and (
+        len(arms) != len(canonical) or set(arms) != set(canonical)
+    ):
+        raise ValueError("arms must be a permutation of the complete design")
+    arms = canonical
+    path = cfg.output_dir / cfg.run_id
+    path.mkdir(parents=True, exist_ok=False)
+    streams = dict(
+        zip(
+            ("data", "calibration", "evaluation", "placebos", "detectors", "bootstrap"),
+            np.random.SeedSequence(cfg.root_seed).spawn(6),
+            strict=True,
+        )
+    )
+    manifest = _manifest(cfg, streams, arms, REFERENCE_SHA)
+
+    def save():
+        (path / "manifest.json").write_text(
+            json.dumps(manifest, indent=2, allow_nan=False) + "\n"
+        )
+
+    save()
+    try:
+        graphs, hazards, provenance = _inputs(cfg, streams["placebos"])
+        manifest["graph_hashes"] = {
+            name: _digest(graph) for name, graph in graphs.items()
+        }
+        manifest["endemic_provenance"] = provenance
+        records, scores, shared = [], [], {}
+        for record, result, seed in _replicates(
+            cfg, row_normalize(graphs["observed"]), streams, hazards
+        ):
+            score, derived, audit = _score(result.counts, cfg, arms, graphs, seed)
+            records.append({**record, **audit})
+            scores.append(score)
+            for key, value in {
+                "counts": result.counts,
+                "twin_counts": result.twin_counts,
+                "onset": result.onset,
+                **derived,
+            }.items():
+                shared.setdefault(key, []).append(value)
+            print(
+                f"Scored {record['replicate_id']}; fit_valid={audit['fit_valid']}",
+                flush=True,
+            )
+        metrics, far = _artifacts(path, cfg, records, scores, shared, arms, graphs)
+        manifest["partitions"] = {
+            name: [r["replicate_id"] for r in records if r["partition"] == name]
+            for name in ("calibration", "evaluation")
+        }
+        manifest["effective_sizes"] = (
+            pd.DataFrame(records)
+            .groupby(["noise", "epsilon", "partition", "label"], sort=True)
+            .agg(n=("replicate_id", "size"), valid=("fit_valid", "sum"))
+            .reset_index()
+            .to_dict("records")
+        )
+        manifest["work"] = {
+            "simulation_calls": len(records),
+            "forecast_fits": len(records),
+            "mint_fits": sum(r["fit_valid"] for r in records),
+            "pool_fits": sum(r["pool_fits"] for r in records),
+        }
+        manifest["gates"]["D5"] = {
+            "status": "passed" if all(r["fit_valid"] for r in records) else "failed",
+            "failed_replicates": [
+                r["replicate_id"] for r in records if not r["fit_valid"]
+            ],
+            "fallback": "pending_specification_not_used",
+        }
+        manifest["gates"]["FAR"] = {
+            "status": "passed" if far.passed.all() else "failed",
+            "target": cfg.target_far,
+            "tolerance": cfg.far_tolerance,
+            "failed_pairs": far.loc[
+                ~far.passed, ["noise", "epsilon", "arm", "task"]
+            ].to_dict("records"),
+        }
+        manifest["artifact_sha256"] = {
+            p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in sorted(path.iterdir())
+            if p.name != "manifest.json"
+        }
+        manifest["status"] = "completed"
+        save()
+        return RunResult(path, "completed", metrics)
+    except Exception as exc:
+        manifest.update(status="failed", failure_reason=f"{type(exc).__name__}: {exc}")
+        save()
+        raise
+
+
 def main() -> int:
     """Prepare layer 0; exit 2 while E0* cannot authorize E1 interpretation."""
 
@@ -263,6 +376,12 @@ def main() -> int:
     parser.add_argument("--score-e0", action="store_true")
     args = parser.parse_args()
     cfg = load_config(args.config)
+    if isinstance(cfg, ExperimentConfig):
+        if args.score_e0:
+            parser.error("--score-e0 requires an E0 configuration")
+        result = run(cfg)
+        print(f"Artifacts: {result.path}; technical run only; interpretation blocked.")
+        return 2
     result = (
         run_e0_scoring(cfg)
         if args.score_e0

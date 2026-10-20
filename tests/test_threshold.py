@@ -105,3 +105,26 @@ def test_far_bound_survives_floating_point_budget_rounding():
     report = calibration_report(np.arange(50.0), target)
     assert report.achieved_far <= target
     assert report.threshold == 45.0
+
+
+@pytest.mark.parametrize(
+    "alarms,passed", [(0, False), (8, True), (10, True), (12, True), (13, False)]
+)
+def test_evaluation_far_gate_keeps_both_tolerance_boundaries(alarms, passed):
+    from headd_l0 import threshold
+
+    assert hasattr(threshold, "check_far"), "missing independent evaluation FAR gate"
+    result = threshold.check_far(np.arange(600) < alarms, 1 / 60, 1 / 300)
+    assert result.passed is passed
+    assert result.observed_far == alarms / 600
+    assert result.n == 600
+    assert result.alarms == alarms
+
+
+@pytest.mark.parametrize("alarms", [[], [np.nan], [0, 2], [[0, 1]]])
+def test_evaluation_far_gate_rejects_missing_or_invalid_denominators(alarms):
+    from headd_l0 import threshold
+
+    assert hasattr(threshold, "check_far"), "missing independent evaluation FAR gate"
+    with pytest.raises(ValueError):
+        threshold.check_far(np.asarray(alarms), 1 / 60, 1 / 300)
