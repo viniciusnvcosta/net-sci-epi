@@ -6,7 +6,7 @@ Este registro distingue **decisões tomadas** de **escolhas ainda pendentes**. C
 
 ## Resumo
 
-| ID      | Status (27/09/2026)                                    | Decisão em uma linha                                                                            |
+| ID      | Status (data indicada na linha quando atualizada)      | Decisão em uma linha                                                                            |
 | ------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
 | D-G0    | **Decidido**                                           | Saída (i): E0 inconclusivo; B1\* corrigido autorizado como baseline do E1′                      |
 | D-G0a   | **Em execução** (prazo 29/09)                          | Busca documentada da proveniência dos resultados apresentados do CDADE v1                       |
@@ -23,10 +23,13 @@ Este registro distingue **decisões tomadas** de **escolhas ainda pendentes**. C
 | D-COST  | **Decidido**, com pendência do hardware                | Gatilhos de 48 h e 96 h para a escada de redução                                                |
 | D-REACH | **Decidido**                                           | ≥ 50% em ε = 0,20, por tipo de ruído                                                            |
 | P5-SRC  | **Pendente** (29/09; proposta, sem aprovação)          | Paridade científica, perfil e revisão do critério CV por ruído                                   |
+| D-P5-IMPL | **Implementação autorizada** (19/10); ratificação científica pendente | Perfil técnico das equações 1–3 e fixture própria; G4 pendente, interpretação bloqueada |
 | D-L3    | **Pendente**                                           | Seleção e verificação dos eventos reais                                                         |
 | D-OPS   | **Decidido**                                           | Worktree persistente e disciplina de commits                                                    |
 
-Responsável por todas as decisões: autor do projeto. Fonte das recomendações: revisão metodológica de 27/09/2026 sobre a auditoria da Tarefa 1.
+Responsável pelas decisões científicas: autor do projeto. D-P5-IMPL registra
+somente autorização técnica, com origem indicada na entrada. Fonte das
+recomendações iniciais: revisão metodológica de 27/09/2026 sobre a auditoria da Tarefa 1.
 
 ---
 
@@ -379,3 +382,56 @@ adaptação mensal. Antes de Task 3/camada 1, aprovar perfil acoplado e faixa R0
 (D-GT2/D-GT4). A preparação Step 1 continua parcial sem fixture determinística,
 manifesto de referência e perfil aprovados. G4, E0* e interpretação E1′ não
 recebem aprovação desta nota.
+
+## D-P5-IMPL — Perfil técnico P5, 19/10/2026
+
+**Data:** 19/10/2026. **Escopo da autorização:** implementação e validação
+técnica, conforme a orientação do controlador da Task 2. Este registro não
+atribui ao autor do projeto uma aprovação científica que ainda não ocorreu.
+`scientific_ratification=pending`, `G4=pending` e
+`interpretation_allowed=false`. E0* e FAR continuam reprovados conforme a
+execução de 30/09; nenhuma mudança de seed, critério ou resultado é autorizada.
+
+**Duas escolhas independentes:**
+
+1. O alvo de implementação são as **equações 1–3 do suplemento de Gao**,
+   como exige o contrato de ruídos do AGENTS. O predecessor permanece uma
+   caracterização de divergências: não se reproduzem seu σ demográfico
+   adicional, resets aleatórios, estados carregados entre réplicas ou marcador
+   do segundo excedente. A equação demográfica usa a raiz quadrada simétrica
+   principal da covariância, sem σ adicional. Euler–Maruyama avalia ambos os
+   drifts no mesmo estado anterior e aplica clipping inferior em zero.
+2. A caracterização da fonte exige **paridade dos rótulos e tabelas
+   arquivados**: linhas 1–6000 T, 6001–12000 N; AR1(T)>AR1(N) nos três ruídos,
+   CV(T)<CV(N) em white e CV(T)>CV(N) em env/dem. Em white os valores são
+   `0.7695323012078741 < 0.8337873367675575`. Não trocar rótulos nem ajustar
+   parâmetros para obter a direção histórica oposta. Essa escolha **qualifica
+   o critério anterior somente para a caracterização técnica da fonte**;
+   substituí-lo como gate científico ainda exige ratificação explícita.
+
+Os seis pares de medianas e os hashes do suplemento, `Code.zip` v1 e três
+tabelas estão preservados no [registro de fonte](gao-source-preparation.md)
+e no [manifesto](../tests/reference/gao_manifest.json). As fontes externas
+foram verificadas em 29/09, estão ausentes localmente em 19/10 e não foram
+baixadas novamente. Conferir o registro não equivale a revalidar seus bytes.
+
+**Perfil fixado:** `P5-IMPL-2026-10-19-v1`, no manifesto, com todos os
+pré-requisitos numéricos explicitados no registro de fonte. Valores ausentes
+nas fontes são convenções identificadas, não estimativas epidemiológicas ou
+fatos de Gao, inclusive na adaptação mensal e no acoplamento/camada 1.
+
+**Evidência própria:** [gao_single.npz](../tests/reference/gao_single.npz),
+SHA-256 `3d40f2edb962e67482dfeb6d229528317bc2f5220e90befed2930cbf366d3c27`.
+Seis passos (`white/env/dem × T/N`), estados `[6,2]`, difusão `[6,2,2]`,
+`atol=1e-10, rtol=0`; esperados derivados com Decimal de 60 dígitos, sem
+código de produção ou dados externos. Não demonstra separação T/N.
+
+**Critérios técnicos:** JSON, SHA-256, keys/shapes/dtypes/rótulos, inputs,
+outputs e perfil completos; a implementação futura testa equações,
+covariância, clipping, calendário, θ=0/1 e determinismo. Paridade arquival
+solicitada falha se `Code.zip` estiver ausente. Novas medianas/contagens
+válidas são diagnósticos, sem tuning de CV branco.
+
+**Limite:** G4, D-GT2/D-GT4 para inferência e interpretação E1′ não recebem
+aprovação. Ratificação futura deve citar o perfil e seus diagnósticos;
+qualquer revisão será datada antes de usar resultados científicos.

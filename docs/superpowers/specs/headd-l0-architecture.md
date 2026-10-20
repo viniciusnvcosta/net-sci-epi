@@ -1,6 +1,6 @@
 # HEADD-Series L0 — arquitetura e decisões de implementação
 
-Data original: 26/09/2026. Atualização documental: 30/09/2026.
+Data original: 26/09/2026. Atualização documental: 19/10/2026.
 E0 inconclusivo; B1\* autorizado. O pré-gate histórico falhou por
 `single_class:PA`. D-E0*-R1 (28/09) revisou a condição 2 para ambas as
 classes nas 13 regiões, com PA descritivo. Scoring NB2 convergente executado
@@ -32,7 +32,7 @@ Fontes históricas lidas em 26/09 (hashes não representam a revisão atual): `A
 
 Referência CDADE: `/home/vinvs/projects/hybrid-theory`, commit **`fbfa609bba6cb0b0f2a9e8d73be18022aec319b7`**. As leituras de código usaram `git show HEAD:<path>`, não arquivos modificados do working tree. E0 deve fixar esse SHA completo, nunca resolver `HEAD` novamente durante uma execução. Os resultados locais não possuem, por si só, proveniência suficiente para certificar E0.
 
-Estado atual: Python ≥3.12; `src/headd_l0/`, testes e dependências do baseline já existem. P1–P2 estão implementados; P3 prepara injeção/classes; Task 0 integra e executou scoring NB2 convergente, com fallback ainda pendente. P4 grafo e P6 features estão `implementado` e `validado tecnicamente`; seus gates científicos não estão aprovados. P5 tem [preparação de fonte](../../gao-source-preparation.md) parcial, com manifesto/fixture/perfil pendentes; simulador futuro. Comandos atuais: [development](../../development.md).
+Estado atual: Python ≥3.12; `src/headd_l0/`, testes e dependências do baseline já existem. P1–P2 estão implementados; P3 prepara injeção/classes; Task 0 integra e executou scoring NB2 convergente, com fallback ainda pendente. P4 grafo e P6 features estão `implementado` e `validado tecnicamente`; seus gates científicos não estão aprovados. P5 tem [perfil técnico, manifesto e fixture próprios](../../gao-source-preparation.md#technical-profile-p5-impl-2026-10-19-v1) sob D-P5-IMPL (19/10): implementação/validação técnica autorizadas, simulador futuro, ratificação científica e G4 pendentes. Comandos atuais: [development](../../development.md).
 
 Não implementar M, REGIC, GNN, GANF/GDN, hhh4 completo, Tycho, L4/L5 ou SEIRS+ agent-based. B-Gao, B3/Φ e variante SEIRS são extensões condicionais, não dependências da entrega principal.
 
@@ -170,7 +170,7 @@ validados tecnicamente. Ver [alternativas históricas no E0](../plans/headd-l0-e
 Toda AUC-PR futura acompanha prevalência, janela e denominador; nenhuma seed
 substitui a 42 e não se escolhe cutoff de contraste olhando scores.
 
-As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). Continuam pendentes a faixa de R0 e o perfil do simulador (D-GT2/D-GT4), os eventos da camada 3 (D-L3) e a construção/tamanho do fallback D-GT3 de E0*. O caminho NB2 convergente foi executado, com E0*/FAR reprovados. Hardware registrado em 27/09; piloto D-COST ainda pendente.
+As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). D-P5-IMPL (19/10) fixa perfil e faixa técnica de R0; sua ratificação científica para D-GT2/D-GT4 continua pendente, assim como os eventos da camada 3 (D-L3) e a construção/tamanho do fallback D-GT3 de E0*. O caminho NB2 convergente foi executado, com E0*/FAR reprovados. Hardware registrado em 27/09; piloto D-COST ainda pendente.
 
 | Camada      | Ground truth / uso                                                                                                                                                                             | Regra                                                                                                                                                                                                              |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -182,7 +182,7 @@ As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/0
 
 O pulso de 3SD/atraso1 mês/amplitude0,5 é removido, sem sensibilidade paralela. Nas camadas 1/2 B2 é um oráculo porque o gerador usa A; a evidência central inclui comparação com placebos e padrão em ε. A soma epidêmica supõe ausência de interação com o fundo endêmico, inclusive depleção de suscetíveis compartilhados.
 
-Na camada 1, tamanho-alvo=k×mediana mensal de treino da semente, k proposto=(1,3,6); introdução uniforme72–118 inclusive, θ igual à bancada. Onset semente=introdução; demais=primeiro mês com casos importados observados≥1, ausência=−1. Tamanho = casos observados em excesso na semente, alvo k × max(mediana, 1), com o realizado sempre reportado; truncamento no mês 131 permitido e contado (D-GT4). Pendências bloqueantes: faixa de R0 e perfil SimConfig. Onsets da camada 2 continuam R0/2SD.
+Na camada 1, tamanho-alvo=k×mediana mensal de treino da semente, k proposto=(1,3,6); introdução uniforme72–118 inclusive, θ igual à bancada. Onset semente=introdução; demais=primeiro mês com casos importados observados≥1, ausência=−1. Tamanho = casos observados em excesso na semente, alvo k × max(mediana, 1), com o realizado sempre reportado; truncamento no mês 131 permitido e contado (D-GT4). D-P5-IMPL fixa R0 uniforme[1,2;1,8] e perfil para implementação; a ratificação científica desses valores continua bloqueante para interpretação. Onsets da camada 2 continuam R0/2SD.
 
 Antes de rodar braços, D-REACH mede fraçãoT com onset em ao menos um vizinho por ε/célula; mínimo ≥ 50% em ε = 0,20, por tipo de ruído (D-REACH). Abaixo disso, reportar sem poder, não resultado negativo; não ajustar o gerador olhando avaliação.
 
@@ -203,7 +203,7 @@ Os valores fixados por README/AGENTS são obrigatórios, salvo revisão explíci
 
 D-COST antecipa o piloto para ~02/10 após detectores+simulador acoplado, sem inverter a ordem de porte. Registrar o hardware antes do piloto; gatilhos sobre a projeção da execução completa: > 48 h → degrau (a), > 96 h → degrau (b). Escada: 30 placebos em 100T fixas/célula (rank compara B2 no mesmo subconjunto e preserva N); depois 200T+200N/célula; depois opcionais. IDs e parâmetros são congelados antes dos efeitos. A seleção existe; declarar custo da integração ainda não medida, sem certificar pipeline completo. Camada1 precede B-Gao/Φ/SEIRS; camada 0 não é cortada.
 
-Definir, no mesmo registro antes da implementação metapopulacional, Nᵢ (populações efetivas, não inferidas só de casos), θ, β₀/β₁, µ/γ, intensidade de cada ruído, sazonalidade e SD usada no onset. Proposta para a SD: desvio-padrão da série observada da gêmea nos 60 meses de treino, congelado; não SD do excesso pré-surto (que pode ser identicamente zero com números comuns). Estimar νᵢ só das medianas de treino, condicionado aos parâmetros fixados; ν e θ não são identificáveis separadamente por essas medianas. Essa definição quantitativa é um gate de desenho, com fonte e teste, não um default escondido no código.
+D-P5-IMPL fixa Nᵢ efetivo=100000 (não inferido de casos), θ=.5, R0=.8→1.6 na semente T, γ=1/14 e µ=1/365 por dia, ruídos, sazonalidade e demais convenções no [manifesto P5](../../../tests/reference/gao_manifest.json). SD do onset é o desvio-padrão amostral (`ddof=1`) da série observada da gêmea nos 60 meses de treino, congelado; SD=0 exige excesso estritamente positivo. Estimar νᵢ só das medianas de treino, condicionado aos parâmetros fixados; ν e θ não são identificáveis separadamente por essas medianas. Esse perfil autoriza implementação/validação técnica, mas continua sujeito à ratificação científica; nenhum parâmetro é default oculto nem fato epidemiológico atribuído a Gao.
 
 ## 8. Grafo, simulação e features
 
@@ -213,7 +213,19 @@ Rewiring com trocas duplas, graus por nó preservados, sem loops/arestas duplica
 
 O modelo de uma região precede o acoplamento: verificar SDEs 1–3, escalas temporais e observável I no [suplemento de Gao](https://journals.plos.org/ploscompbiol/article/file?id=10.1371/journal.pcbi.1012782.s001&type=supplementary). O artigo disponibiliza código/dados no [Zenodo](https://doi.org/10.5281/zenodo.10967222), referência para fixtures. A adaptação a incidência mensal observada é um segundo teste; não somar prevalências semanais e chamar o resultado de novos casos.
 
-Na extensão, aplicar `C=(1−ε)I+εW`, `λ_i=β_i(t)Σ_j C_ij I_j/N_j`; introduzir ν e sazonalidade documentados. Uma semana = 7 dias; integrar o último intervalo parcial e distribuir fluxos aos meses do calendário. Registrar clipping de compartimentos e frequência de projeções; incidência inteira antes da observação binomial, com a regra de discretização pré-registrada.
+Perfil técnico vigente: `P5-IMPL-2026-10-19-v1`, decisão
+[D-P5-IMPL](../../protocol-decisions.md#d-p5-impl--perfil-técnico-p5-19102026).
+A fixture própria cobre seis passos nas equações do suplemento com inputs e
+esperados independentes da produção, hash e tolerância absoluta `1e-10`.
+O predecessor é somente caracterização. Paridade da fonte preserva os
+rótulos arquivados e CV branco T<N; não exigir o sinal oposto nem equivalência
+entre features de I e incidência mensal. Isso qualifica o antigo critério
+direcional para validação técnica; sua substituição científica não foi
+ratificada. As fontes externas não estão disponíveis localmente para nova
+verificação: os hashes/medianas permanecem os registrados em 29/09.
+G4 continua pendente e `interpretation_allowed=false`.
+
+Na extensão, aplicar `C=(1−ε)I+εW`, `λ_i=β_i(t)Σ_j C_ij I_j/N_j`; introduzir ν e sazonalidade documentados. Uma semana = 7 dias; usar a união das fronteiras semanais e mensais, inclusive intervalos parciais e dias bissextos, com inovações independentes escaladas por sqrt(dt) real. Registrar clipping de compartimentos e frequência de projeções. Acumular fluxo de infecção em cada mês, arredondar estocasticamente uma única vez e observar por quantil binomial comum. Ver parâmetros e consequências no [perfil técnico](../../gao-source-preparation.md#monthly-adaptation-implementation-convention).
 
 Números comuns significam as mesmas inovações por `(réplica,semana,região,canal)`, incluindo observação; apenas reutilizar um seed com chamadas condicionais não garante isso. Usar inovações de tamanho fixo e quantis binomiais comuns para estados diferentes. ε=0 deve dar igualdade exata outbreak/twin nas regiões não sementes. Rótulos e onset nunca entram nas features.
 
@@ -232,7 +244,7 @@ Testes rápidos sem rede; integração geográfica/fixtures originais marcada; s
 ## 10. Questões que impedem execução automática
 
 1. D-E0*-R1 foi registrada antes da integração; PA é descritivo. E0* e FAR falharam na execução de 30/09, mantendo interpretação bloqueada. A especificação do fallback D-GT3 permanece pendente.
-2. Aprovar as convenções da §7 e parâmetros numéricos da simulação antes de E1; documentar se o critério de equivalência é aceito.
+2. Ratificar cientificamente as convenções da §7 e o perfil técnico D-P5-IMPL antes de interpretar E1; documentar se o critério de equivalência é aceito. Implementação/validação técnica de P5 já autorizadas não aprovam G4.
 3. Preservar D5 já aprovada: MinT sobre previsões de contagem, features sobre resíduos padronizados; P6 independe de P5.
 4. Obter malha com 13 regiões e conectividade compatível, ou registrar a variante antes dos placebos.
 

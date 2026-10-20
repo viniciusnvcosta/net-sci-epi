@@ -12,6 +12,11 @@ REFERENCE = Path(__file__).parent / "reference"
 
 @pytest.mark.parametrize("path", sorted(REFERENCE.glob("*.npz")), ids=lambda p: p.stem)
 def test_archived_arrays_match_pinned_hashes(path):
+    if path.name == "gao_single.npz":
+        # Project-generated Gao evidence has its own provenance and file hash.
+        fixture = json.loads((REFERENCE / "gao_manifest.json").read_text())["fixture"]
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == fixture["sha256"]
+        return
     manifest = json.loads((REFERENCE / "manifest.json").read_text())
     expected = manifest["array_sha256"][path.stem]
     with np.load(path, allow_pickle=False) as arrays:
