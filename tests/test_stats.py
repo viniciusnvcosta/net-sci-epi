@@ -3,9 +3,12 @@
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 from scipy.stats import norm, wilcoxon
 
+from headd_l0 import stats
+from headd_l0.data import hierarchy
 from headd_l0.stats import (
     _cliff_interval,
     block_bootstrap,
@@ -164,3 +167,102 @@ def test_short_circular_blocks_match_hand_checked_draws():
     # Wrap modulo5 and truncate to5 months/region -> means41.9,30.4,30.4.
     ci = block_bootstrap(delta, 2, np.random.default_rng(7), n_boot=3)
     np.testing.assert_allclose([ci.estimate, ci.low, ci.high], [34.1, 30.4, 41.325])
+
+
+def primary_comparisons():
+    """Known constant paired effects; placebo rows deliberately stop at T0099."""
+    return pd.DataFrame(
+        [
+            {
+                "noise": "white",
+                "epsilon": epsilon,
+                "replicate_id": f"white:{epsilon:g}:evaluation:T:{i:04d}",
+                "label": "T",
+                "task": task,
+                "arm": "B2",
+                "reference": reference,
+                "onset": 84 if j == 0 else -1,
+                "restricted_lead_gain": effect if j == 0 else np.nan,
+                "paired_eligible": j == 0,
+                "far_comparable": True,
+            }
+            for epsilon in (0.0, 0.2)
+            for reference, n, effect in [
+                ("B1*", 200, 0 if epsilon == 0 else 4),
+                *((f"B2-placebo-{p:02d}", 100, 1 if p < 29 else 0) for p in range(30)),
+            ]
+            for i in range(n)
+            for j, task in enumerate(hierarchy().leaves)
+        ]
+    )
+
+
+def test_primary_stratifies_epsilon_and_keeps_fixed_placebo_denominator():
+    result = stats.primary_analysis(
+        primary_comparisons(),
+        np.random.default_rng(8),
+        n_transition=200,
+        n_placebo_transition=100,
+        n_boot=50,
+    )
+    zero, coupled = result["cells"]
+    assert (zero["estimate"], zero["low"], zero["high"], zero["n_units"]) == (
+        0,
+        0,
+        0,
+        200,
+    )
+    assert (coupled["estimate"], coupled["low"], coupled["high"]) == (4, 4, 4)
+    assert coupled["placebo_rank"] == 29 / 30
+    assert coupled["placebo_n_units"] == 100
+    assert zero["equivalence_status"] == "not_ratified"
+    assert result["hypothesis_supported"] is None
+
+
+@pytest.mark.parametrize(
+    "defect", ["far", "missing_placebo", "wrong_subset", "missing_region"]
+)
+def test_primary_rejects_far_failure_and_unmatched_placebo_design(defect):
+    frame = primary_comparisons()
+    if defect == "far":
+        frame.loc[0, "far_comparable"] = False
+    elif defect == "missing_placebo":
+        frame = frame.loc[frame.reference != "B2-placebo-29"]
+    elif defect == "wrong_subset":
+        mask = (frame.reference == "B2-placebo-00") & frame.replicate_id.str.endswith(
+            "0099"
+        )
+        frame.loc[mask, "replicate_id"] = "white:0:evaluation:T:0100"
+    else:
+        frame = frame.iloc[1:]
+    with pytest.raises(ValueError):
+        stats.primary_analysis(
+            frame,
+            np.random.default_rng(8),
+            n_transition=200,
+            n_placebo_transition=100,
+            n_boot=10,
+        )
+
+
+def test_secondary_executes_all_pairwise_stages_in_protocol_order(monkeypatch):
+    # Spies retain real numerical behavior; moving a stage changes this trace.
+    stages = []
+    for name in ("friedmanchisquare", "wilcoxon", "diebold_mariano", "_cliff_interval"):
+        real = getattr(stats, name)
+
+        def record(*args, _name=name, _real=real, **kwargs):
+            stages.append(_name)
+            return _real(*args, **kwargs)
+
+        monkeypatch.setattr(stats, name, record)
+    auc = np.tile([0.1, 0.5, 0.9], (13, 1))
+    result = secondary_protocol(auc, np.zeros((13, 60, 3)), np.random.default_rng(4))
+    assert result.stop_reason is None
+    assert (
+        stages
+        == ["friedmanchisquare"]
+        + ["wilcoxon"] * 3
+        + ["diebold_mariano"] * 39
+        + ["_cliff_interval"] * 3
+    )

@@ -170,11 +170,25 @@ Liu et al. (2026) geraram um conjunto sintético com o modelo agent-based SEIRS+
 uv sync
 uv run pytest
 uv run python -m headd_l0.run configs/e0_star.toml  # pré-gate; exit 2 esperado
+uv run python -m headd_l0.e1_report results/task6-execution-20261020  # relatório; exit 2 esperado
 ```
 
 Comandos, configuração, artefatos e próximos passos estão no
-[guia de desenvolvimento](docs/development.md). O pré-gate atual não autoriza
-interpretação científica; o runner completo de E1′ pertence às próximas etapas.
+[guia de desenvolvimento](docs/development.md). O runner técnico suporta o
+desenho reduzido D-COST: 200 T para B2/B1* e o prefixo fixo T0000–T0099
+(100 T) para B2/placebos; braços inativos são omitidos. A bancada de 82–105 h
+não foi executada. E0 permanece inconclusivo, E0*/FAR falharam e G4/ratificação
+científica estão pendentes; `interpretation_allowed=false`.
+
+O [notebook E1](notebooks/e1_results.ipynb) usa o mesmo exportador. Este verifica
+o manifest e os hashes dos resultados preservados e grava tabelas de gates,
+denominadores, alcance, figura e limitações em `results/<run_id>/report/` antes
+de terminar com exit 2. É necessário um diretório `report/` novo; os artefatos
+de origem nunca são sobrescritos. Smoke e D-REACH são diagnósticos técnicos,
+sem inferência de efeitos científicos. Com autorização explícita e gates
+válidos, o exportador também produz bootstrap pareado estratificado seguido
+do rank estrito entre 30 placebos e termina com exit 0. A margem de equivalência
+em ε=0 continua sem ratificação, impedindo concluir o critério conjunto.
 
 ## 8 · Ambiente e dependências
 
