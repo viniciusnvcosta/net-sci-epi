@@ -1,5 +1,38 @@
 # HEADD-Series L0 Graph and Simulation Implementation Plan
 
+## Estado vigente — 21/10/2026 (D-RATIFY)
+
+[D-RATIFY-2026-10-21](../../protocol-decisions.md#d-ratify-2026-10-21--ratificação-científica-prospectiva) ratifica prospectivamente perfil/regras, sem aprovar gates ou alterar
+manifests. Registros datados e passos de implementação abaixo preservam a
+história; este estado precede seus rótulos antigos. E0 inconclusivo, E0*/FAR
+reprovados, G4/verificação de bytes oficiais pendentes; interpretação bloqueada.
+P5, runner D-COST e exportador descritivo existem. Camada 1/injeção/runner
+não implementados; bancada não executada (projeção serial 82,29–104,74 h).
+
+Perfil fixo `P5-IMPL-2026-10-19-v1`: equações Gao 1–3; fonte AR1(T)>AR1(N)
+em white/env/dem, CV(T)<CV(N) em white e > em env/dem; rótulos, seis pares de
+medianas/hashes a `1e-12`. Sem bytes: `source_archive_verification=pending`.
+Mensal: 64 T/64 N por ruído, AR1/CV, janelas válidas, clipping, conservação,
+θ e onsets sem sinais CV impostos. G4 exige também fonte/equações, determinismo
+e revisão científica; resumos mensais não o aprovam, sem tuning de seeds/perfil.
+
+Camada 1: R0 ~ Uniform[1.2,1.8], ν=0, k∈{1,3,6}, introdução 72–118 e
+fluxos/onsets D-GT2/D-GT4; 100 T por ruído/ε/k em IDs comuns a braços/placebos.
+São 27 células e 2.700 surtos antes do scoring. 200 N de calibração + 200 N
+de avaliação por região, disjuntos; precisão, custo, seeds estáveis e reuso
+entre células exigem desenho próprio antes de scoring, sem garantia de poder.
+Camada 2 mantém 200 T/200 N + 200 N calibração por célula e rank B2/placebos
+nos mesmos T0000–T0099 fixos (100 T), conforme D-COST.
+
+Equivalência ε=0: IC percentil pareado 95% (10.000 draws) do ganho médio
+restrito B2−B1* estritamente em (−1,+1) mês por ruído, e por k na camada 1;
+IC contendo zero é insuficiente. Bootstrap → rank estrito → decisão conjunta;
+29/30 passa, 28/30 falha. Nova execução E0* requer defeito independente
+reproduzido por teste falhando e corrigido em plano separado; manter B1* e
+registrar nova versão de código/perfil, seed e run ID. Conclusão RQ1′ positiva
+ou negativa exige camadas 0/1/2 completas, não-inferioridade L0, E0*, G4,
+D5, alcance, FAR comparável e todos os gates. Falha/incompletude = inconclusivo.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Produzir A/W e 30 placebos, validar SIR de uma região e sua extensão para 13 regiões, e entregar features relacionais causais.
@@ -25,7 +58,9 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
   no commit limpo `017bd1a` (30/09): `implementado` e `validado tecnicamente`.
   E0* falhou em `trivial_baseline` (limite inferior −0.20186060618499926);
   FAR falhou em ARAGUAIA/B1*, XINGU/B1* e RIO CAETES/zscore.
-  `interpretation_allowed=false`; fallback D-GT3 pendente, não utilizado.
+  `interpretation_allowed=false`; nenhum fallback foi usado no run histórico.
+  D-RATIFY-2026-10-21 agora exige NB2 inválido/não convergente → região/gate
+  indisponível, sem fallback em blocos no protocolo de 23/10.
   Detalhes: [execução real](../../development.md#resultado-real-e0-30092026).
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
   a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
@@ -52,18 +87,20 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 ## Arquivos e dependências
 
 Task 1 (P4) e Task 4 (P6) estão `implementado` e `validado tecnicamente`.
-A aquisição P4 real foi preservada; G3 não está `gate aprovado`. Task 2
-(P5) tem [preparação de fonte](../../gao-source-preparation.md), com Step 1
-parcial e perfil/fixture pendentes; Tasks 2–3 não têm integrador. Gravação
+A aquisição P4 real foi preservada; G3 não está `gate aprovado`. Tasks 2–3
+(P5) têm simulador técnico, manifesto, fixture e perfil ratificado; fonte
+oficial/diagnósticos/revisão G4 permanecem pendentes. Ver
+[preparação de fonte](../../gao-source-preparation.md). Gravação
 dos nomes e janelas elegíveis das features locais no E0* está implementada;
-features relacionais/EWS no runner E1 permanecem futuras. Os
+features relacionais são consumidas pelo runner E1 técnico; EWS opcionais
+não integram a entrega obrigatória. Os
 componentes E0 estão `implementado` e `validado tecnicamente`, sem
 `gate aprovado` para E0\* ou `interpretação autorizada` para E1′.
 
 Existem `graph.py`, `graph_io.py`, `features.py`, testes espelhados e
 `configs/l0_graph.toml`. `simulate.py`, `test_simulate.py`,
-`configs/sim_single.toml`, `tests/reference/gao_single.npz` e
-`gao_manifest.json` permanecem futuros. `docs/protocol-decisions.md`
+`tests/reference/gao_single.npz` e `gao_manifest.json` existem.
+`configs/sim_single.toml` permanece ausente; não é comando disponível. `docs/protocol-decisions.md`
 guarda decisões e propostas pendentes. Não adicionar módulo genérico de
 entidades/configuração.
 
@@ -107,7 +144,7 @@ Grafo completo/estrela sem alternativas deve levantar RuntimeError dentro do or�
 
 ### Task 2: Uma região e observação mensal — think
 
-**Status (29/09/2026):** Step 1 parcialmente preparado: equações, hashes,
+**Status histórico (29/09/2026; superado por D-P5-IMPL/D-RATIFY):** Step 1 parcialmente preparado: equações, hashes,
 parâmetros predecessores e tabelas congeladas estão
 [documentados](../../gao-source-preparation.md). A direção CV para ruído
 branco da fonte contradiz o critério planejado para todos os ruídos.
@@ -129,15 +166,15 @@ assert result.counts.shape == (1, 132)
 assert np.issubdtype(result.counts.dtype, np.integer)
 assert (result.counts >= 0).all()
 np.testing.assert_array_equal(result.counts, repeated.counts)
-assert np.median(ar1_t) > np.median(ar1_n)
-assert np.median(cv_t) > np.median(cv_n)
+# Monthly AR1/CV: report medians and valid-window counts, without sign assertions.
+# Archived source: AR1(T)>AR1(N) in all noises; CV(T)<CV(N) white, > env/dem.
 ```
 
-`repeated` é mesma chamada/seed; ar1/cv calculados no teste com fórmulas independentes e janelas pré-onset do manifesto. Parametrizar os três ruídos; não escolher seeds pela separação. Fixture de fluxo semanal constante deve conservar total ao atravessar mês/ano bissexto.
+`repeated` é mesma chamada/seed; ar1/cv mensais calculados com fórmulas independentes e janelas pré-onset do manifesto (64 T/64 N por ruído), sem impor sinais da fonte. Paridade arquivada separada exige bytes/rótulos/seis pares a `1e-12`; ausentes deixam `source_archive_verification=pending`. Não escolher seeds pela separação. Fixture de fluxo semanal constante deve conservar total ao atravessar mês/ano bissexto.
 
 - [ ] **Step 3:** `uv run pytest tests/test_simulate.py -m 'not slow' -v` → FAIL.
 - [ ] **Step 4: Implementar o SIR de uma região.** Euler–Maruyama com dt em unidades documentadas e `sqrt(dt)`; clipping em zero; integrar fluxos de infecção para casos, sem somar I como incidência. Verificar limites físicos e contabilizar projeções. Integração inclui intervalos parciais nas fronteiras do calendário. Observação binomial recebe inteiro não negativo; θ validado [0,1]. CLI lê `configs/sim_single.toml`, grava parâmetros, curvas e diagnósticos em results.
-- [ ] **Step 5:** Testes rápidos/checks → PASS; `uv run pytest -o addopts='' tests/test_simulate.py -m slow -v` e `uv run python -m headd_l0.simulate configs/sim_single.toml` → separação AR1/CV em **cada ruído**, tanto no observável usado para referência quanto diagnóstico da adaptação mensal. Se falhar, não acoplar/não ajustar parâmetros mirando o teste; reportar discrepância de observável/escala. Ainda não chamar isso de reprodução completa do artigo.
+- [ ] **Step 5:** Testes rápidos/checks → PASS; `uv run pytest -o addopts='' tests/test_simulate.py -m slow -v` e `uv run python -m headd_l0.simulate configs/sim_single.toml` → checks de equações/fonte e diagnósticos mensais completos, sem afirmar sinais CV mensais. `configs/sim_single.toml` é um comando futuro, ausente atualmente. G4 exige revisão científica e bytes oficiais; resumos mensais isolados não o aprovam. Se faltar/falhar evidência, não ajustar parâmetros/seeds; reportar discrepância/pendência. Ainda não chamar isso de reprodução completa do artigo.
 - [ ] **Step 6:** `git add src/headd_l0/simulate.py tests/test_simulate.py configs/sim_single.toml tests/reference/gao_single.npz tests/reference/gao_manifest.json docs/protocol-decisions.md MIGRATION.md` e `git commit -m "feat: validate single-region stochastic outbreak simulator"`.
 
 ### Task 3: Endemia, acoplamento, gêmeas e onsets — think
@@ -171,7 +208,7 @@ Também testar C identidade em ε=0, linhas somam 1 e orientação de W com graf
 
 ### Task 4: Representações causais e indicadores — default / Moran think
 
-**Status (29/09/2026):** P6 implementado e validado tecnicamente: 9 testes de features, 184 testes completos e ruff verde. O contrato de nomes/eixos é estável. Atualização 30/09: features locais consumidas pela Task 0; nomes e janelas registrados no manifesto após correção de proveniência, sem repetir o run real. Features relacionais/EWS no runner E1 aguardam Experimentos Task 4. Este status não aprova G5; E0* falhou no run de 30/09.
+**Status (29/09/2026):** P6 implementado e validado tecnicamente: 9 testes de features, 184 testes completos e ruff verde. O contrato de nomes/eixos é estável. Atualização 30/09: features locais consumidas pela Task 0; nomes e janelas registrados no manifesto após correção de proveniência, sem repetir o run real. Features relacionais são consumidas pelo runner E1 técnico desde o PR #3; isso não aprova gates. Este status não aprova G5; E0* falhou no run de 30/09.
 
 **Files:** Create `src/headd_l0/features.py`, `tests/test_features.py`; Modify `MIGRATION.md`.
 

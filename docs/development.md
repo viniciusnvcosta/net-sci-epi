@@ -2,8 +2,12 @@
 
 O repositório dispõe dos componentes da baseline B1*, da preparação da
 camada 0, do grafo regional P4 e das features P6, implementados e validados
-tecnicamente. P5 tem preparação científica de fonte parcial; simulador e runner
-completo de experimentos seguem os [planos de implementação](superpowers/plans/headd-l0-global.md).
+tecnicamente. Simulador P5, runner reduzido D-COST e exportador descritivo
+foram entregues no PR #3; camada 1 e seu runner não estão implementados.
+Bancada de 82–105 h não executada; E0*/FAR reprovados, G4 pendente.
+D-RATIFY-2026-10-21 ratifica regras/perfil, sem alterar gates ou manifests.
+Conclusão positiva ou negativa exige camadas 0/1/2 completas e todos os gates;
+falha/incompletude implica inconclusivo. Ver [plano global](superpowers/plans/headd-l0-global.md).
 As decisões científicas vigentes estão em [protocol-decisions.md](protocol-decisions.md).
 Os resumos portáteis e hashes dos artefatos preservados pelo PR #2 estão em
 [`docs/evidence/pr-2/`](evidence/pr-2/README.md).
@@ -149,23 +153,38 @@ A [nota científica](gao-source-preparation.md) registra fonte, hashes,
 equações, distribuições predecessoras, mediana das tabelas congeladas e
 comando de extração reproduzível sem executar o simulador. As tabelas
 oficiais rotulam 6000 T e 6000 N por ruído; para branco, CV mediano T
-`0.7695323012078741` é menor que N `0.8337873367675575`. O critério
-planejado de CV(T)>CV(N) em cada ruído permanece em vigor enquanto a
-[revisão científica](protocol-decisions.md#pending-p5-source-parity-and-profile-revision--29092026)
-está pendente. A Step 1 é parcial: `tests/reference/gao_manifest.json`,
-`gao_single.npz` e perfil de simulação aprovado ainda não existem.
-Nenhum simulador, scoring ou gate G4 foi executado/aprovado por esta nota.
+`0.7695323012078741` é menor que N `0.8337873367675575`. A
+[D-RATIFY-2026-10-21](protocol-decisions.md#d-ratify-2026-10-21--ratificação-científica-prospectiva)
+ratifica equações Gao 1–3 e perfil sintético fixo `P5-IMPL-2026-10-19-v1`.
+Manifesto e fixture `gao_single.npz` existem. Caracterização da fonte: AR1(T)>AR1(N)
+nos três ruídos; CV(T)<CV(N) em white e > em env/dem, seis pares/hashes a
+`1e-12`. Bytes oficiais ausentes: `source_archive_verification=pending`.
+A fixture verifica álgebra, não separação. Diagnósticos mensais fixos: 64 T/64 N
+por ruído, AR1/CV, janelas válidas, clipping, conservação, θ=0/1 e onsets;
+sem impor sinais CV da fonte ou ajustar perfil/seeds. G4 exige ainda checks
+de fonte/equações, testes determinísticos e revisão científica; permanece pendente.
 
 ## Próximas etapas
 
-1. Integrar A/W e placebos P4 e features locais/relacionais P6 ao runner,
-   mantendo os gates científicos separados da validação dos componentes.
-2. Completar P5 após decisão sobre paridade, critério CV e perfil científico;
-   validar uma região antes de acoplar.
-3. Task 0: caminho NB2 convergente implementado/validado e executado;
-   completar fallback D-GT3 somente após especificação aprovada. E0*/FAR
-   falharam no run preservado de 30/09, sem ajuste posterior de parâmetros.
-4. Manter interpretação bloqueada por E0*/FAR e pelos demais gates; `configs/e1_bench.toml` ainda não está disponível.
+1. Diagnosticar E0*/FAR em leitura: nova execução só após defeito independente
+   reproduzido por teste falhando e corrigido em plano separado. Manter B1*,
+   com versão de código/perfil, seed e run ID distintos; preservar 30/09.
+2. Verificar bytes oficiais, executar diagnósticos fixos e revisar G4;
+   ratificação das regras não é resultado de gate.
+3. Projetar camada 1 separadamente: R0 ~ Uniform[1.2,1.8], k∈{1,3,6},
+   100 T/célula ruído/ε/k (27 células, 2.700 surtos antes de scoring),
+   200 N calibração + 200 N avaliação por região disjuntos. Fixar precisão,
+   custo, seeds e reuso entre células antes de scoring; não há garantia de poder.
+4. Só após pré-requisitos, completar camadas 0/1/2. Camada 2 mantém D-COST:
+   200 T/200 N + 200 N de calibração/célula; rank em T0000–T0099 (100 T).
+   Em ε=0 exigir IC percentil 95% pareado (10.000 draws) estritamente em
+   (−1,+1) mês por ruído e por k na camada 1; 29/30 passa rank, 28/30 falha.
+   Calibração/avaliação disjuntas e FAR comparável são obrigatórias.
+5. `configs/e1_bench.toml` existe; sua existência não autoriza executar a
+   bancada. O exportador descritivo usa
+   `uv run python -m headd_l0.e1_report results/task6-execution-20261020`
+   (exit 2 esperado). Não verifica ainda
+   o critério conjunto das três camadas; nenhuma inferência é autorizada.
 
 ## Documentação de referência
 
@@ -198,9 +217,10 @@ FAR e bootstrap regional de 10.000 amostras. `components.log` contém a suíte
 executada para o SHA e hash do código. Os artefatos `.npz` preservam os nulos
 e scores; `far.parquet` separa FAR calibrada da observada.
 
-Falha de ajuste D5 impede MinT e AP e deixa manifesto explícito. O fallback
-D-GT3 continua pendente de construção/tamanho de bloco aprovados: Task 6 é
-parcial mesmo se o caminho NB2 convergente concluir. Exit 2 e
+Falha de ajuste D5 impede MinT e AP e deixa manifesto explícito. Pela
+D-RATIFY-2026-10-21, NB2 inválido/não convergente falha fechado: região/gate
+indisponível, sem fallback em blocos no protocolo de 23/10. A implementação
+dessa regra deve ser verificada em plano próprio; esta emenda não muda runtime. Exit 2 e
 `interpretation_allowed=false` continuam esperados, qualquer que seja o
 resultado E0*/FAR. Para worktrees aninhadas, use cópia temporária do TOML com
 `raw_dir` absoluto; preserve a configuração portátil versionada.

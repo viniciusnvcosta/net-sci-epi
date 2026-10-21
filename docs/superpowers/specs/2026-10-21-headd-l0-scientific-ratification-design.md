@@ -2,7 +2,7 @@
 
 **Date:** 21 October 2026
 
-**Status:** Design for author review. This document does not amend `docs/protocol-decisions.md`, approve a scientific gate, or authorize interpretation.
+**Status:** Approved by the project author on 21 October 2026 for protocol/status amendment and read-only E0* diagnosis under the approved SDD+TDD plan. Prospective rules are recorded in D-RATIFY-2026-10-21; approval does not pass a scientific gate or authorize interpretation.
 
 **Basis:** PR #3 at `194116d`, the preserved 30 September E0* run, and the 20 October D-COST/D-REACH record.
 

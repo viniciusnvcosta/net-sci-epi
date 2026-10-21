@@ -84,16 +84,16 @@ O ponto de partida é o SIR estocástico de Gao et al. (2025), com três fontes 
 4. **Variante SEIRS (robustez).** Compartimento E (latência) e perda de imunidade R → S, estruturas motivadas pelo SEIRS+ (§6).
 5. **Observação.** Integração Euler–Maruyama em passo semanal, agregada em contagens mensais (132 meses). A notificação é modelada por subnotificação binomial com taxa de testagem θ.
 6. **Ground truth.** Uso números aleatórios comuns: cada réplica T tem uma gêmea sem surto, com a mesma semente. O onset da região-semente é o mês em que R0 cruza 1 (Gao). O onset de cada outra região é o primeiro mês em que o excesso em relação à gêmea passa de 2 desvios-padrão.
-7. **Volume.** 3 ruídos × 3 níveis de ε × (500 T + 500 N) = 9.000 simulações de 13 × 132.
+7. **Volume.** O desenho inicial 500 T + 500 N foi reduzido por D-COST (20/10): 3 ruídos × ε∈{0,.05,.20} × (200 T + 200 N), mais 200 N de calibração por célula. B2/B1* usam 200 T; B2/placebos usam os mesmos T0000–T0099 (100 T). Bancada não executada; projeção serial 82,29–104,74 h.
 
 O nível ε = 0 é um controle interno de falsificação. Sem propagação, A não pode ajudar; qualquer ganho nesse nível indica vazamento no pipeline.
 
-**Validação do simulador (antes de acoplar):** com uma única região, reproduzir a separação T/N dos indicadores AR1 e CV reportada no suplementar de Gao et al. (Figs. F–H).
+**Validação do simulador:** D-RATIFY-2026-10-21 ratifica o perfil sintético fixo `P5-IMPL-2026-10-19-v1` e as equações Gao 1–3, sem estimativa epidemiológica. A fonte exige AR1(T)>AR1(N) em white/env/dem, CV(T)<CV(N) em white e CV(T)>CV(N) em env/dem, rótulos e seis pares de medianas/hashes preservados a `1e-12`. Sem bytes oficiais, `source_archive_verification=pending`. A adaptação mensal reporta 64 T/64 N por ruído (AR1/CV, janelas válidas, clipping, conservação, θ e onsets), sem impor sinais CV da fonte. G4 exige fonte/equações, diagnósticos, testes determinísticos e revisão científica; resumos mensais não o aprovam. Não ajustar perfil/seeds para obter sinais.
 
 ### 5.2 Bancada semi-real: ground truth em camadas
 
-- **Camada 0 — anomalias locais.** Usa injeções finitas de spikes, level shifts e drifts (D-GT1), com treino intacto e PA recalculado. Não é evidência de propagação. A não-inferioridade B2−B1* exige limite inferior do IC95% ≥ −0,02, bootstrap pareado sobre as13regiões e PA separado. E0 permanece inconclusivo; E0* é o gate substituto. O pré-gate histórico falhou porque PA tem uma só classe na janela de teste; D-E0*-R1 (28/09) implementou a condição regional com PA descritivo. O scoring NB2 convergente foi concluído em 30/09 no commit limpo `017bd1a`, com o run `e0-star-scoring-20260930` preservado: E0* falhou em `trivial_baseline` (limite inferior −0.20186060618499926) e FAR falhou em ARAGUAIA/B1*, XINGU/B1* e RIO CAETES/zscore. A interpretação permanece bloqueada; o fallback D-GT3 ainda não foi especificado. Ver [resultado real](docs/development.md#resultado-real-e0-30092026).
-- **Camada 1 — injeção epidêmica.** Substitui o pulso ad hoc por casos adicionais gerados pelo componente de surto de `simulate.py`, com fundo endêmico desligado e propagação por `C=(1−ε)I+εW`. Somar a uma cópia das contagens reais e recalcular PA; não criar um segundo simulador. Níveis propostos k=(1,3,6) vezes a mediana mensal de treino da semente; introdução uniforme em 72–118, θ igual à bancada e faixa R0 pré-registrada. Domínio do tamanho e demais parâmetros ainda precisam ser fixados.
+- **Camada 0 — anomalias locais.** Usa injeções finitas de spikes, level shifts e drifts (D-GT1), com treino intacto e PA recalculado. Não é evidência de propagação. A não-inferioridade B2−B1* exige limite inferior do IC95% ≥ −0,02, bootstrap pareado sobre as13regiões e PA separado. E0 permanece inconclusivo; E0* é o gate substituto. O pré-gate histórico falhou porque PA tem uma só classe na janela de teste; D-E0*-R1 (28/09) implementou a condição regional com PA descritivo. O scoring NB2 convergente foi concluído em 30/09 no commit limpo `017bd1a`, com o run `e0-star-scoring-20260930` preservado: E0* falhou em `trivial_baseline` (limite inferior −0.20186060618499926) e FAR falhou em ARAGUAIA/B1*, XINGU/B1* e RIO CAETES/zscore. A interpretação permanece bloqueada; D-RATIFY-2026-10-21 determina falha fechada para NB2 inválido/não convergente, sem fallback em blocos. Ver [resultado real](docs/development.md#resultado-real-e0-30092026).
+- **Camada 1 — injeção epidêmica.** Substitui o pulso ad hoc por casos adicionais gerados pelo componente de surto de `simulate.py`, com fundo endêmico desligado e propagação por `C=(1−ε)I+εW`. Somar a uma cópia das contagens reais e recalcular PA; não criar um segundo simulador. Perfil ratificado `P5-IMPL-2026-10-19-v1`, `R0 ~ Uniform[1.2,1.8]`, k∈{1,3,6}, alvo `k × max(mediana de treino da semente,1)`, introdução 72–118 inclusive, θ igual à bancada; reportar tamanho realizado e truncamento. Planejar 100 T por ruído/ε/k, mesmas IDs para todos os braços/placebos: 27 células e 2.700 surtos antes do scoring. Precisão, custo, seeds estáveis e reuso de nulos entre células aguardam desenho próprio; nenhuma garantia de poder é dada. Runner/injeção não implementados; execução aguarda G4 e E0*.
 - **Camada 2 — bancada inteiramente sintética.** Mantém o mecanismo e os onsets da §5.1; dimensionamento pode seguir somente a escada de custo pré-registrada.
 - **Camada 3 — eventos documentados.** Checagem qualitativa no notebook 02, com fontes verificadas, sem critério formal.
 
@@ -116,19 +116,19 @@ Entre B1* e B2 muda uma única coisa: a informação relacional disponível. Poo
 
 ### 5.4 Métricas e critério de validação
 
-**Calibração.** FAR alvo=1/60 por região-mês em todos os braços. Nos dados reais, a proposta é ajustar uma binomial negativa com harmônicos sazonais e tendência somente nos 60 meses de treino de cada região e gerar 200 séries nulas por região. Calibração e avaliação usam realizações e seeds independentes; PA é soma das folhas. Tolerância proposta da FAR observada=1/300. Bootstrap em blocos do treino fica como diagnóstico secundário. Especificação do nulo e tamanho da avaliação devem ser registrados antes da execução; adequação ao modelo não prova ausência de surtos naturais.
+**Calibração.** FAR alvo=1/60 por região-mês, tolerância=1/300. D-GT3 usa NB2 com tendência e dois pares de harmônicos ajustada somente nos 60 meses de treino; 200 séries de calibração e 200 de avaliação por região, streams disjuntos, PA soma das folhas. D-RATIFY-2026-10-21 determina fit NB2 inválido/não convergente → região/gate indisponível, sem fallback em blocos. Nulo em blocos exige experimento e ratificação separados; adequação ao modelo não prova ausência de surtos naturais.
 
 **Métricas.** Lead time, probabilidade de detecção, FAR observada, AUC T/N, AUC-PR, F1 e NAB. Registrar atraso=`alarme−onset` e lead=`onset−alarme`, para que ganho B2−baseline positivo signifique detecção mais cedo; censura e equivalência ε=0 dependem das convenções pré-registradas.
 
 **Alcance.** Antes de executar os braços, reportar por ε/célula a fração de T com onset em ao menos um vizinho da semente. Mínimo proposto≥50% em ε=.20. Célula abaixo do mínimo é sem poder, não evidência negativa; não ajustar parâmetros olhando avaliação para passar o gate.
 
-**Inferência principal, camadas 1/2.** Bootstrap pareado do ganho por réplica, estratificado por ε, seguido da posição de B2 nos 30 placebos. Sustentar RQ1′ exige conjuntamente IC95% do ganho>0 nos níveis ε>0, equivalência pré-registrada em ε=0 e rank estrito>.95 nos placebos. Com redução de custo, B2 e placebos são comparados no mesmo subconjunto fixo de réplicas; registrar dimensão efetiva.
+**Inferência principal, camadas 1/2.** Bootstrap pareado do ganho por réplica, estratificado por ε, seguido da posição de B2 nos 30 placebos. Sustentar RQ1′ exige conjuntamente IC95% do ganho>0 nos níveis ε>0, equivalência em ε=0 (IC percentil pareado 95%, 10.000 draws, do ganho médio restrito B2−B1* estritamente dentro de (−1,+1) mês por ruído e por k na camada 1) e rank estrito>.95 nos placebos (29/30 passa, 28/30 falha; empates não contam). IC contendo zero não demonstra equivalência. Com redução de custo, B2 e placebos são comparados no mesmo subconjunto fixo de réplicas; registrar dimensão efetiva.
 
 **Camada 0.** E0 inconclusivo e não-inferioridade são análises distintas. A regra aprovada D-GT1 usa o limite inferior do IC95% de ΔAUC-PR(B2−B1*) e reamostra as13regiões; PA é reportado à parte. Piora é custo do método, não refutação isolada de RQ1′.
 
 **Protocolo secundário real.** Manter Friedman→Wilcoxon/Bonferroni→Diebold-Mariano/HAC→Cliff/IC95%, interrompendo os testes seguintes se Friedman p>.05; não substituir por ele os critérios principais da camada 1.
 
-**Gates e conclusão.** D-G0 autorizou B1* corrigido com E0 inconclusivo. E0* e os outros gates continuam obrigatórios; seu estado executável está em [guia de desenvolvimento](docs/development.md#preparação-da-camada-0-e-limite-científico). Critério científico não satisfeito com gates válidos é resultado negativo para a bancada; gate inválido ou alcance insuficiente é inconclusivo. Não expandir o grafo nem ajustar a baseline para resgatar a hipótese.
+**Gates e conclusão.** Conclusão positiva ou negativa exige camadas 0/1/2 completas, não-inferioridade L0 e todos os gates, incluindo E0*, G4, D5, alcance e FAR comparável. Evidência incompleta ou comparação indisponível é inconclusiva. Novo E0* só é elegível após defeito independente reproduzido por teste falhando e corrigido em plano separado, preservando B1* e registrando nova versão de código/perfil, seed e run ID. D-G0 autorizou B1* corrigido com E0 inconclusivo. E0* e os outros gates continuam obrigatórios; seu estado executável está em [guia de desenvolvimento](docs/development.md#preparação-da-camada-0-e-limite-científico). Critério científico não satisfeito com gates válidos é resultado negativo para a bancada; gate inválido ou alcance insuficiente é inconclusivo. Não expandir o grafo nem ajustar a baseline para resgatar a hipótese.
 
 ### 5.5 Análise de rede complementar
 
@@ -177,8 +177,8 @@ Comandos, configuração, artefatos e próximos passos estão no
 [guia de desenvolvimento](docs/development.md). O runner técnico suporta o
 desenho reduzido D-COST: 200 T para B2/B1* e o prefixo fixo T0000–T0099
 (100 T) para B2/placebos; braços inativos são omitidos. A bancada de 82–105 h
-não foi executada. E0 permanece inconclusivo, E0*/FAR falharam e G4/ratificação
-científica estão pendentes; `interpretation_allowed=false`.
+não foi executada. E0 permanece inconclusivo, E0*/FAR falharam e G4/verificação de fonte
+estão pendentes; regras e perfil foram ratificados por D-RATIFY-2026-10-21; `interpretation_allowed=false`.
 
 O [notebook E1](notebooks/e1_results.ipynb) usa o mesmo exportador. Este verifica
 o manifest e os hashes dos resultados preservados e grava tabelas de gates,
@@ -190,7 +190,9 @@ sem inferência de efeitos científicos. Com autorização explícita e gates
 válidos, bancada concluída e cobertura dos três ruídos × três ε pré-registrados,
 o exportador também produz bootstrap pareado estratificado seguido
 do rank estrito entre 30 placebos e termina com exit 0. A margem de equivalência
-em ε=0 continua sem ratificação, impedindo concluir o critério conjunto.
+em ε=0 foi ratificada em ±1 mês; sua aprovação em dados permanece pendente.
+O exportador atual não verifica a conclusão conjunta das três camadas;
+esta emenda documental não muda seu comportamento nem autoriza inferência.
 
 ## 8 · Ambiente e dependências
 

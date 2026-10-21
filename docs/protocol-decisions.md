@@ -17,13 +17,14 @@ Este registro distingue **decisões tomadas** de **escolhas ainda pendentes**. C
 | D5      | **Decidido**                                           | Reconciliar previsões de contagem um passo à frente; detectores consomem resíduos reconciliados |
 | D6      | **Decidido**                                           | Seleção causal conforme E0 Tarefa 6                                                             |
 | D-GT1   | **Decidido**                                           | Camada 0 com anomalias de duração finita; não-inferioridade pelo limite inferior do IC          |
-| D-GT2   | **Decidido**, com pendência de parâmetros do simulador | Injeção epidêmica com proveniência explícita de casos importados                                |
+| D-GT2   | **Ratificado prospectivamente** (21/10; D-RATIFY) | Injeção epidêmica com proveniência explícita de casos importados                                |
 | D-GT3   | **Decidido**                                           | Nulo paramétrico NB2 com tendência e dois pares de harmônicos                                   |
-| D-GT4   | **Decidido**, com pendência da faixa de R0             | Tamanho, truncamento e onsets definidos                                                         |
+| D-GT4   | **Ratificado prospectivamente** (21/10; D-RATIFY) | Tamanho, truncamento e onsets definidos                                                         |
 | D-COST  | **Aferido** (20/10); subset implementado na Task 6b    | Degraus (a)+(b) representados; bancada não executada, interpretação bloqueada                     |
 | D-REACH | **Aferido** (20/10)                                    | ≥ 50% em ε = 0,20 nos três ruídos, com 200 T/célula                                              |
-| P5-SRC  | **Pendente** (29/09; proposta, sem aprovação)          | Paridade científica, perfil e revisão do critério CV por ruído                                   |
-| D-P5-IMPL | **Implementação autorizada** (19/10); ratificação científica pendente | Perfil técnico das equações 1–3 e fixture própria; G4 pendente, interpretação bloqueada |
+| P5-SRC  | **Regra ratificada** (21/10); bytes/G4 pendentes | Paridade científica, perfil e revisão do critério CV por ruído                                   |
+| D-P5-IMPL | **Perfil ratificado** (21/10); G4 pendente | Perfil técnico das equações 1–3 e fixture própria; G4 pendente, interpretação bloqueada |
+| D-RATIFY-2026-10-21 | **Ratificado** (21/10); gates inalterados | Perfil/regras prospectivos, equivalência, NB2 fechado e três camadas obrigatórias |
 | D-L3    | **Pendente**                                           | Seleção e verificação dos eventos reais                                                         |
 | D-OPS   | **Decidido**                                           | Worktree persistente e disciplina de commits                                                    |
 
@@ -32,7 +33,8 @@ Este registro distingue **decisões tomadas** de **escolhas ainda pendentes**. C
 B2/placebos. P8/P9 descritivo foi entregue na Task 7 (`2719cfa`, revisão
 `387eadd`), com notebook e exportador de tabelas/figuras/limitações, exit 2 e
 `interpretation_allowed=false`. A bancada de 82–105 h permanece não executada;
-E0 inconclusivo, E0*/FAR reprovados, G4/ratificação científica pendentes.
+E0 inconclusivo, E0*/FAR reprovados e G4 pendente. D-RATIFY-2026-10-21
+ratifica regras/perfil prospectivos, sem aprovar qualquer gate.
 Smoke e D-REACH são evidência técnica, sem efeitos científicos inferidos.
 Os registros datados abaixo preservam os estados históricos de cada execução.
 
@@ -506,3 +508,114 @@ D5/FAR da bancada `not_evaluated`. O smoke tem artefatos próprios e não
 substitui métricas da bancada. E0 `inconclusive`, E0* `failed`, G4 e
 ratificação científica `pending`, `interpretation_allowed=false`.
 P8/P9/Task 7 não foram executadas.
+
+## D-RATIFY-2026-10-21 — Ratificação científica prospectiva
+
+**Data:** 21/10/2026. **Responsável:** autor do projeto. **Fonte:** aprovação
+explícita da [spec de ratificação](superpowers/specs/2026-10-21-headd-l0-scientific-ratification-design.md)
+e do plano de execução SDD+TDD. Ratificar regras não aprova gates em dados nem
+altera manifests ou resultados históricos. `interpretation_allowed=false`.
+
+**Precedência:** esta entrada substitui prospectivamente a exigência de CV(T)>CV(N)
+em todos os ruídos de AGENTS/plano grafo-simulação e resolve as pendências
+científicas de [P5-SRC](#pending-p5-source-parity-and-profile-revision--29092026)
+e [D-P5-IMPL](#d-p5-impl--perfil-técnico-p5-19102026); fixa a faixa de R0 de
+[D-GT2](#d-gt2--camada-1-injeção-epidêmica)/[D-GT4](#d-gt4--escala-forma-e-onsets-da-camada-1)
+e a equivalência ε=0; substitui o fallback de [D-GT3](#d-gt3--nulo-paramétrico-para-calibrar-a-far-nos-dados-reais).
+Não substitui os resultados E0*/FAR de 30/09, D-E0*-R1, D5, D-GT1,
+D-COST ou D-REACH. As entradas anteriores são registros datados preservados.
+
+### P5, fonte e G4
+
+O alvo de equações é o suplemento de Gao, equações 1–3; o predecessor serve
+somente para caracterizar divergências. `P5-IMPL-2026-10-19-v1` fica ratificado
+como perfil sintético fixo, com parâmetros, população efetiva, taxas, θ,
+conversão temporal, burn-in e onsets do [manifesto](../tests/reference/gao_manifest.json)
+e da [preparação Gao](gao-source-preparation.md). Não é estimativa epidemiológica
+do Pará nem reprodução exata de trajetórias upstream. Mudança exige novo
+perfil datado e invalida comparabilidade com execuções do perfil anterior.
+
+Caracterização arquivada: manter rótulos T/N; AR1(T)>AR1(N) em white/env/dem;
+CV(T)<CV(N) em white e CV(T)>CV(N) em env/dem. Conferir os seis pares de
+medianas à tolerância `1e-12`, com os bytes oficiais e hashes abaixo. As fontes
+estão ausentes localmente; `source_archive_verification=pending`. Conferência
+do registro não é nova verificação dos bytes. A fixture algébrica usa
+`atol=1e-10, rtol=0` e não demonstra separação T/N.
+
+| Fonte/fixture | SHA-256 preservado |
+| --- | --- |
+| Suplemento | `ea467449c4cc4de2e4e0d23a3053188f24d99017f1cb58b009f1d8e442f0e8a6` |
+| `Code.zip` v1 | `3b519acdbc598c6129a3c5ea49715800e8dd4bc84d4644ad578bd2ee720e3e35` |
+| Tabela white | `c2d2684af45c975c1813ad243de2799cfaeb35b66f9734ac3ac32dc598fa82e5` |
+| Tabela env | `079f4720537722cad787b78be27b81ac94483c97c53dddd237ad60b5d5946714` |
+| Tabela dem | `7039d780069cf2c28350a9d55b7d9617527f8af54c699a190ae7605ef819f840` |
+| `gao_single.npz` | `3d40f2edb962e67482dfeb6d229528317bc2f5220e90befed2930cbf366d3c27` |
+
+A adaptação mensal mede incidência observada, outro observável. Reportar os
+64 T/64 N por ruído pré-especificados: medianas AR1/CV, janelas válidas,
+clipping, conservação de incidência, limites θ=0/1 e cobertura de onset.
+Não impor os sinais CV da tabela-fonte às contagens mensais. G4 requer
+checks de fonte/equações, diagnósticos mensais completos, testes determinísticos
+e revisão científica dos diagnósticos fixos. Resumos mensais não aprovam G4
+por si. Não ajustar parâmetros ou seeds para obter sinal preferido. G4 segue
+pendente, inclusive enquanto faltarem os bytes oficiais.
+
+### Inferência, equivalência e camadas obrigatórias
+
+Em ε=0, para cada ruído pré-registrado, o IC percentil 95% de bootstrap
+pareado (10.000 draws) da média do ganho de lead restrito `B2 − B1*` deve
+estar estritamente dentro de **(−1,+1) mês**. Na camada 1 aplicar separadamente
+a cada `k ∈ {1,3,6}`. A margem ±1 mês é tolerância de desenho na resolução
+mensal; IC contendo zero é insuficiente. Não selecionar estrato favorável.
+
+Em ε>0, preservar a ordem bootstrap pareado → rank estrito nos 30 placebos →
+critério conjunto. B2/placebos usam os mesmos 100 IDs T congelados:
+`29/30 > .95` passa o rank; `28/30` falha, empates não contam. Reportar
+probabilidade de detecção, censura, timing indisponível e denominadores
+efetivos junto do ganho. Comparar somente pares completos com FAR válida em
+N de avaliação independente, no alvo/tolerância pré-declarados.
+
+Conclusão RQ1′ positiva **ou negativa** exige evidência completa das camadas
+0, 1 e 2, não-inferioridade da camada 0 (D-GT1), E0*, G4, D5, alcance, FAR
+comparável e todos os gates aplicáveis. Bancada completa isolada não basta.
+Falha de gate, execução incompleta ou comparação indisponível implica
+**inconclusivo** no relatório de 23/10. Preservar o protocolo real secundário
+ordenado; nenhum opcional entra no caminho crítico.
+
+### Camada 1: valores e planejamento próprios
+
+Ratificar as convenções acopladas de `P5-IMPL-2026-10-19-v1`, incluindo
+`R0 ~ Uniform[1.2,1.8]`, como escolhas sintéticas fixas. Preservar fluxos
+local/importado, ν=0 no componente epidêmico, `k ∈ {1,3,6}`, introdução em
+72–118 inclusive, θ do perfil, tamanho-alvo `k × max(mediana de treino,1)`,
+tamanho realizado/truncamento reportados e onset importado de D-GT2/D-GT4.
+Somar fluxo observado a cópia imutável das contagens; PA = soma regional.
+
+O desenho prevê **100 T pareadas por célula ruído/ε/k**, mesmos IDs para
+cada braço ativo/placebo. Com white/env/dem, ε∈{0,.05,.20} e três k, são
+27 células e **2.700 realizações de surto antes do scoring dos braços/placebos**.
+D-GT3 mantém 200 N de calibração + 200 N de avaliação por região, em streams
+disjuntos. O desenho próprio da camada 1 deve fixar precisão, custo,
+endereços estáveis de seeds, eventual reuso de nulos entre células e streams
+antes do scoring. Esta emenda não estabelece garantia de poder nem regra de
+reuso entre células. Os 200 T/célula de D-COST pertencem à camada 2.
+Camada 1 e seu runner não estão implementados; aguardam spec/plano próprios,
+G4 e E0* antes da execução.
+
+### E0*, FAR real e falha NB2
+
+Preservar `results/e0-star-scoring-20260930`, com E0*/FAR reprovados e limite
+inferior `-0.20186060618499926`. Diagnóstico é somente leitura: AP regional,
+previsões, orientação, causalidade e calibração. Nova execução de gate só é
+elegível após defeito de implementação justificado independentemente,
+reproduzido por teste falhando e corrigido em plano separado. Manter
+`baseline_id=B1*`; registrar versão de código/perfil, seed e run ID distintos.
+Sem defeito demonstrado ou com nova falha, interpretação permanece bloqueada;
+um passe posterior não reescreve a falha histórica.
+
+D-GT3 passa a **falhar fechado**: fit NB2 regional não convergente ou inválido
+marca a região/gate indisponível. Não trocar silenciosamente para bootstrap
+em blocos. Um nulo em blocos exige experimento separado e ratificação futura;
+não é fallback do protocolo de 23/10. Os 14 fits históricos convergiram;
+a emenda não explica nem modifica suas falhas. FAR alvo **1/60** e tolerância
+**1/300** permanecem. Nenhum status programático é alterado nesta ratificação.
