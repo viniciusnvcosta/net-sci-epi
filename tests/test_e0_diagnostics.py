@@ -184,6 +184,40 @@ def test_paired_regional_summary_excludes_pa(artifacts):
     )
 
 
+@pytest.mark.parametrize(
+    "name",
+    [
+        "fits.parquet",
+        "null_partitions.parquet",
+        "forecast.npz",
+        "injection.npz",
+        "scores_injected.npz",
+        "scores_calibration.npz",
+        "scores_evaluation.npz",
+    ],
+)
+def test_consumed_auxiliary_artifacts_have_observed_hashes(artifacts, name):
+    source, evidence = artifacts
+    before = diagnose_e0(source, evidence)
+    path = source / name
+    assert (
+        before["observed_sha256"][name] == hashlib.sha256(path.read_bytes()).hexdigest()
+    )
+    assert name not in before["pinned_sha256"]
+    if name.endswith(".parquet"):
+        pd.read_parquet(path).to_parquet(path, compression="gzip")
+    else:
+        with np.load(path, allow_pickle=False) as saved:
+            arrays = {key: saved[key] for key in saved.files}
+        np.savez_compressed(path, **arrays)
+    after = diagnose_e0(source, evidence)
+    assert after["observed_sha256"][name] != before["observed_sha256"][name]
+    assert (
+        after["observed_sha256"][name] == hashlib.sha256(path.read_bytes()).hexdigest()
+    )
+    assert after["pinned_sha256"] == before["pinned_sha256"]
+
+
 def test_metric_row_order_is_irrelevant(artifacts):
     source, evidence = artifacts
     expected = diagnose_e0(source, evidence)["regional_ap"]
@@ -327,6 +361,22 @@ def test_invalid_auxiliary_artifact_rejected(artifacts, defect):
         else:
             arrays["mask"][1, 60] = False
         np.savez(path, **arrays)
+    with pytest.raises(ValueError):
+        diagnose_e0(source, evidence)
+
+
+@pytest.mark.parametrize(
+    "defect", ["entropy", "duplicate_key", "duplicate_key_other_entropy"]
+)
+def test_null_partition_entropy_and_spawn_keys_rejected(artifacts, defect):
+    source, evidence = artifacts
+    path = source / "null_partitions.parquet"
+    rows = pd.read_parquet(path)
+    if defect != "duplicate_key":
+        rows.at[1, "entropy"] = 43
+    if defect != "entropy":
+        rows.at[1, "spawn_key"] = rows.at[0, "spawn_key"]
+    rows.to_parquet(path)
     with pytest.raises(ValueError):
         diagnose_e0(source, evidence)
 

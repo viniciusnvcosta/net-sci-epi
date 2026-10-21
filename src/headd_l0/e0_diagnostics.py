@@ -245,10 +245,12 @@ def diagnose_e0(source: Path, evidence: Path) -> dict:
         == {"calibration": 200, "evaluation": 200},
         "invalid null partition identities/counts",
     )
-    seeds = [
-        (int(row.entropy), tuple(row.spawn_key)) for row in partitions.itertuples()
-    ]
-    _require(len(set(seeds)) == 400, "overlapping null partition spawn keys")
+    _require(
+        (partitions.entropy == identity["root_seed"]).all(),
+        "null partition entropy differs from root seed",
+    )
+    spawn_keys = [tuple(key) for key in partitions.spawn_key]
+    _require(len(set(spawn_keys)) == 400, "overlapping null partition spawn keys")
     for partition, stream in (("calibration", 0), ("evaluation", 1)):
         _require(
             all(
@@ -259,20 +261,27 @@ def diagnose_e0(source: Path, evidence: Path) -> dict:
             ),
             f"invalid {partition} spawn stream",
         )
+    auxiliary = [
+        "fits.parquet",
+        "null_partitions.parquet",
+        "forecast.npz",
+        "injection.npz",
+        "scores_injected.npz",
+        "scores_calibration.npz",
+        "scores_evaluation.npz",
+    ]
+    observed.update(
+        {
+            name: hashlib.sha256((source / name).read_bytes()).hexdigest()
+            for name in auxiliary
+        }
+    )
     report = {
         "schema_version": 1,
         "source": {"path": str(source.resolve()), **identity, "baseline_id": "B1*"},
         "pinned_sha256": hashes,
         "observed_sha256": observed,
-        "unpinned_diagnostic_artifacts": [
-            "fits.parquet",
-            "null_partitions.parquet",
-            "forecast.npz",
-            "injection.npz",
-            "scores_injected.npz",
-            "scores_calibration.npz",
-            "scores_evaluation.npz",
-        ],
+        "unpinned_diagnostic_artifacts": auxiliary,
         "regional_ap": regional,
         "mean_delta_ap": float(np.mean([row["delta_ap"] for row in regional])),
         "n_regions_b1_lower": sum(row["delta_ap"] < 0 for row in regional),
