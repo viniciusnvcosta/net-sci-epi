@@ -183,10 +183,12 @@ científica estão pendentes; `interpretation_allowed=false`.
 O [notebook E1](notebooks/e1_results.ipynb) usa o mesmo exportador. Este verifica
 o manifest e os hashes dos resultados preservados e grava tabelas de gates,
 denominadores, alcance, figura e limitações em `results/<run_id>/report/` antes
-de terminar com exit 2. É necessário um diretório `report/` novo; os artefatos
-de origem nunca são sobrescritos. Smoke e D-REACH são diagnósticos técnicos,
+de terminar com exit 2. A publicação é atômica; retries idênticos verificam e
+reutilizam o pacote completo. Mudanças de origem exigem novo run, sem sobrescrita.
+Smoke e D-REACH são diagnósticos técnicos,
 sem inferência de efeitos científicos. Com autorização explícita e gates
-válidos, o exportador também produz bootstrap pareado estratificado seguido
+válidos, bancada concluída e cobertura dos três ruídos × três ε pré-registrados,
+o exportador também produz bootstrap pareado estratificado seguido
 do rank estrito entre 30 placebos e termina com exit 0. A margem de equivalência
 em ε=0 continua sem ratificação, impedindo concluir o critério conjunto.
 

@@ -107,12 +107,24 @@ def test_notebook_executes_blocked_export_without_stored_outputs(tmp_path):
 def authorized_run(tmp_path):
     """All runner gates passed with complete independently measured null FAR."""
     run, manifest = blocked_run(tmp_path)
-    frame = primary_comparisons()
+    source = primary_comparisons()
+    frames = []
+    for noise in ("white", "env", "dem"):
+        for epsilon in (0.0, 0.05, 0.2):
+            cell = source.loc[source.epsilon == (0 if epsilon == 0 else 0.2)].copy()
+            cell["noise"], cell["epsilon"] = noise, epsilon
+            cell["replicate_id"] = cell.replicate_id.map(
+                lambda value, noise=noise, epsilon=epsilon: (
+                    f"{noise}:{epsilon:g}:evaluation:T:{value.rsplit(':', 1)[1]}"
+                )
+            )
+            frames.append(cell)
+    frame = pd.concat(frames, ignore_index=True)
     frame.to_parquet(run / "comparisons.parquet", index=False)
     pd.DataFrame(
         [
             {
-                "noise": "white",
+                "noise": noise,
                 "epsilon": epsilon,
                 "arm": arm,
                 "task": task,
@@ -124,13 +136,15 @@ def authorized_run(tmp_path):
                 "calibration_n": 14400,
                 "n": 14400,
             }
-            for epsilon in (0.0, 0.2)
+            for noise in ("white", "env", "dem")
+            for epsilon in (0.0, 0.05, 0.2)
             for arm in ["B0", "B1*", "B2", *(f"B2-placebo-{p:02d}" for p in range(30))]
             for task in hierarchy().leaves
         ]
     ).to_parquet(run / "far.parquet", index=False)
     manifest.update(
         status="completed",
+        bench={"status": "completed"},
         interpretation_allowed=True,
         config={
             "name": "e1_bench",
@@ -138,14 +152,25 @@ def authorized_run(tmp_path):
             "n_null": 200,
             "n_calibration": 200,
             "n_placebo_transition_per_cell": 100,
-            "noise_types": ["white"],
-            "epsilon_levels": [0.0, 0.2],
+            "noise_types": ["white", "env", "dem"],
+            "epsilon_levels": [0.0, 0.05, 0.2],
         },
         seeds={"bootstrap": {"entropy": 42, "spawn_key": [5]}},
         budget_policy={"placebo_transition_indices": list(range(100))},
     )
     for name in ("E0_star", "G4", "scientific_ratification", "D5", "FAR"):
         manifest["gates"][name] = {"status": "passed"}
+    manifest["gates"]["D_REACH"]["cells"] = [
+        {
+            "noise": noise,
+            "epsilon": epsilon,
+            "n": 200,
+            "reached": 0 if epsilon == 0 else 165,
+            "fraction": 0 if epsilon == 0 else 0.825,
+        }
+        for noise in ("white", "env", "dem")
+        for epsilon in (0.0, 0.05, 0.2)
+    ]
     refresh_manifest(run, manifest)
     return run, manifest
 
@@ -164,6 +189,11 @@ def test_authorized_export_adds_primary_inference_and_returns_zero(tmp_path):
     run, _ = authorized_run(tmp_path)
     assert export_report(run) == 0
     inference = json.loads((run / "report" / "inference.json").read_text())
+    assert {(cell["noise"], cell["epsilon"]) for cell in inference["cells"]} == {
+        (noise, epsilon)
+        for noise in ("white", "env", "dem")
+        for epsilon in (0.0, 0.05, 0.2)
+    }
     assert inference["cells"][1]["estimate"] == 4
     assert inference["cells"][1]["n_units"] == 200
     assert inference["cells"][1]["placebo_n_units"] == 100
@@ -191,7 +221,11 @@ def test_manifest_permission_cannot_override_failed_or_missing_evidence(
     if defect == "reach":
         manifest["gates"]["D_REACH"]["status"] = "failed"
     elif defect == "reach_fraction":
-        manifest["gates"]["D_REACH"]["cells"][0]["fraction"] = 0.4
+        next(
+            row
+            for row in manifest["gates"]["D_REACH"]["cells"]
+            if row["epsilon"] == 0.2
+        )["fraction"] = 0.4
     elif defect == "far":
         far = pd.read_parquet(run / "far.parquet")
         far.loc[0, "observed_far"] = 0.5
@@ -211,3 +245,90 @@ def test_manifest_permission_cannot_override_failed_or_missing_evidence(
         (run / "manifest.json").write_text(json.dumps(manifest))
     assert export_report(run) == 2
     assert not (run / "report" / "inference.json").exists()
+
+
+@pytest.mark.parametrize(
+    "defect",
+    [
+        "incomplete_config",
+        "bench_not_executed",
+        "missing_region",
+        "wrong_id",
+        "missing_column",
+    ],
+)
+def test_inference_evidence_failure_publishes_only_complete_blocked_report(
+    tmp_path, defect
+):
+    from headd_l0.e1_report import export_report
+
+    run, manifest = authorized_run(tmp_path)
+    comparisons = pd.read_parquet(run / "comparisons.parquet")
+    if defect == "incomplete_config":
+        manifest["config"].update(noise_types=["white"], epsilon_levels=[0.0, 0.2])
+        comparisons = comparisons.loc[
+            (comparisons.noise == "white") & (comparisons.epsilon != 0.05)
+        ]
+        far = pd.read_parquet(run / "far.parquet")
+        far.loc[(far.noise == "white") & (far.epsilon != 0.05)].to_parquet(
+            run / "far.parquet", index=False
+        )
+        manifest["gates"]["D_REACH"]["cells"] = [
+            row
+            for row in manifest["gates"]["D_REACH"]["cells"]
+            if row["noise"] == "white" and row["epsilon"] != 0.05
+        ]
+    elif defect == "bench_not_executed":
+        manifest["bench"]["status"] = "not_executed"
+    elif defect == "missing_region":
+        comparisons = comparisons.iloc[1:]
+    elif defect == "wrong_id":
+        comparisons.loc[0, "replicate_id"] = "white:0:evaluation:T:9999"
+    else:
+        comparisons = comparisons.drop(columns="paired_eligible")
+    comparisons.to_parquet(run / "comparisons.parquet", index=False)
+    refresh_manifest(run, manifest)
+    assert export_report(run) == 2
+    report = run / "report"
+    output = json.loads((report / "manifest.json").read_text())
+    assert output["interpretation_allowed"] is False
+    assert output["blocking_reasons"]
+    assert not pd.read_parquet(report / "gates.parquet").interpretation_allowed.any()
+    assert not (report / "inference.json").exists()
+    assert all(
+        hashlib.sha256((report / name).read_bytes()).hexdigest() == digest
+        for name, digest in output["artifact_sha256"].items()
+    )
+    before = (report / "manifest.json").read_bytes()
+    assert export_report(run) == 2
+    assert (report / "manifest.json").read_bytes() == before
+
+
+def test_interrupted_publication_leaves_no_partial_report_and_can_retry(
+    tmp_path, monkeypatch
+):
+    from headd_l0.e1_report import export_report
+
+    run, _ = authorized_run(tmp_path)
+    real = pd.DataFrame.to_parquet
+    writes = 0
+
+    def interrupt_once(frame, *args, **kwargs):
+        nonlocal writes
+        writes += 1
+        if writes == 2:
+            raise OSError("simulated interrupted publication")
+        return real(frame, *args, **kwargs)
+
+    monkeypatch.setattr(pd.DataFrame, "to_parquet", interrupt_once)
+    with pytest.raises(OSError, match="interrupted publication"):
+        export_report(run)
+    assert not (run / "report").exists()
+    assert not list(run.glob(".report-*"))
+    assert export_report(run) == 0
+    assert (
+        json.loads((run / "report" / "manifest.json").read_text())[
+            "interpretation_allowed"
+        ]
+        is True
+    )
