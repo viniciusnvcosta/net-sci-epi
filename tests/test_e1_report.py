@@ -200,6 +200,63 @@ def test_authorized_export_adds_primary_inference_and_returns_zero(tmp_path):
     assert inference["hypothesis_supported"] is None
 
 
+@pytest.mark.parametrize("alarm_count, observed", [(192, 192 / 14400), (288, 0.02)])
+def test_authorized_export_accepts_both_inclusive_far_limits(
+    tmp_path, alarm_count, observed
+):
+    from headd_l0.e1_report import export_report
+
+    run, manifest = authorized_run(tmp_path)
+    far = pd.read_parquet(run / "far.parquet")
+    far["alarms"] = alarm_count
+    far["observed_far"] = observed
+    far.to_parquet(run / "far.parquet", index=False)
+    refresh_manifest(run, manifest)
+    assert export_report(run) == 0
+    assert (run / "report" / "inference.json").exists()
+
+
+def test_blocked_envelope_explicitly_marks_bench_sizes_unavailable(tmp_path):
+    from headd_l0.e1_report import export_report
+
+    # Mirrors the preserved Task 6 envelope: no effective_sizes and no bench run.
+    run, _ = blocked_run(tmp_path)
+    assert export_report(run) == 2
+    sizes = pd.read_parquet(run / "report" / "effective_sizes.parquet")
+    assert len(sizes) == 1
+    assert sizes.bench_status.tolist() == ["not_executed"]
+    assert sizes.availability.tolist() == ["unavailable"]
+    assert sizes.provenance.tolist() == ["bench"]
+    assert sizes.n.isna().all() and sizes.valid.isna().all()
+    assert not sizes.interpretation_allowed.any()
+    reach = pd.read_parquet(run / "report" / "reach.parquet")
+    assert reach.provenance.tolist() == ["technical_reach"]
+    assert reach.n.tolist() == [200]
+
+
+def test_smoke_sizes_keep_their_technical_provenance(tmp_path):
+    from headd_l0.e1_report import export_report
+
+    run, manifest = blocked_run(tmp_path)
+    manifest["config"] = {"name": "e1_smoke"}
+    manifest["effective_sizes"] = [
+        {
+            "noise": "white",
+            "epsilon": 0.2,
+            "partition": "evaluation",
+            "label": "T",
+            "n": 2,
+            "valid": 0,
+        }
+    ]
+    (run / "manifest.json").write_text(json.dumps(manifest))
+    assert export_report(run) == 2
+    sizes = pd.read_parquet(run / "report" / "effective_sizes.parquet")
+    assert sizes.provenance.tolist() == ["technical_smoke"]
+    assert sizes.availability.tolist() == ["available"]
+    assert sizes.n.tolist() == [2] and sizes.valid.tolist() == [0]
+
+
 @pytest.mark.parametrize(
     "defect",
     [

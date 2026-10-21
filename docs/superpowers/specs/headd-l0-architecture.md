@@ -1,6 +1,6 @@
 # HEADD-Series L0 — arquitetura e decisões de implementação
 
-Data original: 26/09/2026. Atualização documental: 19/10/2026.
+Data original: 26/09/2026. Atualização documental: 21/10/2026.
 E0 inconclusivo; B1\* autorizado. O pré-gate histórico falhou por
 `single_class:PA`. D-E0*-R1 (28/09) revisou a condição 2 para ambas as
 classes nas 13 regiões, com PA descritivo. Scoring NB2 convergente executado
@@ -32,7 +32,7 @@ Fontes históricas lidas em 26/09 (hashes não representam a revisão atual): `A
 
 Referência CDADE: `/home/vinvs/projects/hybrid-theory`, commit **`fbfa609bba6cb0b0f2a9e8d73be18022aec319b7`**. As leituras de código usaram `git show HEAD:<path>`, não arquivos modificados do working tree. E0 deve fixar esse SHA completo, nunca resolver `HEAD` novamente durante uma execução. Os resultados locais não possuem, por si só, proveniência suficiente para certificar E0.
 
-Estado atual: Python ≥3.12; `src/headd_l0/`, testes e dependências do baseline já existem. P1–P2 estão implementados; P3 prepara injeção/classes; Task 0 integra e executou scoring NB2 convergente, com fallback ainda pendente. P4 grafo e P6 features estão `implementado` e `validado tecnicamente`; seus gates científicos não estão aprovados. P5 tem [perfil técnico, manifesto e fixture próprios](../../gao-source-preparation.md#technical-profile-p5-impl-2026-10-19-v1) sob D-P5-IMPL (19/10): implementação/validação técnica autorizadas, simulador futuro, ratificação científica e G4 pendentes. Comandos atuais: [development](../../development.md).
+Estado atual: Python ≥3.12; `src/headd_l0/`, testes e dependências do baseline já existem. P1–P2 estão implementados; P3 prepara injeção/classes; Task 0 integra e executou scoring NB2 convergente, com fallback ainda pendente. P4 grafo e P6 features estão `implementado` e `validado tecnicamente`; seus gates científicos não estão aprovados. P5 tem [perfil técnico, manifesto e fixture próprios](../../gao-source-preparation.md#technical-profile-p5-impl-2026-10-19-v1) sob D-P5-IMPL (19/10): simulador implementado e validado tecnicamente, ratificação científica e G4 pendentes. O runner representa o subset D-COST desde a Task 6b; P8/P9 descritivo foi entregue na Task 7, sem execução da bancada nem interpretação autorizada. Comandos atuais: [development](../../development.md).
 
 Não implementar M, REGIC, GNN, GANF/GDN, hhh4 completo, Tycho, L4/L5 ou SEIRS+ agent-based. B-Gao, B3/Φ e variante SEIRS são extensões condicionais, não dependências da entrega principal.
 
@@ -64,9 +64,9 @@ Esta tabela preserva as observações históricas da leitura inicial. A auditori
 
 ## 4. Mapa de código e responsabilidade
 
-O mapa combina contratos atuais de baseline, grafo/features e scoring E0*
-com contratos **futuros** de simulador, runner E1 completo e camada 1. Nomes/arquivos ausentes nessas
-trilhas são entregas futuras; o exporter indicado é histórico aposentado.
+O mapa preserva os contratos do planejamento original; o estado corrente do
+simulador e runner está na seção 1. Nomes/arquivos ainda ausentes são entregas
+futuras; o exporter CDADE indicado é histórico aposentado.
 
 Manter o layout do AGENTS. `tests/test_<module>.py` espelha cada módulo. Não criar serviços, factories, registry global ou camadas de repositório. Cada módulo mira 150–300 linhas e só se divide ao ultrapassar aproximadamente 400.
 
@@ -170,7 +170,7 @@ validados tecnicamente. Ver [alternativas históricas no E0](../plans/headd-l0-e
 Toda AUC-PR futura acompanha prevalência, janela e denominador; nenhuma seed
 substitui a 42 e não se escolhe cutoff de contraste olhando scores.
 
-As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). D-P5-IMPL (19/10) fixa perfil e faixa técnica de R0; sua ratificação científica para D-GT2/D-GT4 continua pendente, assim como os eventos da camada 3 (D-L3) e a construção/tamanho do fallback D-GT3 de E0*. O caminho NB2 convergente foi executado, com E0*/FAR reprovados. Hardware registrado em 27/09; piloto D-COST ainda pendente.
+As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). D-P5-IMPL (19/10) fixa perfil e faixa técnica de R0; sua ratificação científica para D-GT2/D-GT4 continua pendente, assim como os eventos da camada 3 (D-L3) e a construção/tamanho do fallback D-GT3 de E0*. O caminho NB2 convergente foi executado, com E0*/FAR reprovados. Piloto D-COST aferido em 20/10, com hardware e projeção de 82–105 h registrados; subset implementado na Task 6b e bancada não executada.
 
 | Camada      | Ground truth / uso                                                                                                                                                                             | Regra                                                                                                                                                                                                              |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

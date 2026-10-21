@@ -20,12 +20,21 @@ Este registro distingue **decisões tomadas** de **escolhas ainda pendentes**. C
 | D-GT2   | **Decidido**, com pendência de parâmetros do simulador | Injeção epidêmica com proveniência explícita de casos importados                                |
 | D-GT3   | **Decidido**                                           | Nulo paramétrico NB2 com tendência e dois pares de harmônicos                                   |
 | D-GT4   | **Decidido**, com pendência da faixa de R0             | Tamanho, truncamento e onsets definidos                                                         |
-| D-COST  | **Aferido** (20/10); execução bloqueada                | Degraus (a)+(b); runner não representa o subconjunto T dos placebos                              |
+| D-COST  | **Aferido** (20/10); subset implementado na Task 6b    | Degraus (a)+(b) representados; bancada não executada, interpretação bloqueada                     |
 | D-REACH | **Aferido** (20/10)                                    | ≥ 50% em ε = 0,20 nos três ruídos, com 200 T/célula                                              |
 | P5-SRC  | **Pendente** (29/09; proposta, sem aprovação)          | Paridade científica, perfil e revisão do critério CV por ruído                                   |
 | D-P5-IMPL | **Implementação autorizada** (19/10); ratificação científica pendente | Perfil técnico das equações 1–3 e fixture própria; G4 pendente, interpretação bloqueada |
 | D-L3    | **Pendente**                                           | Seleção e verificação dos eventos reais                                                         |
 | D-OPS   | **Decidido**                                           | Worktree persistente e disciplina de commits                                                    |
+
+**Estado corrente (21/10/2026):** a Task 6b implementou o subconjunto placebo
+(`ee999b5`): 200 T para B2/B1* e os mesmos T0000–T0099 (100 T) para
+B2/placebos. P8/P9 descritivo foi entregue na Task 7 (`2719cfa`, revisão
+`387eadd`), com notebook e exportador de tabelas/figuras/limitações, exit 2 e
+`interpretation_allowed=false`. A bancada de 82–105 h permanece não executada;
+E0 inconclusivo, E0*/FAR reprovados, G4/ratificação científica pendentes.
+Smoke e D-REACH são evidência técnica, sem efeitos científicos inferidos.
+Os registros datados abaixo preservam os estados históricos de cada execução.
 
 Responsável pelas decisões científicas: autor do projeto. D-P5-IMPL registra
 somente autorização técnica, com origem indicada na entrada. Fonte das

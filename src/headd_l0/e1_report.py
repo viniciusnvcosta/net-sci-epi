@@ -154,7 +154,11 @@ def _blockers(run: Path, manifest: dict) -> list[str]:
         or not far.calibration_n.eq(cfg["n_calibration"] * 72).all()
         or not far.n.eq(cfg["n_null"] * 72).all()
         or not np.isfinite(far.observed_far).all()
-        or not (far.observed_far.sub(1 / 60).abs() <= 1 / 300).all()
+        # Match check_far's inclusive endpoints; abs(observed-target) can round
+        # the upper boundary outward even when observed == target+tolerance.
+        or not far.observed_far.between(
+            1 / 60 - 1 / 300, 1 / 60 + 1 / 300, inclusive="both"
+        ).all()
     ):
         reasons.append("FAR=not_comparable")
     return reasons
@@ -181,9 +185,27 @@ def _write_report(
     )
     gates.to_parquet(report / "gates.parquet", index=False)
     sizes = pd.DataFrame(manifest.get("effective_sizes", []))
+    if sizes.empty:
+        sizes = pd.DataFrame(
+            [
+                {
+                    "availability": "unavailable",
+                    "provenance": "bench",
+                    "n": None,
+                    "valid": None,
+                }
+            ]
+        )
+    else:
+        sizes["availability"] = "available"
+        sizes["provenance"] = {"e1_bench": "bench", "e1_smoke": "technical_smoke"}.get(
+            manifest.get("config", {}).get("name"), "technical_run"
+        )
+    sizes["bench_status"] = manifest.get("bench", {}).get("status", "not_evaluated")
     sizes["interpretation_allowed"] = allowed
     sizes.to_parquet(report / "effective_sizes.parquet", index=False)
     reach = pd.DataFrame(manifest["gates"].get("D_REACH", {}).get("cells", []))
+    reach["provenance"] = "technical_reach"
     reach["interpretation_allowed"] = allowed
     reach.to_parquet(report / "reach.parquet", index=False)
     matplotlib.use("Agg")
