@@ -1,5 +1,16 @@
 # Desenvolvimento e reprodução
 
+## Evidência P5/G4 — 22/10/2026
+
+O [pacote para revisão científica](evidence/2026-10-22-p5-g4/README.md) registra
+bytes oficiais Gao verificados, seis pares de medianas arquivadas reproduzidos,
+384 realizações mensais completas e replay exato, no perfil/seeds fixos.
+76 testes determinísticos e a suíte padrão (466 testes, 1 excluído) passaram;
+clipping e denominadores estão publicados. G4 permanece pendente de revisão
+científica explícita, `interpretation_allowed=false`; E0*/FAR seguem reprovados
+e camadas obrigatórias incompletas. Os diretórios locais de cache/resultados
+não são versionados.
+
 O repositório dispõe dos componentes da baseline B1*, da preparação da
 camada 0, do grafo regional P4 e das features P6, implementados e validados
 tecnicamente. Simulador P5, runner reduzido D-COST e exportador descritivo

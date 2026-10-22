@@ -1,5 +1,16 @@
 # Gao single-region source preparation (29/09/2026)
 
+## Current evidence — 22/10/2026
+
+The [scientific-review packet](evidence/2026-10-22-p5-g4/README.md) records fresh
+verification of official archive/supplement bytes, pinned table hashes, all six
+archived median pairs and Figure S5/S6/S7 labels. Fixed monthly diagnostics
+completed 64 T/64 independent N per noise with exact replay and deterministic
+test evidence. Clipping/validity summaries are retained without a new acceptance
+cutoff. G4 remains pending explicit scientific review; interpretation is blocked.
+The dated source/profile records below and frozen manifest remain historical,
+unchanged records; their older availability statements do not describe this run.
+
 The 29/09 source record below is preserved; the dated technical profile added
 on 19/10 authorizes implementation and technical validation only under
 [D-P5-IMPL](protocol-decisions.md#d-p5-impl--perfil-técnico-p5-19102026).

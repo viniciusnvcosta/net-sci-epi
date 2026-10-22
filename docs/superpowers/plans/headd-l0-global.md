@@ -1,5 +1,16 @@
 # HEADD-Series L0 Global Implementation Plan
 
+## Estado vigente — 22/10/2026 (evidência P5/G4)
+
+O [pacote P5/G4 para revisão científica](../../evidence/2026-10-22-p5-g4/README.md)
+registra verificação nova dos bytes oficiais/rótulos/seis pares de medianas,
+384 realizações mensais completas e replay exato sob perfil/seeds fixos.
+Testes determinísticos (76) e suíte padrão (466, 1 excluído) passaram;
+clipping e todos os denominadores foram publicados sem novo cutoff.
+G4 segue pendente de revisão científica explícita e interpretação bloqueada;
+E0*/FAR reprovados e camadas obrigatórias incompletas permanecem.
+O estado datado de 21/10 e o plano histórico abaixo são preservados.
+
 ## Estado vigente — 21/10/2026 (D-RATIFY)
 
 [D-RATIFY-2026-10-21](../../protocol-decisions.md#d-ratify-2026-10-21--ratificação-científica-prospectiva) ratifica prospectivamente perfil/regras, sem aprovar gates ou alterar
