@@ -11,6 +11,11 @@ falha/incompletude implica inconclusivo. Ver [plano global](superpowers/plans/he
 As decisões científicas vigentes estão em [protocol-decisions.md](protocol-decisions.md).
 Os resumos portáteis e hashes dos artefatos preservados pelo PR #2 estão em
 [`docs/evidence/pr-2/`](evidence/pr-2/README.md).
+O [diagnóstico somente leitura de 21/10](evidence/2026-10-21-e0-diagnostics/README.md)
+reproduz os 13 pares regionais, a perda média de AP e as três falhas FAR,
+com hashes e auditoria causal histórica/atual. Não estabelece defeito independente
+da baseline; E0*/FAR seguem reprovados, G4 pendente, bancada não executada
+e interpretação bloqueada.
 
 ## Ambiente e comandos
 

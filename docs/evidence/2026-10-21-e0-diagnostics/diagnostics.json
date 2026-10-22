@@ -1,0 +1,879 @@
+{
+  "schema_version": 1,
+  "source": {
+    "path": "/home/vinvs/projects/net-sci-epi/.worktrees/second-execution/results/e0-star-scoring-20260930",
+    "run_id": "e0-star-scoring-20260930",
+    "git_sha": "017bd1a0d6cd3ecf1e8d8efe55a4826c234b3132",
+    "reference_sha": "fbfa609bba6cb0b0f2a9e8d73be18022aec319b7",
+    "root_seed": 42,
+    "baseline_id": "B1*"
+  },
+  "pinned_sha256": {
+    "manifest.json": "bb1a09b6889eef9121e16973a9363ab6a7ec122e98475cc97a5e56d0fd0bc420",
+    "metrics.parquet": "bbb7918b2f15dc8de32493bd861cc60661832a7952221437e7e96d884d49410e",
+    "far.parquet": "a7055b8623a1f9ee9d8773f912c067266bbe2cc4b504bbf053373ef252bff836",
+    "detector_fits.parquet": "5601f3e673653132fd77b987472392e9c7b343e013edb8e4c6297e726e609dec",
+    "pa_diagnostics.json": "efa34d5c05573af01481cbb101c1c1cfae877f2914e99640b18599cab761a2b3"
+  },
+  "observed_sha256": {
+    "detector_fits.parquet": "5601f3e673653132fd77b987472392e9c7b343e013edb8e4c6297e726e609dec",
+    "far.parquet": "a7055b8623a1f9ee9d8773f912c067266bbe2cc4b504bbf053373ef252bff836",
+    "manifest.json": "bb1a09b6889eef9121e16973a9363ab6a7ec122e98475cc97a5e56d0fd0bc420",
+    "metrics.parquet": "bbb7918b2f15dc8de32493bd861cc60661832a7952221437e7e96d884d49410e",
+    "pa_diagnostics.json": "efa34d5c05573af01481cbb101c1c1cfae877f2914e99640b18599cab761a2b3",
+    "fits.parquet": "2949149eaa83a46dbe58badf5e32083fa3d32bbc12c18ed0e84a0f4aa16f012b",
+    "null_partitions.parquet": "f31a9f94f7732da2eb0ad1d32d79eafc4e7d0770cd849a2fcd4366ba1a18deee",
+    "forecast.npz": "079c37587c4b23430871b4fa92dd1845b308c3b558fb625e3d2623fef8029ec4",
+    "injection.npz": "2b5be7cfe3199787fb395716edc00835214b3b3293a5feb8d80e7873d0e84f47",
+    "scores_injected.npz": "898d452305c9e1525a75bb814a7afc1de623ae12424cebfc4dbed95ccd8da362",
+    "scores_calibration.npz": "5804625e7e774060adeded08dc30bd6084fa69e24091c9a6f6e5000e021160fb",
+    "scores_evaluation.npz": "cdf2c6808b5ff25ca3e1c5c56c8b9b2e6880c012c540f32f0f00deaab4c37b46"
+  },
+  "unpinned_diagnostic_artifacts": [
+    "fits.parquet",
+    "null_partitions.parquet",
+    "forecast.npz",
+    "injection.npz",
+    "scores_injected.npz",
+    "scores_calibration.npz",
+    "scores_evaluation.npz"
+  ],
+  "regional_ap": [
+    {
+      "task": "ARAGUAIA",
+      "b1_ap": 0.445435369518421,
+      "zscore_ap": 0.4475753729587509,
+      "delta_ap": -0.002140003440329885,
+      "n_positive": 29,
+      "n_negative": 43,
+      "denominator": 72,
+      "prevalence": 0.4027777777777778
+    },
+    {
+      "task": "BAIXO AMAZONAS",
+      "b1_ap": 0.5719648210521717,
+      "zscore_ap": 0.751602087336319,
+      "delta_ap": -0.17963726628414722,
+      "n_positive": 29,
+      "n_negative": 43,
+      "denominator": 72,
+      "prevalence": 0.4027777777777778
+    },
+    {
+      "task": "CARAJAS",
+      "b1_ap": 0.5545268366351317,
+      "zscore_ap": 0.7586283098093276,
+      "delta_ap": -0.2041014731741959,
+      "n_positive": 26,
+      "n_negative": 46,
+      "denominator": 72,
+      "prevalence": 0.3611111111111111
+    },
+    {
+      "task": "LAGO DE TUCURUI",
+      "b1_ap": 0.8722963165623124,
+      "zscore_ap": 0.6443273937117185,
+      "delta_ap": 0.2279689228505939,
+      "n_positive": 18,
+      "n_negative": 54,
+      "denominator": 72,
+      "prevalence": 0.25
+    },
+    {
+      "task": "MARAJO I",
+      "b1_ap": 0.5052691488035106,
+      "zscore_ap": 0.6380018274688516,
+      "delta_ap": -0.132732678665341,
+      "n_positive": 22,
+      "n_negative": 50,
+      "denominator": 72,
+      "prevalence": 0.3055555555555556
+    },
+    {
+      "task": "MARAJO II",
+      "b1_ap": 0.6234202841770433,
+      "zscore_ap": 0.7728238739025153,
+      "delta_ap": -0.14940358972547196,
+      "n_positive": 22,
+      "n_negative": 50,
+      "denominator": 72,
+      "prevalence": 0.3055555555555556
+    },
+    {
+      "task": "METROPOLITANA I",
+      "b1_ap": 0.4494934701491652,
+      "zscore_ap": 0.5343218642543377,
+      "delta_ap": -0.08482839410517251,
+      "n_positive": 20,
+      "n_negative": 52,
+      "denominator": 72,
+      "prevalence": 0.2777777777777778
+    },
+    {
+      "task": "METROPOLITANA II",
+      "b1_ap": 0.6815636214950522,
+      "zscore_ap": 0.9129672006102212,
+      "delta_ap": -0.23140357911516896,
+      "n_positive": 15,
+      "n_negative": 57,
+      "denominator": 72,
+      "prevalence": 0.20833333333333334
+    },
+    {
+      "task": "METROPOLITANA III",
+      "b1_ap": 0.6807140581925993,
+      "zscore_ap": 0.8370603974745632,
+      "delta_ap": -0.15634633928196384,
+      "n_positive": 21,
+      "n_negative": 51,
+      "denominator": 72,
+      "prevalence": 0.2916666666666667
+    },
+    {
+      "task": "RIO CAETES",
+      "b1_ap": 0.5148358454771184,
+      "zscore_ap": 0.6032333099278515,
+      "delta_ap": -0.08839746445073315,
+      "n_positive": 17,
+      "n_negative": 55,
+      "denominator": 72,
+      "prevalence": 0.2361111111111111
+    },
+    {
+      "task": "TAPAJOS",
+      "b1_ap": 0.3095422443801314,
+      "zscore_ap": 0.7052173127499406,
+      "delta_ap": -0.3956750683698092,
+      "n_positive": 20,
+      "n_negative": 52,
+      "denominator": 72,
+      "prevalence": 0.2777777777777778
+    },
+    {
+      "task": "TOCANTINS",
+      "b1_ap": 0.49980312751701017,
+      "zscore_ap": 0.7283792861172238,
+      "delta_ap": -0.22857615860021363,
+      "n_positive": 21,
+      "n_negative": 51,
+      "denominator": 72,
+      "prevalence": 0.2916666666666667
+    },
+    {
+      "task": "XINGU",
+      "b1_ap": 0.40423563640115373,
+      "zscore_ap": 0.4815107543076485,
+      "delta_ap": -0.07727511790649477,
+      "n_positive": 14,
+      "n_negative": 58,
+      "denominator": 72,
+      "prevalence": 0.19444444444444445
+    }
+  ],
+  "mean_delta_ap": -0.13096524694372677,
+  "n_regions_b1_lower": 12,
+  "far": [
+    {
+      "task": "ARAGUAIA",
+      "arm": "B1*",
+      "threshold": 0.6369018020511559,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.012986111111111111,
+      "recomputed_far": 0.012986111111111111,
+      "observed_matches": true,
+      "stored_passed": false,
+      "recomputed_passed": false,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    },
+    {
+      "task": "ARAGUAIA",
+      "arm": "zscore",
+      "threshold": 4.995795817486528,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.015486111111111112,
+      "recomputed_far": 0.015486111111111112,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    },
+    {
+      "task": "BAIXO AMAZONAS",
+      "arm": "B1*",
+      "threshold": 0.1625253822632243,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.014652777777777778,
+      "recomputed_far": 0.014652777777777778,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    },
+    {
+      "task": "BAIXO AMAZONAS",
+      "arm": "zscore",
+      "threshold": 2.534635929628554,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.01513888888888889,
+      "recomputed_far": 0.01513888888888889,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016527777777777777,
+      "recomputed_achieved_far": 0.016527777777777777,
+      "achieved_matches": true
+    },
+    {
+      "task": "CARAJAS",
+      "arm": "B1*",
+      "threshold": 0.09982908285843722,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.013333333333333334,
+      "recomputed_far": 0.013333333333333334,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.0125,
+      "recomputed_achieved_far": 0.0125,
+      "achieved_matches": true
+    },
+    {
+      "task": "CARAJAS",
+      "arm": "zscore",
+      "threshold": 2.6439615030831334,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.017291666666666667,
+      "recomputed_far": 0.017291666666666667,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016319444444444445,
+      "recomputed_achieved_far": 0.016319444444444445,
+      "achieved_matches": true
+    },
+    {
+      "task": "LAGO DE TUCURUI",
+      "arm": "B1*",
+      "threshold": 0.13404279079380135,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.013958333333333333,
+      "recomputed_far": 0.013958333333333333,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    },
+    {
+      "task": "LAGO DE TUCURUI",
+      "arm": "zscore",
+      "threshold": 2.6927369422686773,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.013680555555555555,
+      "recomputed_far": 0.013680555555555555,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016319444444444445,
+      "recomputed_achieved_far": 0.016319444444444445,
+      "achieved_matches": true
+    },
+    {
+      "task": "MARAJO I",
+      "arm": "B1*",
+      "threshold": 0.47399450372812507,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.01576388888888889,
+      "recomputed_far": 0.01576388888888889,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    },
+    {
+      "task": "MARAJO I",
+      "arm": "zscore",
+      "threshold": 3.6735790932697485,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.015555555555555555,
+      "recomputed_far": 0.015555555555555555,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    },
+    {
+      "task": "MARAJO II",
+      "arm": "B1*",
+      "threshold": 0.27624112043749727,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.015555555555555555,
+      "recomputed_far": 0.015555555555555555,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.015694444444444445,
+      "recomputed_achieved_far": 0.015694444444444445,
+      "achieved_matches": true
+    },
+    {
+      "task": "MARAJO II",
+      "arm": "zscore",
+      "threshold": 3.693009312454255,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.016527777777777777,
+      "recomputed_far": 0.016527777777777777,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    },
+    {
+      "task": "METROPOLITANA I",
+      "arm": "B1*",
+      "threshold": 0.4383673043687422,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.01576388888888889,
+      "recomputed_far": 0.01576388888888889,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.015277777777777777,
+      "recomputed_achieved_far": 0.015277777777777777,
+      "achieved_matches": true
+    },
+    {
+      "task": "METROPOLITANA I",
+      "arm": "zscore",
+      "threshold": 3.0086120809448955,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.015347222222222222,
+      "recomputed_far": 0.015347222222222222,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    },
+    {
+      "task": "METROPOLITANA II",
+      "arm": "B1*",
+      "threshold": 0.5372846353811039,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.019097222222222224,
+      "recomputed_far": 0.019097222222222224,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.01625,
+      "recomputed_achieved_far": 0.01625,
+      "achieved_matches": true
+    },
+    {
+      "task": "METROPOLITANA II",
+      "arm": "zscore",
+      "threshold": 3.3217087055724352,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.016527777777777777,
+      "recomputed_far": 0.016527777777777777,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    },
+    {
+      "task": "METROPOLITANA III",
+      "arm": "B1*",
+      "threshold": 0.0825725347513731,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.016805555555555556,
+      "recomputed_far": 0.016805555555555556,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016527777777777777,
+      "recomputed_achieved_far": 0.016527777777777777,
+      "achieved_matches": true
+    },
+    {
+      "task": "METROPOLITANA III",
+      "arm": "zscore",
+      "threshold": 2.368281457544034,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.015555555555555555,
+      "recomputed_far": 0.015555555555555555,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.01625,
+      "recomputed_achieved_far": 0.01625,
+      "achieved_matches": true
+    },
+    {
+      "task": "RIO CAETES",
+      "arm": "B1*",
+      "threshold": 0.15349969714075648,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.014722222222222222,
+      "recomputed_far": 0.014722222222222222,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.014791666666666667,
+      "recomputed_achieved_far": 0.014791666666666667,
+      "achieved_matches": true
+    },
+    {
+      "task": "RIO CAETES",
+      "arm": "zscore",
+      "threshold": 2.1692629159927876,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.01138888888888889,
+      "recomputed_far": 0.01138888888888889,
+      "observed_matches": true,
+      "stored_passed": false,
+      "recomputed_passed": false,
+      "passed_matches": true,
+      "stored_achieved_far": 0.01423611111111111,
+      "recomputed_achieved_far": 0.01423611111111111,
+      "achieved_matches": true
+    },
+    {
+      "task": "TAPAJOS",
+      "arm": "B1*",
+      "threshold": 1.8379619165608552,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.017013888888888887,
+      "recomputed_far": 0.017013888888888887,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.01659722222222222,
+      "recomputed_achieved_far": 0.01659722222222222,
+      "achieved_matches": true
+    },
+    {
+      "task": "TAPAJOS",
+      "arm": "zscore",
+      "threshold": 3.321887049607631,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.01611111111111111,
+      "recomputed_far": 0.01611111111111111,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    },
+    {
+      "task": "TOCANTINS",
+      "arm": "B1*",
+      "threshold": 0.5091964759466697,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.014166666666666666,
+      "recomputed_far": 0.014166666666666666,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    },
+    {
+      "task": "TOCANTINS",
+      "arm": "zscore",
+      "threshold": 9.079970285167073,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.016805555555555556,
+      "recomputed_far": 0.016805555555555556,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    },
+    {
+      "task": "XINGU",
+      "arm": "B1*",
+      "threshold": 0.42838977381075277,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.012777777777777779,
+      "recomputed_far": 0.012777777777777779,
+      "observed_matches": true,
+      "stored_passed": false,
+      "recomputed_passed": false,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    },
+    {
+      "task": "XINGU",
+      "arm": "zscore",
+      "threshold": 3.420420778962628,
+      "target_far": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335,
+      "denominator": 14400,
+      "stored_observed_far": 0.013402777777777777,
+      "recomputed_far": 0.013402777777777777,
+      "observed_matches": true,
+      "stored_passed": true,
+      "recomputed_passed": true,
+      "passed_matches": true,
+      "stored_achieved_far": 0.016666666666666666,
+      "recomputed_achieved_far": 0.016666666666666666,
+      "achieved_matches": true
+    }
+  ],
+  "fits": {
+    "n_rows": 14,
+    "n_converged": 14,
+    "n_valid": 14,
+    "n_fallback_used": 0
+  },
+  "partitions": {
+    "calibration": 200,
+    "evaluation": 200,
+    "disjoint_ids": true,
+    "disjoint_spawn_keys": true
+  },
+  "forecast": {
+    "means_positive_finite": true,
+    "n_converged": 14,
+    "coefficients_finite": true,
+    "alpha_positive_finite": true
+  },
+  "score_checks": {
+    "finite": true,
+    "regional_ap": [
+      {
+        "task": "ARAGUAIA",
+        "arm": "B1*",
+        "stored_ap": 0.445435369518421,
+        "recomputed_ap": 0.445435369518421,
+        "matches": true
+      },
+      {
+        "task": "ARAGUAIA",
+        "arm": "zscore",
+        "stored_ap": 0.4475753729587509,
+        "recomputed_ap": 0.4475753729587509,
+        "matches": true
+      },
+      {
+        "task": "BAIXO AMAZONAS",
+        "arm": "B1*",
+        "stored_ap": 0.5719648210521717,
+        "recomputed_ap": 0.5719648210521717,
+        "matches": true
+      },
+      {
+        "task": "BAIXO AMAZONAS",
+        "arm": "zscore",
+        "stored_ap": 0.751602087336319,
+        "recomputed_ap": 0.751602087336319,
+        "matches": true
+      },
+      {
+        "task": "CARAJAS",
+        "arm": "B1*",
+        "stored_ap": 0.5545268366351317,
+        "recomputed_ap": 0.5545268366351317,
+        "matches": true
+      },
+      {
+        "task": "CARAJAS",
+        "arm": "zscore",
+        "stored_ap": 0.7586283098093276,
+        "recomputed_ap": 0.7586283098093276,
+        "matches": true
+      },
+      {
+        "task": "LAGO DE TUCURUI",
+        "arm": "B1*",
+        "stored_ap": 0.8722963165623124,
+        "recomputed_ap": 0.8722963165623124,
+        "matches": true
+      },
+      {
+        "task": "LAGO DE TUCURUI",
+        "arm": "zscore",
+        "stored_ap": 0.6443273937117185,
+        "recomputed_ap": 0.6443273937117185,
+        "matches": true
+      },
+      {
+        "task": "MARAJO I",
+        "arm": "B1*",
+        "stored_ap": 0.5052691488035106,
+        "recomputed_ap": 0.5052691488035106,
+        "matches": true
+      },
+      {
+        "task": "MARAJO I",
+        "arm": "zscore",
+        "stored_ap": 0.6380018274688516,
+        "recomputed_ap": 0.6380018274688516,
+        "matches": true
+      },
+      {
+        "task": "MARAJO II",
+        "arm": "B1*",
+        "stored_ap": 0.6234202841770433,
+        "recomputed_ap": 0.6234202841770433,
+        "matches": true
+      },
+      {
+        "task": "MARAJO II",
+        "arm": "zscore",
+        "stored_ap": 0.7728238739025153,
+        "recomputed_ap": 0.7728238739025153,
+        "matches": true
+      },
+      {
+        "task": "METROPOLITANA I",
+        "arm": "B1*",
+        "stored_ap": 0.4494934701491652,
+        "recomputed_ap": 0.4494934701491652,
+        "matches": true
+      },
+      {
+        "task": "METROPOLITANA I",
+        "arm": "zscore",
+        "stored_ap": 0.5343218642543377,
+        "recomputed_ap": 0.5343218642543377,
+        "matches": true
+      },
+      {
+        "task": "METROPOLITANA II",
+        "arm": "B1*",
+        "stored_ap": 0.6815636214950522,
+        "recomputed_ap": 0.6815636214950522,
+        "matches": true
+      },
+      {
+        "task": "METROPOLITANA II",
+        "arm": "zscore",
+        "stored_ap": 0.9129672006102212,
+        "recomputed_ap": 0.9129672006102212,
+        "matches": true
+      },
+      {
+        "task": "METROPOLITANA III",
+        "arm": "B1*",
+        "stored_ap": 0.6807140581925993,
+        "recomputed_ap": 0.6807140581925993,
+        "matches": true
+      },
+      {
+        "task": "METROPOLITANA III",
+        "arm": "zscore",
+        "stored_ap": 0.8370603974745632,
+        "recomputed_ap": 0.8370603974745632,
+        "matches": true
+      },
+      {
+        "task": "RIO CAETES",
+        "arm": "B1*",
+        "stored_ap": 0.5148358454771184,
+        "recomputed_ap": 0.5148358454771184,
+        "matches": true
+      },
+      {
+        "task": "RIO CAETES",
+        "arm": "zscore",
+        "stored_ap": 0.6032333099278515,
+        "recomputed_ap": 0.6032333099278515,
+        "matches": true
+      },
+      {
+        "task": "TAPAJOS",
+        "arm": "B1*",
+        "stored_ap": 0.3095422443801314,
+        "recomputed_ap": 0.3095422443801314,
+        "matches": true
+      },
+      {
+        "task": "TAPAJOS",
+        "arm": "zscore",
+        "stored_ap": 0.7052173127499406,
+        "recomputed_ap": 0.7052173127499406,
+        "matches": true
+      },
+      {
+        "task": "TOCANTINS",
+        "arm": "B1*",
+        "stored_ap": 0.49980312751701017,
+        "recomputed_ap": 0.49980312751701017,
+        "matches": true
+      },
+      {
+        "task": "TOCANTINS",
+        "arm": "zscore",
+        "stored_ap": 0.7283792861172238,
+        "recomputed_ap": 0.7283792861172238,
+        "matches": true
+      },
+      {
+        "task": "XINGU",
+        "arm": "B1*",
+        "stored_ap": 0.40423563640115373,
+        "recomputed_ap": 0.40423563640115373,
+        "matches": true
+      },
+      {
+        "task": "XINGU",
+        "arm": "zscore",
+        "stored_ap": 0.4815107543076485,
+        "recomputed_ap": 0.4815107543076485,
+        "matches": true
+      }
+    ],
+    "pa_ap": [
+      {
+        "task": "PA",
+        "arm": "B1*",
+        "stored_ap": null,
+        "recomputed_ap": null,
+        "matches": true
+      },
+      {
+        "task": "PA",
+        "arm": "zscore",
+        "stored_ap": null,
+        "recomputed_ap": null,
+        "matches": true
+      }
+    ],
+    "ap_disagreements": []
+  },
+  "historical_gates": {
+    "E0": {
+      "status": "inconclusive"
+    },
+    "E0_star": {
+      "status": "failed",
+      "passed": false,
+      "conditions": {
+        "components": true,
+        "thirteen_regional_tasks": true,
+        "trivial_baseline": false
+      },
+      "lower_bound": -0.20186060618499926,
+      "reasons": [
+        "trivial_baseline"
+      ]
+    },
+    "FAR": {
+      "status": "failed",
+      "failed_pairs": [
+        {
+          "task": "ARAGUAIA",
+          "arm": "B1*"
+        },
+        {
+          "task": "XINGU",
+          "arm": "B1*"
+        },
+        {
+          "task": "RIO CAETES",
+          "arm": "zscore"
+        }
+      ],
+      "target": 0.016666666666666666,
+      "tolerance": 0.0033333333333333335
+    }
+  },
+  "interpretation_allowed": false
+}

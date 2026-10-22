@@ -9,6 +9,12 @@ reprovados, G4/verificação de bytes oficiais pendentes; interpretação bloque
 P5, runner D-COST e exportador descritivo existem. Camada 1/injeção/runner
 não implementados; bancada não executada (projeção serial 82,29–104,74 h).
 
+[Evidência E0* de 21/10](../../evidence/2026-10-21-e0-diagnostics/README.md):
+diagnóstico reproduzível somente leitura preserva ΔAP médio −0,13096524694372677,
+12/13 regiões abaixo do z-score e as três falhas FAR; auditoria não estabelece
+defeito independente para autorizar correção/reexecução. E0*/FAR reprovados,
+G4 pendente, bancada não executada e interpretação bloqueada permanecem.
+
 Perfil fixo `P5-IMPL-2026-10-19-v1`: equações Gao 1–3; fonte AR1(T)>AR1(N)
 em white/env/dem, CV(T)<CV(N) em white e > em env/dem; rótulos, seis pares de
 medianas/hashes a `1e-12`. Sem bytes: `source_archive_verification=pending`.
