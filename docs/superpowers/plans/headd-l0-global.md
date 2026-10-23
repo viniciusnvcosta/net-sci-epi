@@ -1,5 +1,14 @@
 # HEADD-Series L0 Global Implementation Plan
 
+## Estado vigente — 23/10/2026 (ratificação G4)
+
+O autor aprovou explicitamente em chat G4 somente para `P5-IMPL-2026-10-19-v1`,
+aceitando clipping e limitações do observável. Ver [D-G4](../../protocol-decisions.md#d-g4-2026-10-23)
+e [balanço P0–P9/evidência preliminar](../../evidence/2026-10-23-g4-ratification-summary/README.md).
+Nenhum outro gate foi aprovado: E0*/FAR reprovados, camadas incompletas e
+`interpretation_allowed=false` permanecem; RQ1′ é inconclusiva.
+As entradas datadas anteriores e os manifests preservam seus estados históricos.
+
 ## Estado vigente — 22/10/2026 (evidência P5/G4)
 
 O [pacote P5/G4 para revisão científica](../../evidence/2026-10-22-p5-g4/README.md)
@@ -146,7 +155,8 @@ flowchart TD
 P4 e P6 estão implementados e validados tecnicamente; o artefato real
 P4 permanece preservado, sem aprovação de G3. P5 tem simulador técnico,
 manifesto e fixture [registrados](../../gao-source-preparation.md); o perfil
-foi ratificado em 21/10, mas verificação da fonte e G4 seguem pendentes.
+foi ratificado em 21/10; fontes verificadas em 22/10 e G4 aprovado em 23/10
+somente para o perfil fixo (D-G4), sem liberar interpretação.
 A comparação regional E0\* e a calibração foram executadas em 30/09, com
 falha de E0* e FAR preservada. A autorização B1* de D-G0 não libera interpretação.
 As trilhas independentes não autorizam subagentes automaticamente; `think`,
@@ -161,7 +171,7 @@ As trilhas independentes não autorizam subagentes automaticamente; `think`,
 | P2    | E0, validação ativa P2                                                                    | Componentes existentes; comportamento corrigido separado de paridade de primitivas.              |
 | P3    | E0, validação ativa P3; [Experimentos](headd-l0-experiments.md), Task 0 parcial | Caminho NB2 convergente implementado/validado; E0* e FAR falharam, NB2 prospectivo falha fechado. G2 não aprovado. |
 | P4    | [Grafo/simulação](headd-l0-graph-simulation.md), Task 1 implementada/validada tecnicamente | A/W, mapa, GEXF, 30 placebos e manifest real preservados; G3 não aprovado. |
-| P5    | Grafo/simulação, simulador/manifesto/fixture técnicos existentes | Perfil ratificado; fonte oficial/diagnósticos/revisão G4 pendentes; G4 não aprovado. |
+| P5    | Grafo/simulação, simulador/manifesto/fixture técnicos existentes | Perfil fixo com fontes/diagnósticos verificados; G4 aprovado em 23/10 somente para esse perfil (D-G4); interpretação bloqueada. |
 | P6    | Grafo/simulação, Task 4 implementada/validada tecnicamente | Features locais integradas ao E0*, com nomes/janelas registrados; features relacionais integradas ao runner E1 técnico; G5 não aprovado. |
 | P7    | Runner reduzido e smoke implementados | D-COST representado; smoke técnico não aprova FAR/G6 ou interpretação. |
 | P8    | Camadas 0/1/2 incompletas; camada 1 não implementada | Bancada não executada; sem G7/interpretação; conclusão inconclusiva enquanto faltarem gates/evidência. |
@@ -190,7 +200,7 @@ Camada1 (injeção epidêmica+nulos paramétricos) tem prioridade sobre todos os
 - [x] Hardware D-COST registrado (27/09); atualizar somente se o ambiente do piloto mudar.
 - [x] Validar P1–P3 pela sequência ativa do plano E0; não recriar componentes/exportadores.
 - [x] Implementar e validar tecnicamente P4/P6; G3/G5 permanecem separados da integração e interpretação.
-- [ ] Completar evidência P5 e revisão G4; perfil/R0 ratificados, manifesto/fixture e simulador técnicos existentes; bytes oficiais ausentes.
+- [x] Completar evidência P5 e revisão G4: fontes/diagnósticos de 22/10; G4 aprovado em 23/10 somente para o perfil fixo (D-G4), sem liberar interpretação.
 - [x] Registrar D-E0*-R1 datada antes do primeiro commit de integração E0\*; conferir SHA deste commit na Task 0.
 - [x] Confirmar features locais P6, tabela regional de classes/contraste sem cutoff por scores e P1–P3 antes do scoring Task 0. Scoring NB2 convergente executado em 30/09; D-RATIFY exige falha fechada prospectiva.
 - [x] Aferir D-COST em 20/10 antes de efeitos; aplicar (a)+(b), subset implementado; bancada não executada.

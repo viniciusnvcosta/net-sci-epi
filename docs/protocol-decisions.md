@@ -619,3 +619,25 @@ em blocos. Um nulo em blocos exige experimento separado e ratificação futura;
 não é fallback do protocolo de 23/10. Os 14 fits históricos convergiram;
 a emenda não explica nem modifica suas falhas. FAR alvo **1/60** e tolerância
 **1/300** permanecem. Nenhum status programático é alterado nesta ratificação.
+
+
+## D-G4-2026-10-23
+
+**Decisão científica do autor, explicitamente aprovada em chat em 23/10/2026:**
+G4 **aprovado exclusivamente para `P5-IMPL-2026-10-19-v1`**, após revisão do
+[pacote de fontes/diagnósticos de 22/10](evidence/2026-10-22-p5-g4/README.md),
+aceitando as limitações documentadas de clipping e observável. Ver o
+[balanço P0–P9/evidência preliminar](evidence/2026-10-23-g4-ratification-summary/README.md).
+
+O aceite abrange fontes oficiais, equações/fixture, determinismo e diagnósticos
+fixos mensais; não estima parâmetros de Pará nem afirma reprodução exata de
+trajetórias upstream ou paridade entre I fonte e contagens mensais. Clipping de
+I no período outbreak: white T/N 1478/43968 (3,36%)/2829/43968 (6,43%);
+dem 743/43968 (1,69%)/1335/43968 (3,04%); env zero. Não se cria cutoff
+retrospectivo nem se alteram perfil, seeds ou critérios.
+
+A decisão posterior não reescreve manifests/pacotes históricos com G4 pendente
+e revisão não solicitada em 22/10. Nenhum outro gate é aprovado. E0 inconclusivo,
+E0*/FAR reprovados e camadas obrigatórias incompletas permanecem;
+`interpretation_allowed=false`. RQ1′ segue inconclusiva, sem afirmar benefício
+ou ausência de benefício.

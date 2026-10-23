@@ -1,5 +1,14 @@
 # Desenvolvimento e reprodução
 
+## Estado vigente — 23/10/2026 (ratificação G4)
+
+O autor aprovou explicitamente em chat G4 somente para `P5-IMPL-2026-10-19-v1`,
+aceitando clipping e limitações do observável. Ver [D-G4](protocol-decisions.md#d-g4-2026-10-23)
+e [balanço P0–P9/evidência preliminar](evidence/2026-10-23-g4-ratification-summary/README.md).
+Nenhum outro gate foi aprovado: E0*/FAR reprovados, camadas incompletas e
+`interpretation_allowed=false` permanecem; RQ1′ é inconclusiva.
+As entradas datadas anteriores e os manifests preservam seus estados históricos.
+
 ## Relatório preliminar — 23/10/2026
 
 [Status científico HEADD L0 e motivos da conclusão inconclusiva](evidence/2026-10-23-preliminary/README.md).
@@ -19,7 +28,8 @@ O repositório dispõe dos componentes da baseline B1*, da preparação da
 camada 0, do grafo regional P4 e das features P6, implementados e validados
 tecnicamente. Simulador P5, runner reduzido D-COST e exportador descritivo
 foram entregues no PR #3; camada 1 e seu runner não estão implementados.
-Bancada de 82–105 h não executada; E0*/FAR reprovados, G4 pendente.
+Bancada de 82–105 h não executada; E0*/FAR reprovados; G4 aprovado
+em 23/10 somente para o perfil fixo (D-G4).
 D-RATIFY-2026-10-21 ratifica regras/perfil, sem alterar gates ou manifests.
 Conclusão positiva ou negativa exige camadas 0/1/2 completas e todos os gates;
 falha/incompletude implica inconclusivo. Ver [plano global](superpowers/plans/headd-l0-global.md).
@@ -29,7 +39,7 @@ Os resumos portáteis e hashes dos artefatos preservados pelo PR #2 estão em
 O [diagnóstico somente leitura de 21/10](evidence/2026-10-21-e0-diagnostics/README.md)
 reproduz os 13 pares regionais, a perda média de AP e as três falhas FAR,
 com hashes e auditoria causal histórica/atual. Não estabelece defeito independente
-da baseline; E0*/FAR seguem reprovados, G4 pendente, bancada não executada
+da baseline; E0*/FAR seguem reprovados, G4 aprovado no escopo D-G4, bancada não executada
 e interpretação bloqueada.
 
 ## Ambiente e comandos
