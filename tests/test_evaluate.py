@@ -3,8 +3,10 @@
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 
+from headd_l0 import evaluate
 from headd_l0.evaluate import (
     auc_pr,
     classification_metrics,
@@ -106,3 +108,43 @@ def test_invalid_metric_inputs_rejected():
         detection_outcome(np.zeros(10, bool), 10)
     with pytest.raises(ValueError):
         detection_outcome(np.zeros(10, bool), 2, pre=-1)
+
+
+def test_paired_lead_gains_retain_misses_and_exclude_no_onset():
+    # Dropping censored misses would change the first replicate's mean from 8 to 4.
+    frame = pd.DataFrame(
+        {
+            "replicate_id": ["T0000"] * 3 + ["T0001"] * 3,
+            "task": ["a", "b", "c"] * 2,
+            "onset": [84, 84, -1, 84, 84, -1],
+            "restricted_lead_gain": [4, 12, np.nan, -2, 0, np.nan],
+            "paired_eligible": [True, True, False] * 2,
+            "far_comparable": [True] * 6,
+        }
+    )
+    gains = evaluate.paired_lead_gains(frame, ["T0001", "T0000"])
+    np.testing.assert_array_equal(gains, [-1, 8])
+
+
+@pytest.mark.parametrize("defect", ["unavailable", "far", "missing", "duplicate"])
+def test_paired_lead_gains_reject_incomplete_or_unmatched_pairs(defect):
+    frame = pd.DataFrame(
+        {
+            "replicate_id": ["T0000", "T0001"],
+            "task": ["a", "a"],
+            "onset": [84, 84],
+            "restricted_lead_gain": [4, 4],
+            "paired_eligible": [True, True],
+            "far_comparable": [True, True],
+        }
+    )
+    if defect == "unavailable":
+        frame.loc[0, "paired_eligible"] = False
+    elif defect == "far":
+        frame.loc[0, "far_comparable"] = False
+    elif defect == "missing":
+        frame = frame.iloc[:1]
+    else:
+        frame = pd.concat([frame, frame.iloc[:1]])
+    with pytest.raises(ValueError):
+        evaluate.paired_lead_gains(frame, ["T0000", "T0001"])

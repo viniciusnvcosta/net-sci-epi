@@ -1,0 +1,12 @@
+# Fixed technical conventions: tests/reference/gao_manifest.json.
+# Single-region validation only; scientific ratification and G4 remain pending.
+# This component config is not yet wired into headd_l0.run.
+[simulation]
+profile_id = "P5-IMPL-2026-10-19-v1"
+noise = "white"
+label = "T"
+testing_rate = 0.5
+
+[validation]
+root_seed = 42
+replicates_per_noise_label = 64

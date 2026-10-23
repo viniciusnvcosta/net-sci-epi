@@ -1,0 +1,29 @@
+# Pre-registered full design. Loading does not execute it or authorize inference.
+name = "e1_bench"
+run_id = "e1-bench"
+root_seed = 42
+output_dir = "results"
+noise_types = ["white", "env", "dem"]
+epsilon_levels = [0.0, 0.05, 0.2]
+n_transition = 200
+n_null = 200
+n_calibration = 200
+n_placebos = 30
+n_placebo_transition_per_cell = 100
+detectors = ["pca", "lof", "knn", "hbos", "iforest", "mcd"]
+selection_k = 5
+graph_source = "queen_cache"
+endemic_source = "calibrated"
+calibration_dirs = [
+    "data/processed/endemic-white",
+    "data/processed/endemic-env",
+    "data/processed/endemic-dem",
+]
+train_months = 60
+window = 12
+target_far = 0.016666666666666666
+far_tolerance = 0.0033333333333333335
+reconciliation = "mint_shrink"
+selector = "meta_des"
+threshold = "evt_gpd"
+baseline_id = "B1*"

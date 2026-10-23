@@ -214,3 +214,96 @@ Reference: [Newey–West/Bartlett](https://www.statsmodels.org/dev/generated/sta
   historical exporter commit. Local array integrity tests replace reimports.
 
 Execution commands and current gate limitations: [development guide](docs/development.md).
+
+## P6 causal residual features (Graph/Simulation Task 4, 2026-09-29)
+
+`src/headd_l0/features.py` is new, not a CDADE port; no legacy parity claim
+applies. It accepts only standardized residuals supplied by D5 and produces
+full-axis local or leaf-neighbor `FeatureBatch` arrays. The names and order are
+fixed by `tests/test_features.py`; the future runner must write them into its
+manifest. Lag-one month zero and incomplete trailing-Moran windows carry zero
+placeholders and are excluded by caller eligibility. `rolling_ews` returns
+SD, signed CV, Pearson AR1, uncorrected skewness and Pearson kurtosis with an
+elementwise validity mask. Hand calculations, constant inputs and prefix
+invariance are behavior tests. Graph acquisition, scoring and simulator output
+are outside this component.
+
+## D-E0*-R1 regional pre-gate (Task 2, 2026-09-29)
+
+`run.py` now enforces both classes and finite AP only for the 13 canonical
+regional tasks in the 72-month test window. It rejects malformed regional
+counts, missing/duplicate/unknown task-arm rows and mismatched regional labels.
+Optional PA rows are descriptive and do not enter AP or class criteria. The
+10,000-draw paired bootstrap remains over named regions. The root-seed-42
+`inject_original_bounded` stream, labels and counts are unchanged; preflight
+retains all 14 tasks, writes PA union/coherence diagnostics, and remains pending
+until component and trivial-baseline evidence exists. The earlier
+`single_class:PA` failure remains a historical artifact; E0 is inconclusive.
+Behavior tests in `tests/test_run.py` cover this revision. No new dependency.
+
+## P4 regional graph (2026-09-29)
+
+`graph.py` and `graph_io.py` are new components, not CDADE ports. Synthetic
+behavior tests cover Queen vertex contact, canonical ordering, rejected islands,
+invalid geometry, bounded rewiring, labeled degrees, deterministic distinct
+placebos, GEXF exports and verified caches. Acquisition tests replace only the
+network boundary, retain real geometry/graph operations and verify diagnostic
+artifacts on source/cardinality/topology failures. No dependency was added.
+
+`configs/l0_graph.toml` fixes DataSUS via geobr, vintage 2013, micro regions of
+PA and `simplified=false` before acquisition. The resolved geobr 2.1.1 reader
+unions municipalities and removes interior holes; manifests record this
+upstream operation and its source hash. Local invalid geometries are rejected,
+not repaired. Original codes/names and their accent/case normalization are
+retained in an audit table, checked against the exact 13 code/name pairs in
+`PA_HEALTH_REGIONS_2013` (audit version `datasus-pa-2013-v1`). The table is
+pinned to the acquired DataSUS/geobr 2013 source hash; unknown codes or swapped
+code/name assignments fail before a ready cache is written. No year,
+resolution or contiguity fallback is selected to obtain connectivity.
+
+Each placebo candidate starts from A and accepts 10×|E| double-edge swaps,
+rejecting loops, duplicate edges and disconnected proposals, within at most
+1,000×|E| attempts. At most 10,000 candidates yield 30 distinct nonoriginal
+connected graphs; exhaustion raises. Degree is preserved by node identity.
+These budgets do not establish uniform mixing. Manifests retain RNG seed,
+attempt counts, edge symmetric-difference distances, all pairwise distances,
+hashes, source metadata, dependency versions and measured acquisition cost.
+A valid cache requires compatible provenance, canonical names, an intact hash
+and a connected simple undirected A. Acquisition status and scientific gate
+limitations are recorded in [development](docs/development.md).
+
+## P5 Gao simulator source preparation (29/09/2026)
+
+P5 is a new scientific component, not a CDADE port. The
+[source preparation note](docs/gao-source-preparation.md) identifies the Gao
+supplement/Zenodo archive, pinned Chakraborty predecessor, equations,
+parameter distributions and frozen feature-table hashes/medians. It records
+the white-noise CV direction conflict with the planned all-noise test. The
+[protocol entry](docs/protocol-decisions.md#pending-p5-source-parity-and-profile-revision--29092026)
+is **pending**, not a profile approval. The requested machine-readable
+`tests/reference/gao_manifest.json` and numeric `gao_single.npz` remain absent;
+no `simulate.py` implementation, parity fixture, simulator run or scientific
+gate result exists. P4 graph and P6 features are separate new components,
+implemented and technically validated as recorded above; neither approves
+G3/G5 or E1′ interpretation.
+
+## Task 6 — approved E0* scoring integration (30/09/2026)
+
+`forecast.sample_nb2` and `e0_scoring.py` are new orchestration, not CDADE
+parity ports. They consume the existing corrected B1* components and unchanged
+local P6 features after decision `50f8b3f` (D-E0*-R1). The preparation entry
+point remains unchanged; `run.run_e0_scoring` and `--score-e0` select scoring.
+Training is raw months 0–59; pool training excludes lag placeholder month 0.
+Nulls retain the training prefix and sample 72 NB2 months, with coherent PA,
+200 calibration panels and 200 independent evaluation panels. The injection
+keeps the root RNG, including its unmodified negative injected cells.
+
+Behavior tests cover NB2 moments/integer draws/determinism, failed D5 fits,
+training isolation, calibration/evaluation separation, component source
+identity, injection preservation, regional prevalence and CLI dispatch.
+Existing detector/selector/threshold defaults are unchanged. Component suites
+are executed by the runner and tied to SHA plus source digest; each output
+records the applicable model/fallback diagnostics. Failed base fits block
+before MinT/AP. D-GT3 block-bootstrap construction remains unspecified and
+unimplemented; Task 6 remains partial. E0 stays inconclusive and no E1 gate
+is authorized by this integration. No dependency was added.

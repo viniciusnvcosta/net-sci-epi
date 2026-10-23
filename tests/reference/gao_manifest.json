@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "profile_id": "P5-IMPL-2026-10-19-v1",
+  "decision_id": "D-P5-IMPL",
+  "decision_date": "2026-10-19",
+  "status": {
+    "implementation_authorized": true,
+    "technical_validation_authorized": true,
+    "scientific_ratification": "pending",
+    "G4": "pending",
+    "interpretation_allowed": false
+  },
+  "authority": "Task 2 controller ruling; technical conventions, not scientific approval by the project author",
+  "parity_target": "Gao supplement equations 1-3; simultaneous Euler-Maruyama update with supplied Gaussian innovations",
+  "not_targets": ["Chakraborty executable trajectory parity", "exact reproduction of Gao simulation batches", "monthly incidence matching archived infected-state features"],
+  "sources": {
+    "supplement": {
+      "url": "https://doi.org/10.1371/journal.pcbi.1012782.s001",
+      "sha256": "ea467449c4cc4de2e4e0d23a3053188f24d99017f1cb58b009f1d8e442f0e8a6",
+      "equations": [1, 2, 3]
+    },
+    "archive": {
+      "url": "https://doi.org/10.5281/zenodo.10967222",
+      "version": 1,
+      "filename": "Code.zip",
+      "sha256": "3b519acdbc598c6129a3c5ea49715800e8dd4bc84d4644ad578bd2ee720e3e35"
+    },
+    "predecessor": {
+      "url": "https://github.com/AmitKChakraborty/EWSofInfectiousDiseases/tree/2856a304584b1e723881be70d951d3781f9a4478/Training_Data_Generation",
+      "commit": "2856a304584b1e723881be70d951d3781f9a4478",
+      "role": "non-target characterization only"
+    },
+    "evidence_record": "docs/gao-source-preparation.md",
+    "last_external_bytes_verified": "2026-09-29",
+    "external_bytes_reverified_on_decision_date": false,
+    "availability": "Archive and supplement are absent locally; hashes and summaries transcribed from the frozen source record, without a new download"
+  },
+  "fixture": {
+    "path": "tests/reference/gao_single.npz",
+    "sha256": "3d40f2edb962e67482dfeb6d229528317bc2f5220e90befed2930cbf366d3c27",
+    "provenance": "Self-generated arithmetic evidence; Decimal precision 60, analytic principal square root of equation 3; no production simulator or upstream arrays used",
+    "license": "Project-generated fixture under repository MIT license; no upstream data redistributed",
+    "reproduction": "docs/gao-source-preparation.md#one-step-fixture-reproduction",
+    "state_order": ["S", "I"],
+    "row_order": ["white:T", "white:N", "env:T", "env:N", "dem:T", "dem:N"],
+    "label_semantics": "T/N identify fixed source scenarios; beta is evaluated at source t=500 for T and t=0 for N; one step does not establish a transition",
+    "numeric_dtype": "float64",
+    "comparison": {"rtol": 0.0, "atol": 1e-10},
+    "shapes": {
+      "profile_id": [], "noise": [6], "label": [6], "state": [6, 2],
+      "beta": [6], "dt": [6], "recruitment": [6], "recovery": [6],
+      "mortality": [6], "sigma": [6, 2], "gaussian": [6, 2],
+      "expected_drift": [6, 2], "expected_diffusion": [6, 2, 2],
+      "expected_state": [6, 2], "expected_incidence": [6]
+    },
+    "inputs": {
+      "state": [500.0, 7.0], "dt": 0.01, "recruitment": 100.0,
+      "recovery": 1.0, "mortality": 1.0, "sigma": [0.4, 0.6],
+      "gaussian": [0.25, -0.75], "beta_by_label": {"T": 0.015, "N": 0.005}
+    },
+    "expected_state": [
+      [495.485, 7.34], [495.835, 6.99],
+      [500.475, 7.07], [500.825, 6.72],
+      [496.2299408118578, 6.74561406756831],
+      [496.4892099426444, 6.6019005286399945]
+    ]
+  },
+  "equations": {
+    "infection_flow": "f = beta_mass * S * I",
+    "drift": ["recruitment - f - mortality*S", "f - (recovery+mortality)*I"],
+    "white_diffusion": "diag(sigma_s, sigma_i)",
+    "env_diffusion": "diag(sigma_s*S, sigma_i*I)",
+    "dem_covariance": "[[recruitment+f+mortality*S, -f], [-f, f+(recovery+mortality)*I]]",
+    "dem_diffusion": "Principal symmetric nonnegative square root of dem_covariance; no extra sigma factors; the zero matrix has square root zero",
+    "step": "maximum(state + drift*dt + diffusion @ gaussian*sqrt(dt), 0); all coefficients use the same left endpoint",
+    "projection": "Componentwise lower clipping only; no random reset, upper clipping or carried state between replicates; report clipped coordinate counts and fractions"
+  },
+  "source_profile": {
+    "origin": "Fixed implementation conventions using documented predecessor scales; not the unknown Gao batch parameters",
+    "initial_state": [500.0, 7.0],
+    "recruitment": 100.0, "recovery": 1.0, "mortality": 1.0,
+    "sigma_s": 0.4, "sigma_i": 0.6,
+    "demographic_sigma_multiplier": 1.0,
+    "dt_source_units": 0.01,
+    "burn_in_source_units": 100.0,
+    "burn_in_beta": 0.005,
+    "burn_in_reset": "Start each replicate at initial_state; burn-in uses independent preceding innovations; retain its terminal state, then reset the clock to zero",
+    "horizon_source_units": 1500.0,
+    "save_spacing_source_units": 1.0,
+    "saved_times": "1,2,...,1500 after burn-in",
+    "beta_start": 0.005,
+    "beta_slope_by_label": {"T": 0.00002, "N": 0.0},
+    "beta_end_by_label": {"T": 0.035, "N": 0.005},
+    "beta_critical": 0.02,
+    "crossing_T_source_units": 750.0,
+    "crossing_rule": "Continuous equality beta=beta_critical with beta>beta_critical immediately afterward; N has no crossing; do not select the second sampled exceedance",
+    "window_observable": "infected state I without detrending",
+    "window_T_saved_times": {"first": 350, "last_inclusive": 749, "count": 400},
+    "window_N_saved_times": {"first": 350, "last_inclusive": 749, "count": 400},
+    "window_N_rule": "Matched fixed endpoint, an implementation convention replacing the unknown archived sampled endpoints",
+    "physical_mapping": {
+      "days_per_source_unit": 28.0,
+      "origin": "Implementation convention only; not established by Gao or the predecessor",
+      "rate_conversion": "t_source=t_days/28; beta_day(t_days)=beta_source(t_days/28)/28, so its linear slope divides by 28^2; other rates divide by 28 and white/env amplitudes divide by sqrt(28); demographic covariance uses the converted rates",
+      "consequence": "The 1500-unit source experiment is not an 11-year epidemic; the monthly profile below is a separately parameterized adaptation, not a time-rescaled reproduction"
+    },
+    "population_conversion": {
+      "effective_denominator": 100.0,
+      "origin": "recruitment/mortality for algebraic frequency conversion, not a bound on S+I",
+      "beta_frequency": "100 * beta_mass per source unit; preserves beta_mass*S*I exactly"
+    }
+  },
+  "archived_characterization": {
+    "observable": "400 observations of infected state I; not incidence or monthly counts",
+    "rows": 12000,
+    "labels": {"T": {"first_row_1based": 1, "last_row_1based": 6000}, "N": {"first_row_1based": 6001, "last_row_1based": 12000}},
+    "label_sources": ["Code/Code/Figures/Figure S5.R:8-10,21-22", "Code/Code/Figures/Figure S6.R:8-10,21-22", "Code/Code/Figures/Figure S7.R:8-10,21-22"],
+    "CV": "sample SD / mean, unscaled; supplement percent values divide by 100",
+    "median_tolerance": 1e-12,
+    "tables": {
+      "white": {"path": "Code/Data/Simulation/Training/EWSI/EWSI_white_training.csv", "sha256": "c2d2684af45c975c1813ad243de2799cfaeb35b66f9734ac3ac32dc598fa82e5", "AR1": {"T": 0.4589695136544245, "N": 0.06335934371952405}, "CV": {"T": 0.7695323012078741, "N": 0.8337873367675575}},
+      "env": {"path": "Code/Data/Simulation/Training/EWSI/EWSI_env_training.csv", "sha256": "079f4720537722cad787b78be27b81ac94483c97c53dddd237ad60b5d5946714", "AR1": {"T": 0.5880703663584995, "N": -0.09465763109109755}, "CV": {"T": 0.8569538002486781, "N": 0.6270792751140045}},
+      "dem": {"path": "Code/Data/Simulation/Training/EWSI/EWSI_dem_training.csv", "sha256": "7039d780069cf2c28350a9d55b7d9617527f8af54c699a190ae7605ef819f840", "AR1": {"T": 0.5047929896716941, "N": -0.0206288632503289}, "CV": {"T": 1.019406821444585, "N": 0.57233734032215}}
+    },
+    "criterion": "Verify original bytes, archived row labels and all six T/N median pairs; AR1(T)>AR1(N) for all noises; CV(T)<CV(N) for white and CV(T)>CV(N) for env/dem",
+    "missing_archive": "A requested archival parity gate must fail explicitly if the archive is unavailable; stored summaries alone are not a fresh archive reproduction",
+    "historical_gate_scope": "Qualifies the all-noise directional CV requirement for technical source characterization only; scientific replacement is pending ratification"
+  },
+  "monthly_profile": {
+    "origin": "HEADD implementation conventions; these are not Gao facts or fitted epidemiological parameters",
+    "start": "2009-01-01",
+    "end_exclusive": "2020-01-01",
+    "months": 132,
+    "train_months": 60,
+    "monitor_months": [60, 131],
+    "regions_initial_validation": 1,
+    "regions_coupled": 13,
+    "state_order": ["S", "I"],
+    "effective_population_each": 100000.0,
+    "initial_infected_each": 7.0,
+    "initial_susceptible_each": 99993.0,
+    "population_semantics": "Fixed effective denominator, not census population or a hard bound on fluctuating S+I; recovery removes I from the modeled subsystem",
+    "time_unit": "day",
+    "max_step_days": 7.0,
+    "burn_in_days": 365.0,
+    "burn_in": "Null beta and endemic/seasonal parameters; independent preceding innovations; reset initial states for every replicate and share burn-in across outbreak/twin",
+    "recovery_per_day": 0.07142857142857142,
+    "mortality_per_day": 0.0027397260273972603,
+    "recruitment_each_per_day": 273.972602739726,
+    "parameter_definitions": {"recovery": "1/14 per day", "mortality": "1/365 per day, effective turnover rather than human life expectancy", "recruitment": "mortality * effective_population"},
+    "R0_start": 0.8,
+    "R0_end_T": 1.6,
+    "R0_end_N": 0.8,
+    "beta_start_per_day": 0.05933463796477495,
+    "beta_end_T_per_day": 0.1186692759295499,
+    "beta_rule": "beta_frequency = R0 * (recovery+mortality); lambda_i = beta_i * sum_j(C_ij*I_j/N_j); equivalent single-region beta_mass = beta_frequency/N",
+    "ramp_start_week": 313,
+    "ramp_end_week": 365,
+    "ramp_rule": "Seed only, linear in elapsed days from week*7; constant before/after endpoints; N and twin keep beta_start everywhere",
+    "seed_region": 0,
+    "single_region_epsilon": 0.0,
+    "coupled_epsilon_values": [0.0, 0.05, 0.2],
+    "noise": {
+      "white_sigma_s": 1.0, "white_sigma_i": 1.0,
+      "white_units": "persons/sqrt(day)",
+      "env_sigma_s": 0.01, "env_sigma_i": 0.01,
+      "env_units": "1/sqrt(day)",
+      "demographic_extra_sigma": false,
+      "demographic_covariance": "Use the same equation-3 covariance with adapted recruitment, mortality, recovery and total infection flow"
+    },
+    "endemic_hazard_each_per_day_single_region": 0.000001,
+    "endemic_flow": "nu_i(t)*S_i added to infection flow, transferring S to I; total f_i=(lambda_i+nu_i(t))*S_i",
+    "seasonal_amplitude": 0.1,
+    "seasonal_phase_radians": 0.0,
+    "seasonal_period_days": 365.25,
+    "seasonal_rule": "nu_i(t) = nu_i * (1 + 0.1*cos(2*pi*t/365.25)); no seasonal multiplier on beta",
+    "calendar": "Gregorian dates at midnight, leap days included; union of start-anchored 7-day boundaries and month boundaries, including final endpoint; burn-in starts at t=-365 days and also splits at these boundaries",
+    "partial_intervals": "Every adjacent boundary pair is one Euler-Maruyama interval with its actual dt and an independent standard Gaussian pair scaled by sqrt(dt); interval lies in exactly one month; no discarded day or reused full-week increment",
+    "latent_incidence": "max(total infection flow at the left endpoint, 0)*actual_dt; sum flows within each calendar month, never sum I; demographic innovation is not an extra case event",
+    "integerization": "Once per region-month: floor(L) + (u_round < L-floor(L)); no per-step rounding",
+    "testing_rate": 0.5,
+    "observation": "Binomial integerized incidence with theta, implemented by inverse CDF at u_observe in (0,1); theta=0 gives zero and theta=1 gives all trials",
+    "innovations": "Preallocate fixed arrays by (replicate,calendar_interval,region,S_or_I), and by (replicate,month,region,round_or_observe); separate burn-in block. Twin uses identical arrays, including rounding and binomial quantiles; never consume RNG conditionally",
+    "seed_onset": "Month containing the continuous R0=1 crossing followed by R0>1, not a second sampled exceedance; -1 for N",
+    "remote_onset": "First observed outbreak-minus-twin count strictly greater than 2*SD; SD is sample SD (ddof=1) of the twin's first 60 observed months, frozen; SD=0 uses strictly positive excess; absent=-1",
+    "diagnostic_T_window": "12 observed months immediately before seed onset, excluding onset; invalid if fewer than 12 months are available",
+    "diagnostic_N_window": "Same 12 calendar months as the paired T design; no search for a favorable endpoint",
+    "layer1": {"endemic_hazard": 0.0, "R0_uniform_range": [1.2, 1.8], "initial_infected_nonseed": 0.0, "initial_infected_seed": 7.0, "absorbing_boundary": "For the epidemic-only component, I=0 with zero local/imported infection pressure remains zero even under additive white noise; this is an explicit monthly adaptation, not source-equation parity"}
+  },
+  "endemic_calibration": {
+    "origin": "Technical convention for later coupled implementation; not executed in Task 2",
+    "target": "Per-region median of real counts in months 0-59 only",
+    "fit": "Independent single-region nulls at epsilon=0, fixed N/theta/rates/noise; bisection in nu using common innovations across candidates",
+    "nu_bracket_per_day": [0.0, 0.14285714285714285],
+    "replicates_per_candidate": 128,
+    "summary": "Median over all 128*60 simulated training counts",
+    "max_iterations": 30,
+    "tolerance_counts": "max(1, 0.1*target_median)",
+    "failure": "If endpoints do not bracket the target within tolerance or iterations fail, report calibration failure; no widening or evaluation-data fitting",
+    "output": "Save nu, targets, errors, input/config/code hashes and seeds in data/processed; nu/theta are not separately identifiable from medians"
+  },
+  "validation": {
+    "root_seed": 42,
+    "rng": "numpy.random.Generator(PCG64(SeedSequence)); caller owns SeedSequence(root).spawn(n)",
+    "seed_tree": "SeedSequence(42).spawn(3): source=0, monthly=1, endemic_calibration=2. Source/monthly spawn six cells ordered white:T,white:N,env:T,env:N,dem:T,dem:N; each cell spawns 64 replicates. Calibration spawns 13 canonical regions, each spawning 128 replicates. Record entropy and spawn_key",
+    "replicates_per_noise_label": 64,
+    "features": "SD ddof=1; CV=SD/mean; AR1=Pearson correlation of adjacent observations; no detrending; zero mean/variance yields zero with validity=false and is excluded from median with valid counts reported",
+    "one_step_gate": "All six fixture rows within absolute tolerance 1e-10; demographic B@B.T equals equation-3 covariance, with no sigma scaling; separately test clipping and theta=0/1",
+    "monthly_checks": "132 nonnegative integer counts; calendar coverage and flow conservation; reproducibility, no future-data use, explicit projection diagnostics; no scientific separation result asserted by this fixture",
+    "separation": "Preserve archived labels/median directions as the source characterization target. Fresh source and monthly simulation medians/valid counts are diagnostics, not required to match archive medians or reverse white CV. Never tune profile or seeds to pass a direction check",
+    "scientific_gate": "G4 pending until explicit scientific ratification and applicable evidence; E0_star/FAR failures remain unchanged; interpretation_allowed=false"
+  }
+}

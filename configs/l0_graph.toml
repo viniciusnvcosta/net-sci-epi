@@ -1,0 +1,7 @@
+run_id = "l0-graph-2013-original"
+root_seed = 42
+year = 2013
+simplified = false
+n_placebos = 30
+processed_dir = "data/processed/graph"
+output_dir = "results"

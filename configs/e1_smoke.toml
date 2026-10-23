@@ -1,0 +1,23 @@
+# Technical wiring only: synthetic cycle, fixed hazards and a cheap real pool.
+name = "e1_smoke"
+run_id = "e1-smoke"
+root_seed = 42
+output_dir = "results"
+noise_types = ["white"]
+epsilon_levels = [0.0, 0.2]
+n_transition = 2
+n_null = 2
+n_calibration = 2
+n_placebos = 30
+detectors = ["pca", "knn", "hbos"]
+selection_k = 2
+graph_source = "synthetic_cycle_smoke_only"
+endemic_source = "fixed_profile_smoke_only"
+train_months = 60
+window = 12
+target_far = 0.016666666666666666
+far_tolerance = 0.0033333333333333335
+reconciliation = "mint_shrink"
+selector = "meta_des"
+threshold = "evt_gpd"
+baseline_id = "B1*"

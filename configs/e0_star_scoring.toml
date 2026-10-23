@@ -1,0 +1,8 @@
+# Run from the project root with --score-e0; preserves the preparation config.
+# Existing artifact directories are never overwritten. E1 interpretation stays blocked.
+run_id = "e0-star-scoring"
+root_seed = 42
+baseline_id = "B1*"
+reference_sha = "fbfa609bba6cb0b0f2a9e8d73be18022aec319b7"
+raw_dir = "../hybrid-theory/data/raw"
+output_dir = "results"

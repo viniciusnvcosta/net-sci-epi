@@ -7,12 +7,25 @@ import subprocess
 import tomllib
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
+from numbers import Real
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from headd_l0.data import hierarchy, load_sivep
+from headd_l0.e1 import (
+    ArmSpec,
+    ExperimentConfig,
+    RunResult,
+    _digest,
+    _inputs,
+    _replicates,
+    _score,
+    build_arms,
+)
+from headd_l0.e1_artifacts import _artifacts, _manifest
+from headd_l0.graph import row_normalize
 from headd_l0.inject import InjectionConfig, inject_original_bounded
 from headd_l0.stats import task_bootstrap
 
@@ -33,42 +46,59 @@ class E0StarResult:
 def check_e0_star(
     components_ok: bool, auc_pr: pd.DataFrame, rng: np.random.Generator
 ) -> E0StarResult:
-    """Check all 14 tasks, then bootstrap paired AP differences over 13 regions.
+    """Validate paired regional evidence and bootstrap AP gains over 13 regions.
+
+    PA rows are optional descriptive evidence. Their AP and class balance do not
+    enter the gate, though duplicate or unknown task/arm keys are rejected.
 
     Args:
         components_ok: Outcome of the component behavior suite for this code.
-        auc_pr: Columns task, arm, auc_pr, n_positive, n_negative. Both B1* and
-            zscore must have finite AP and both classes on every canonical task.
+        auc_pr: Columns task, arm, auc_pr, n_positive, n_negative. Regional
+            rows require finite AP and both classes in the 72-month test window.
         rng: Independent bootstrap stream; never used for data generation.
     """
-    names = ("PA", *hierarchy().leaves)
+    names = hierarchy().leaves
     required = {"task", "arm", "auc_pr", "n_positive", "n_negative"}
     valid = required.issubset(auc_pr.columns)
     if valid:
         keys = list(zip(auc_pr.task, auc_pr.arm, strict=True))
         expected = {(name, arm) for name in names for arm in ("B1*", "zscore")}
-        valid = len(keys) == len(expected) and set(keys) == expected
-        numeric = auc_pr[["auc_pr", "n_positive", "n_negative"]].to_numpy(float)
-        valid = bool(
-            valid
-            and np.isfinite(numeric).all()
-            and auc_pr.auc_pr.between(0, 1).all()
-            and (numeric[:, 1:] > 0).all()
+        permitted = expected | {("PA", arm) for arm in ("B1*", "zscore")}
+        valid = (
+            len(keys) == len(set(keys))
+            and set(keys).issubset(permitted)
+            and expected.issubset(keys)
         )
     if valid:
-        sizes = auc_pr.groupby("task")[["n_positive", "n_negative"]].nunique()
-        valid = bool(
-            (sizes == 1).all().all()
-            and (numeric[:, 1:] == np.floor(numeric[:, 1:])).all()
+        regional = auc_pr.loc[auc_pr.task != "PA"]
+        columns = ("auc_pr", "n_positive", "n_negative")
+        valid = all(
+            regional[column]
+            .map(lambda value: isinstance(value, Real) and not isinstance(value, bool))
+            .all()
+            for column in columns
         )
+    if valid:
+        numeric = regional[list(columns)].to_numpy(float)
+        counts = numeric[:, 1:]
+        valid = bool(
+            np.isfinite(numeric).all()
+            and ((numeric[:, 0] >= 0) & (numeric[:, 0] <= 1)).all()
+            and (counts > 0).all()
+            and (counts == np.floor(counts)).all()
+            and (counts.sum(axis=1) == 72).all()
+        )
+    if valid:
+        sizes = regional.groupby("task")[["n_positive", "n_negative"]].nunique()
+        valid = bool((sizes == 1).all().all())
     lower = None
     if valid:
-        table = auc_pr.pivot(index="task", columns="arm", values="auc_pr")
-        delta = (table["B1*"] - table["zscore"]).loc[list(names[1:])].to_numpy()
+        table = regional.pivot(index="task", columns="arm", values="auc_pr")
+        delta = (table["B1*"] - table["zscore"]).loc[list(names)].to_numpy()
         lower = float(task_bootstrap(delta, rng, n_boot=10000).low)
     conditions = {
         "components": bool(components_ok),
-        "fourteen_tasks": valid,
+        "thirteen_regional_tasks": valid,
         "trivial_baseline": lower is not None and lower > 0,
     }
     return E0StarResult(
@@ -115,12 +145,12 @@ class E0Config:
             object.__setattr__(self, name, Path(value).expanduser())
 
 
-def load_config(path: Path) -> E0Config:
-    """Read TOML; execution fields are required and validated by E0Config."""
+def load_config(path: Path) -> E0Config | ExperimentConfig:
+    """Read E0 or explicitly named E1 TOML without executing an experiment."""
     with Path(path).open("rb") as handle:
         values = tomllib.load(handle)
     try:
-        return E0Config(**values)
+        return (ExperimentConfig if "name" in values else E0Config)(**values)
     except TypeError as exc:
         raise ValueError(f"invalid E0 configuration: {exc}") from exc
 
@@ -129,8 +159,8 @@ def run_preflight(cfg: E0Config, counts: np.ndarray) -> Path:
     """Persist coherent injection and class diagnostics before detector execution.
 
     No component/performance gate is inferred from preparation. A single-class
-    task fails E0* immediately; otherwise the performance gate remains pending
-    until Experiments Task 4 calls check_e0_star with evaluated model outputs.
+    regional task fails E0*; otherwise the performance gate remains pending
+    until Experiments Task 0 calls check_e0_star with evaluated model outputs.
     """
 
     seed = np.random.SeedSequence(cfg.root_seed)
@@ -155,17 +185,42 @@ def run_preflight(cfg: E0Config, counts: np.ndarray) -> Path:
             "n_negative": (~result.mask[:, 60:]).sum(axis=1),
         }
     )
+    tasks["denominator"] = 72
+    tasks["window_start"] = 60
+    tasks["window_end"] = 131
+    tasks["positive_prevalence"] = tasks.n_positive / tasks.denominator
+    tasks["role"] = ["descriptive", *(["regional"] * 13)]
+    tasks["in_gate"] = [False, *([True] * 13)]
     tasks.to_parquet(path / "tasks.parquet", index=False)
+    pa_diagnostics = {
+        "positive_prevalence": float(tasks.loc[0, "positive_prevalence"]),
+        "union_coverage_months": int(result.mask[0, 60:].sum()),
+        "denominator": 72,
+        "counts_coherent": bool(
+            np.array_equal(result.counts[0], result.counts[1:].sum(axis=0))
+        ),
+        "labels_union_coherent": bool(
+            np.array_equal(result.mask[0], result.mask[1:].any(axis=0))
+        ),
+    }
+    (path / "pa_diagnostics.json").write_text(
+        json.dumps(pa_diagnostics, indent=2) + "\n"
+    )
     pd.DataFrame([asdict(event) for event in result.events]).to_parquet(
         path / "events.parquet", index=False
     )
-    invalid = tasks.loc[(tasks.n_positive == 0) | (tasks.n_negative == 0), "task"]
+    invalid = tasks.loc[
+        tasks.in_gate & ((tasks.n_positive == 0) | (tasks.n_negative == 0)), "task"
+    ]
     git = ["git", "-C", str(Path(__file__).resolve().parent)]
     manifest = {
         "config": {
             k: str(v) if isinstance(v, Path) else v for k, v in asdict(cfg).items()
         },
         "baseline_id": cfg.baseline_id,
+        "e0_star_revision": "D-E0*-R1",
+        "e0_star_decision_commit": "50f8b3f29bacc4747329addf80cee6719fe3c7fc",
+        "e0_star_gate_version": "regional-13-v1",
         "reference_sha": cfg.reference_sha,
         "git_sha": subprocess.check_output(
             [*git, "rev-parse", "HEAD"], text=True
@@ -198,6 +253,121 @@ def run_preflight(cfg: E0Config, counts: np.ndarray) -> Path:
     return path
 
 
+def run_e0_scoring(cfg: E0Config) -> Path:
+    """Score the approved E0* regional gate and 200+200 independent NB2 nulls.
+
+    Args:
+        cfg: Existing E0 configuration with a new artifact directory/run ID.
+    """
+    # Defer this import: scoring consumes the gate and preparation contracts above.
+    from headd_l0.e0_scoring import _score_e0  # noqa: PLC0415
+
+    return _score_e0(cfg, load_sivep(cfg.raw_dir).counts)
+
+
+def run(cfg: ExperimentConfig, *, arms: tuple[ArmSpec, ...] | None = None) -> RunResult:
+    """Run all synthetic replicates once and persist immutable technical evidence.
+
+    Args:
+        cfg: Validated smoke/bench design, including explicit input sources.
+        arms: Optional permutation of the complete arm set; RNG is order-stable.
+    """
+    canonical = build_arms(cfg.n_placebos)
+    if arms is not None and (
+        len(arms) != len(canonical) or set(arms) != set(canonical)
+    ):
+        raise ValueError("arms must be a permutation of the complete design")
+    arms = canonical
+    path = cfg.output_dir / cfg.run_id
+    path.mkdir(parents=True, exist_ok=False)
+    streams = dict(
+        zip(
+            ("data", "calibration", "evaluation", "placebos", "detectors", "bootstrap"),
+            np.random.SeedSequence(cfg.root_seed).spawn(6),
+            strict=True,
+        )
+    )
+    manifest = _manifest(cfg, streams, arms, REFERENCE_SHA)
+
+    def save():
+        (path / "manifest.json").write_text(
+            json.dumps(manifest, indent=2, allow_nan=False) + "\n"
+        )
+
+    save()
+    try:
+        graphs, hazards, provenance = _inputs(cfg, streams["placebos"])
+        manifest["graph_hashes"] = {
+            name: _digest(graph) for name, graph in graphs.items()
+        }
+        manifest["endemic_provenance"] = provenance
+        records, scores, shared = [], [], {}
+        for record, result, seed in _replicates(
+            cfg, row_normalize(graphs["observed"]), streams, hazards
+        ):
+            score, derived, audit = _score(
+                result.counts, cfg, arms, graphs, seed, record
+            )
+            records.append({**record, **audit})
+            scores.append(score)
+            for key, value in {
+                "counts": result.counts,
+                "twin_counts": result.twin_counts,
+                "onset": result.onset,
+                **derived,
+            }.items():
+                shared.setdefault(key, []).append(value)
+            print(
+                f"Scored {record['replicate_id']}; fit_valid={audit['fit_valid']}",
+                flush=True,
+            )
+        metrics, far = _artifacts(path, cfg, records, scores, shared, arms, graphs)
+        manifest["partitions"] = {
+            name: [r["replicate_id"] for r in records if r["partition"] == name]
+            for name in ("calibration", "evaluation")
+        }
+        manifest["effective_sizes"] = (
+            pd.DataFrame(records)
+            .groupby(["noise", "epsilon", "partition", "label"], sort=True)
+            .agg(n=("replicate_id", "size"), valid=("fit_valid", "sum"))
+            .reset_index()
+            .to_dict("records")
+        )
+        manifest["work"] = {
+            "simulation_calls": len(records),
+            "forecast_fits": len(records),
+            "mint_fits": sum(r["fit_valid"] for r in records),
+            "pool_fits": sum(r["pool_fits"] for r in records),
+        }
+        manifest["gates"]["D5"] = {
+            "status": "passed" if all(r["fit_valid"] for r in records) else "failed",
+            "failed_replicates": [
+                r["replicate_id"] for r in records if not r["fit_valid"]
+            ],
+            "fallback": "pending_specification_not_used",
+        }
+        manifest["gates"]["FAR"] = {
+            "status": "passed" if far.passed.all() else "failed",
+            "target": cfg.target_far,
+            "tolerance": cfg.far_tolerance,
+            "failed_pairs": far.loc[
+                ~far.passed, ["noise", "epsilon", "arm", "task"]
+            ].to_dict("records"),
+        }
+        manifest["artifact_sha256"] = {
+            p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in sorted(path.iterdir())
+            if p.name != "manifest.json"
+        }
+        manifest["status"] = "completed"
+        save()
+        return RunResult(path, "completed", metrics)
+    except Exception as exc:
+        manifest.update(status="failed", failure_reason=f"{type(exc).__name__}: {exc}")
+        save()
+        raise
+
+
 def main() -> int:
     """Prepare layer 0; exit 2 while E0* cannot authorize E1 interpretation."""
 
@@ -205,8 +375,20 @@ def main() -> int:
         description="Prepare E0* injection and class diagnostics"
     )
     parser.add_argument("config", type=Path)
-    cfg = load_config(parser.parse_args().config)
-    result = run_preflight(cfg, load_sivep(Path(cfg.raw_dir)).counts)
+    parser.add_argument("--score-e0", action="store_true")
+    args = parser.parse_args()
+    cfg = load_config(args.config)
+    if isinstance(cfg, ExperimentConfig):
+        if args.score_e0:
+            parser.error("--score-e0 requires an E0 configuration")
+        result = run(cfg)
+        print(f"Artifacts: {result.path}; technical run only; interpretation blocked.")
+        return 2
+    result = (
+        run_e0_scoring(cfg)
+        if args.score_e0
+        else run_preflight(cfg, load_sivep(Path(cfg.raw_dir)).counts)
+    )
     print(
         f"Artifacts: {result}; E0 inconclusive; E0* does not authorize interpretation."
     )

@@ -1,0 +1,10 @@
+# uv run python -m headd_l0.calibrate configs/endemic_calibration.toml
+# Fixed P5 conventions; technical fitting does not approve G4 or inference.
+# Reuse the same derived artifact only with its recorded noise and theta.
+raw_dir = "../hybrid-theory/data/raw"
+processed_dir = "data/processed/endemic-white"
+output_dir = "results"
+run_id = "endemic-calibration-white"
+root_seed = 42
+noise = "white"
+profile_id = "P5-IMPL-2026-10-19-v1"

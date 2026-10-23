@@ -7,6 +7,7 @@ The original test-median threshold is excluded: callers supply calibrated alarms
 from dataclasses import dataclass
 
 import numpy as np
+import pandas as pd
 from sklearn.metrics import average_precision_score, roc_auc_score
 
 
@@ -151,3 +152,49 @@ def classification_metrics(
         "f1": f1,
         "nab_simplified": nab_simplified(labels, alarms),
     }
+
+
+def paired_lead_gains(
+    comparisons: pd.DataFrame, replicate_ids: list[str]
+) -> np.ndarray:
+    """Average paired restricted leads over reached regions within each replicate.
+
+    Args:
+        comparisons: One row per replicate/task for a single arm comparison.
+            Censored misses retain their restricted lead; onset -1 is excluded.
+        replicate_ids: Complete predeclared replicate IDs, in resampling order.
+
+    Returns:
+        Finite replicate means. Unavailable scores, missing pairs, duplicate
+        region rows or incomparable FAR raise instead of reducing denominators.
+    """
+    required = {
+        "replicate_id",
+        "task",
+        "onset",
+        "restricted_lead_gain",
+        "paired_eligible",
+        "far_comparable",
+    }
+    if (
+        not required.issubset(comparisons.columns)
+        or not replicate_ids
+        or len(set(replicate_ids)) != len(replicate_ids)
+        or set(comparisons.replicate_id) != set(replicate_ids)
+        or comparisons.duplicated(["replicate_id", "task"]).any()
+        or not comparisons.far_comparable.eq(True).all()
+    ):
+        raise ValueError("complete unique pairs with comparable FAR are required")
+    reached = comparisons.loc[comparisons.onset >= 0]
+    if (
+        not reached.paired_eligible.eq(True).all()
+        or not np.isfinite(reached.restricted_lead_gain.to_numpy(float)).all()
+        or set(reached.replicate_id) != set(replicate_ids)
+    ):
+        raise ValueError("unavailable timing must not be treated as censored detection")
+    return (
+        reached.groupby("replicate_id")
+        .restricted_lead_gain.mean()
+        .loc[replicate_ids]
+        .to_numpy(float)
+    )
