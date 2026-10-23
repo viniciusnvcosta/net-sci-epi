@@ -29,8 +29,8 @@
 **Consumes:** The committed E0 diagnostic note/JSON, P5/G4 note/JSON, current protocol decisions and global plan.
 **Produces:** A concise Portuguese preliminary report with evidence links, gate/layer status table, precise inconclusive reasons, descriptive diagnostics, limitations and prerequisite next steps.
 
-- [ ] Read the named evidence; check status and numbers directly against the JSON.
+- [x] Read the named evidence; check status and numbers directly against the JSON.
 - [x] Create the report exclusively; distinguish a valid negative finding from unavailable inference. Record G4 clipping as awaiting scientific review without inventing a cutoff.
 - [x] Validate relative links, cited JSON values, unchanged evidence hashes, scope and `git diff --check`. Do not rerun successful Python suites for Markdown-only changes.
 - [x] Commit only the report, dated development link and this plan: `docs: record inconclusive HEADD L0 preliminary report`.
-- [ ] Obtain independent task review, then a brief final scope/preservation review using economical models.
+- [x] Obtain independent task review, then a brief final scope/preservation review using economical models.
