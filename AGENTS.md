@@ -132,7 +132,9 @@ Target 150–300 lines per module; split only when a module exceeds ~400.
 D-G0 records E0 as inconclusive and authorizes B1*. E0* gates interpretation;
 the preserved 30 September regional E0*/FAR failures must not be tuned away.
 D-RATIFY-2026-10-21 ratifies prospective rules and the fixed P5 profile,
-not gate results. G4/source-byte verification remain pending. A conclusive
+not gate results. D-G4-2026-10-23 approves G4 only for the fixed profile,
+accepting the recorded clipping and observable limitations; official source bytes
+were verified on 22 October. Historical manifests retain their execution status. A conclusive
 positive or negative RQ1′ report requires completed layers 0, 1, and 2 and
 all applicable gates; failed gates or incomplete evidence are inconclusive.
 Layer-0 injection

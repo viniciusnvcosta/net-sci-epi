@@ -1,5 +1,10 @@
 # Desenvolvimento e reprodução
 
+O [índice documental](README.md) distingue guias atuais, evidências e planos
+históricos. Para instalar, testar e construir, use a seção
+[Ambiente e comandos](#ambiente-e-comandos); geração de dados/resultados é
+separada e exige caminhos locais disponíveis e novos IDs de execução.
+
 ## Estado vigente — 23/10/2026 (ratificação G4)
 
 O autor aprovou explicitamente em chat G4 somente para `P5-IMPL-2026-10-19-v1`,
@@ -48,20 +53,21 @@ Python ≥ 3.12, dependências geridas por uv e fixadas em `uv.lock`. A validaç
 usa pytest e Ruff; nenhuma instalação do CDADE legado é necessária para rodar
 os testes com fixtures versionadas.
 
-Execute da raiz do projeto, com `hybrid-theory` ao lado ou com `raw_dir`
-ajustado nos TOMLs:
+Execute da raiz do projeto. Testes de referência/integração podem exigir
+fontes e ambiente externos; a seleção completa não os omite:
 
 ```bash
 cd ~/projects/net-sci-epi
 uv sync --locked
-uv run python -m headd_l0.data configs/data.toml
 uv run pytest -o addopts='' -q
 uv run ruff check .
 uv run ruff format --check .
 uv build
 ```
 
-A preparação SIVEP escreve `data/processed/sivep/` e
+Para preparar SIVEP, com `hybrid-theory` ao lado ou `raw_dir` ajustado, use
+`uv run python -m headd_l0.data configs/data.toml`. A preparação escreve
+`data/processed/sivep/` e
 `results/data/manifest.json`; raw é somente leitura. O build escreve sdist e
 wheel em `dist/`. Esses diretórios gerados são ignorados pelo Git.
 `-o addopts=''` inclui os testes que a seleção rápida padrão exclui.
@@ -192,15 +198,17 @@ nos três ruídos; CV(T)<CV(N) em white e > em env/dem, seis pares/hashes a
 A fixture verifica álgebra, não separação. Diagnósticos mensais fixos: 64 T/64 N
 por ruído, AR1/CV, janelas válidas, clipping, conservação, θ=0/1 e onsets;
 sem impor sinais CV da fonte ou ajustar perfil/seeds. G4 exige ainda checks
-de fonte/equações, testes determinísticos e revisão científica; permanece pendente.
+de fonte/equações, testes determinísticos e revisão científica. Esses requisitos
+foram aceitos em D-G4-2026-10-23 somente para o perfil fixo, com clipping e
+limitações registrados no pacote de 22/10. Manifests históricos mantêm `pending`.
 
 ## Próximas etapas
 
 1. Diagnosticar E0*/FAR em leitura: nova execução só após defeito independente
    reproduzido por teste falhando e corrigido em plano separado. Manter B1*,
    com versão de código/perfil, seed e run ID distintos; preservar 30/09.
-2. Verificar bytes oficiais, executar diagnósticos fixos e revisar G4;
-   ratificação das regras não é resultado de gate.
+2. Preservar a evidência de fontes/diagnósticos de 22/10 e a ratificação G4
+   limitada de 23/10; não reajustar perfil/seeds nem reescrever manifests.
 3. Projetar camada 1 separadamente: R0 ~ Uniform[1.2,1.8], k∈{1,3,6},
    100 T/célula ruído/ε/k (27 células, 2.700 surtos antes de scoring),
    200 N calibração + 200 N avaliação por região disjuntos. Fixar precisão,
