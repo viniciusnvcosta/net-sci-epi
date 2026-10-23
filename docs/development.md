@@ -1,5 +1,9 @@
 # Desenvolvimento e reprodução
 
+## Relatório preliminar — 23/10/2026
+
+[Status científico HEADD L0 e motivos da conclusão inconclusiva](evidence/2026-10-23-preliminary/README.md).
+
 ## Evidência P5/G4 — 22/10/2026
 
 O [pacote para revisão científica](evidence/2026-10-22-p5-g4/README.md) registra
