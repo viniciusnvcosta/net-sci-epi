@@ -10,10 +10,11 @@ features de vizinhança, antecipa a detecção a uma mesma taxa de falsos alarme
 ## Estado científico — 23/10/2026
 
 **RQ1′ permanece inconclusiva; `interpretation_allowed=false`.** E0 é
-inconclusivo; E0* e FAR falharam. G4 foi aprovado pelo autor em 23/10
-**somente para o perfil sintético fixo `P5-IMPL-2026-10-19-v1`**, aceitando
-clipping e limitações do observável. Essa aprovação não passa outros gates,
-não autoriza novos experimentos e não estabelece benefício ou ausência de benefício.
+inconclusivo; E0\* e FAR falharam. G4 foi aprovado em 23/10, conforme decisão
+registrada, **somente para o perfil sintético fixo `P5-IMPL-2026-10-19-v1`**,
+com clipping e limitações do observável aceitos. Essa aprovação não passa
+outros gates, não autoriza novos experimentos e não estabelece benefício ou
+ausência de benefício.
 
 O [balanço científico atual](docs/evidence/2026-10-23-g4-ratification-summary/README.md)
 reúne entregas P0–P9, denominadores, limitações e próximos gates.
@@ -23,14 +24,14 @@ evidências imutáveis e especificações/planos históricos.
 
 ## Entregas e lacunas
 
-| Entregue e validado tecnicamente | Limite científico / trabalho faltante |
-| --- | --- |
-| Dados SIVEP 2009–2019, ordem canônica e soma exata 13→1 em 132 meses | Contagens e fontes brutas permanecem imutáveis |
-| Baseline B1*, detectores, NB2, reconciliação, seleção e limiares | E0*/FAR reprovados; G2 não aprovado |
-| Grafo Queen A/W, mapa, GEXF e 30 placebos conexos preservando graus | G3 não aprovado; placebos não demonstram amostragem uniforme |
-| Simulador metapopulacional, fixture e diagnósticos de fonte/mensais | G4 aprovado apenas para o perfil fixo e suas limitações |
-| Features locais/relacionais, runner reduzido D-COST e smoke | G5/G6 não aprovados; smoke não representa bancada completa |
-| Exportador descritivo e [notebook E1](notebooks/e1_results.ipynb) | Camada 1 e seu runner não implementados; bancada completa não executada |
+| Entregue e validado tecnicamente                                     | Limite científico / trabalho faltante                                   |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Dados SIVEP 2009–2019, ordem canônica e soma exata 13→1 em 132 meses | Contagens e fontes brutas permanecem imutáveis                          |
+| Baseline B1\*, detectores, NB2, reconciliação, seleção e limiares    | E0\*/FAR reprovados; G2 não aprovado                                    |
+| Grafo Queen A/W, mapa, GEXF e 30 placebos conexos preservando graus  | G3 não aprovado; placebos não demonstram amostragem uniforme            |
+| Simulador metapopulacional, fixture e diagnósticos de fonte/mensais  | G4 aprovado apenas para o perfil fixo e suas limitações                 |
+| Features locais/relacionais, runner reduzido D-COST e smoke          | G5/G6 não aprovados; smoke não representa bancada completa              |
+| Exportador descritivo e [notebook E1](notebooks/e1_results.ipynb)    | Camada 1 e seu runner não implementados; bancada completa não executada |
 
 A camada 0 ainda requer não-inferioridade; as camadas obrigatórias 0/1/2
 estão incompletas. A projeção serial da bancada é 82–105 h no hardware
@@ -39,12 +40,12 @@ separa implementação, validação técnica e aprovação científica.
 
 ## Evidência preliminar
 
-- **E0*:** AP média regional B1* = 0,54716 e z-score causal = 0,67813;
-  ΔAP = −0,13097, com B1* inferior em 12/13 regiões. O limite inferior
+- **E0\*:** AP média regional B1\* = 0,54716 e z-score causal = 0,67813;
+  ΔAP = −0,13097, com B1\* inferior em 12/13 regiões. O limite inferior
   histórico do IC95% é −0,20186. PA tem 72 positivos/0 negativos e AP indefinida.
 - **FAR:** três pares falharam abaixo da banda inclusiva [0,0133333; 0,02],
   para alvo 1/60 e tolerância 1/300; denominador de avaliação = 14.400
-  meses por região/braço. O [diagnóstico E0*](docs/evidence/2026-10-21-e0-diagnostics/README.md)
+  meses por região/braço. O [diagnóstico E0\*](docs/evidence/2026-10-21-e0-diagnostics/README.md)
   não estabeleceu defeito independente que autorize corrigir/reexecutar o gate.
 - **P5/G4:** fontes oficiais e seis pares de medianas verificados;
   diagnósticos mensais com 64 T/64 N independentes por ruído, 384 realizações
@@ -81,7 +82,7 @@ em `results/`; ajuste caminhos antes de usar os comandos do guia.
 Resultados publicados e evidências são imutáveis: repetições usam novos IDs,
 sem substituir artefatos, seeds ou hashes de execuções anteriores.
 
-Para auditar E0* **sem ajustar modelos nem escrever na origem**, indique um
+Para auditar E0\* **sem ajustar modelos nem escrever na origem**, indique um
 run preservado que contenha os artefatos históricos completos:
 
 ```bash
@@ -91,7 +92,7 @@ uv run python -m headd_l0.e0_diagnostics \
 ```
 
 O JSON sai em stdout; exit 0 confirma a auditoria, não aprovação científica.
-A reprodução local original consta no [pacote E0*](docs/evidence/2026-10-21-e0-diagnostics/README.md#provenance-and-reproduction).
+A reprodução local original consta no [pacote E0\*](docs/evidence/2026-10-21-e0-diagnostics/README.md#provenance-and-reproduction).
 Para verificar fontes Gao locais em modo somente leitura:
 
 ```bash
@@ -115,9 +116,9 @@ retornando exit 2 e manifests `pending`/`scientific_review=not_requested`:
 a decisão posterior de 23/10 está no protocolo, sem reescrever esses estados
 históricos. Nenhum desses comandos autoriza a bancada ou a inferência RQ1′.
 
-## 5 · Protocolo experimental E1′
+## Protocolo experimental E1′
 
-Os braços B1*, B2 e B2-placebo diferem apenas na informação relacional;
+Os braços B1\*, B2 e B2-placebo diferem apenas na informação relacional;
 pool, reconciliação, seleção e alvo FAR permanecem iguais. As features são
 causais e os limiares usam nulos de calibração distintos da avaliação.
 A comparação requer bootstrap pareado por ε, seguido do rank estrito entre
