@@ -130,7 +130,14 @@ Target 150–300 lines per module; split only when a module exceeds ~400.
 
 `docs/protocol-decisions.md` takes precedence over historical plan text.
 D-G0 records E0 as inconclusive and authorizes B1*. E0* gates interpretation;
-its current PA single-class failure must not be tuned away. Layer-0 injection
+the preserved 30 September regional E0*/FAR failures must not be tuned away.
+D-RATIFY-2026-10-21 ratifies prospective rules and the fixed P5 profile,
+not gate results. D-G4-2026-10-23 approves G4 only for the fixed profile,
+accepting the recorded clipping and observable limitations; official source bytes
+were verified on 22 October. Historical manifests retain their execution status. A conclusive
+positive or negative RQ1′ report requires completed layers 0, 1, and 2 and
+all applicable gates; failed gates or incomplete evidence are inconclusive.
+Layer-0 injection
 uses complete durations and coherent PA (regional sum and union labels).
 Current commands and scope: `docs/development.md`.
 
@@ -146,7 +153,10 @@ Goal: extract methods, not architecture. Port only what arms B0–B2 need.
 
 ## Simulator rules
 
-- Validate a **single region first**: reproduce Gao et al.'s T/N separation for AR1 and CV (suppl. Figs F–H). Test: median AR1 and CV of T windows > those of N windows, for each noise type.
+- Validate a **single region first** under D-RATIFY-2026-10-21: source characterization preserves archived labels, AR1(T)>AR1(N) in white/env/dem, CV(T)<CV(N) in white, and CV(T)>CV(N) in env/dem. Match six archived median pairs/hashes at `1e-12`; absent official bytes mean `source_archive_verification=pending`. The equation fixture checks algebra only.
+- Monthly observed-incidence diagnostics use 64 T/64 N per noise and report AR1/CV medians, valid windows, clipping, incidence conservation, θ boundaries and onset coverage without imposing source CV signs. G4 additionally requires source/equation checks, deterministic tests and scientific review; monthly summaries alone never pass it. Do not tune profile/seeds.
+- The fixed synthetic profile is `P5-IMPL-2026-10-19-v1`, including layer 1 `R0 ~ Uniform[1.2,1.8]`; it is not an epidemiological estimate. Changes require a new dated profile. Layer 1 plans 100 T per noise/ε/k cell (27 cells, 2,700 outbreak realizations before scoring); precision, cost, stable seed addresses and cross-cell null reuse require its own design. Retain 200 calibration/200 evaluation N per region in disjoint streams.
+- A nonconvergent or invalid regional NB2 fit fails closed: region/gate unavailable, no block-bootstrap fallback. A new E0* run requires an independently justified defect reproduced by a failing test and corrected under a separate plan; keep `baseline_id=B1*` and distinct code/profile version, seed and run ID. Preserve historical failures.
 - Coupling: λᵢ = βᵢ(t) · Σⱼ Cᵢⱼ Iⱼ/Nⱼ with C = (1 − ε)·I + ε·W. ε = 0 must yield zero spread from the seed beyond the endemic background — test this.
 - Endemic background νᵢ is calibrated from real regional medians; store the calibration in `data/processed/` with the code that produced it.
 - Onsets: seed region = month R0 crosses 1; other regions = first month the excess over the twin run exceeds 2 SD. Twin runs share the replicate's random stream except for the outbreak.
@@ -157,9 +167,9 @@ Goal: extract methods, not architecture. Port only what arms B0–B2 need.
 Primary (synthetic bench, README §5.4):
 
 ```text
-1. Paired bootstrap of Δ lead time (B2 − B1) per replicate, stratified by ε → 95% CI
+1. Paired bootstrap of Δ restricted lead time (B2 − B1*) per replicate, stratified by ε → 95% CI
 2. Placebo rank: share of the 30 placebo graphs that B2 beats
-3. Criterion: CI > 0 for ε > 0, no gain at ε = 0, B2 above 95% of placebos
+3. Criterion: CI > 0 for ε > 0; at ε = 0 each noise's paired mean restricted-lead-gain percentile 95% CI (10,000 draws) strictly inside (-1,+1) month; layer 1 separately per k ∈ {1,3,6}; strict placebo rank > .95 (29/30 passes, 28/30 fails)
 ```
 
 Secondary (real SIVEP data, continuity with CDADE v1):

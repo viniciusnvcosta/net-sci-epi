@@ -1,0 +1,6 @@
+# Run from the worktree root. Published evidence still requires scientific review.
+run_id = "g4-evidence-20261022"
+output_dir = "results"
+simulation_config = "configs/simulation.toml"
+archive_path = "data/processed/gao-p5-v1/Code.zip"
+supplement_path = "data/processed/gao-p5-v1/supplement.pdf"

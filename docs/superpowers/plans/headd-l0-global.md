@@ -1,5 +1,64 @@
 # HEADD-Series L0 Global Implementation Plan
 
+## Estado vigente — 23/10/2026 (ratificação G4)
+
+O autor aprovou explicitamente em chat G4 somente para `P5-IMPL-2026-10-19-v1`,
+aceitando clipping e limitações do observável. Ver [D-G4](../../protocol-decisions.md#d-g4-2026-10-23)
+e [balanço P0–P9/evidência preliminar](../../evidence/2026-10-23-g4-ratification-summary/README.md).
+Nenhum outro gate foi aprovado: E0*/FAR reprovados, camadas incompletas e
+`interpretation_allowed=false` permanecem; RQ1′ é inconclusiva.
+As entradas datadas anteriores e os manifests preservam seus estados históricos.
+
+## Estado vigente — 22/10/2026 (evidência P5/G4)
+
+O [pacote P5/G4 para revisão científica](../../evidence/2026-10-22-p5-g4/README.md)
+registra verificação nova dos bytes oficiais/rótulos/seis pares de medianas,
+384 realizações mensais completas e replay exato sob perfil/seeds fixos.
+Testes determinísticos (76) e suíte padrão (466, 1 excluído) passaram;
+clipping e todos os denominadores foram publicados sem novo cutoff.
+G4 segue pendente de revisão científica explícita e interpretação bloqueada;
+E0*/FAR reprovados e camadas obrigatórias incompletas permanecem.
+O estado datado de 21/10 e o plano histórico abaixo são preservados.
+
+## Estado vigente — 21/10/2026 (D-RATIFY)
+
+[D-RATIFY-2026-10-21](../../protocol-decisions.md#d-ratify-2026-10-21--ratificação-científica-prospectiva) ratifica prospectivamente perfil/regras, sem aprovar gates ou alterar
+manifests. Registros datados e passos de implementação abaixo preservam a
+história; este estado precede seus rótulos antigos. E0 inconclusivo, E0*/FAR
+reprovados, G4/verificação de bytes oficiais pendentes; interpretação bloqueada.
+P5, runner D-COST e exportador descritivo existem. Camada 1/injeção/runner
+não implementados; bancada não executada (projeção serial 82,29–104,74 h).
+
+[Evidência E0* de 21/10](../../evidence/2026-10-21-e0-diagnostics/README.md):
+diagnóstico reproduzível somente leitura preserva ΔAP médio −0,13096524694372677,
+12/13 regiões abaixo do z-score e as três falhas FAR; auditoria não estabelece
+defeito independente para autorizar correção/reexecução. E0*/FAR reprovados,
+G4 pendente, bancada não executada e interpretação bloqueada permanecem.
+
+Perfil fixo `P5-IMPL-2026-10-19-v1`: equações Gao 1–3; fonte AR1(T)>AR1(N)
+em white/env/dem, CV(T)<CV(N) em white e > em env/dem; rótulos, seis pares de
+medianas/hashes a `1e-12`. Sem bytes: `source_archive_verification=pending`.
+Mensal: 64 T/64 N por ruído, AR1/CV, janelas válidas, clipping, conservação,
+θ e onsets sem sinais CV impostos. G4 exige também fonte/equações, determinismo
+e revisão científica; resumos mensais não o aprovam, sem tuning de seeds/perfil.
+
+Camada 1: R0 ~ Uniform[1.2,1.8], ν=0, k∈{1,3,6}, introdução 72–118 e
+fluxos/onsets D-GT2/D-GT4; 100 T por ruído/ε/k em IDs comuns a braços/placebos.
+São 27 células e 2.700 surtos antes do scoring. 200 N de calibração + 200 N
+de avaliação por região, disjuntos; precisão, custo, seeds estáveis e reuso
+entre células exigem desenho próprio antes de scoring, sem garantia de poder.
+Camada 2 mantém 200 T/200 N + 200 N calibração por célula e rank B2/placebos
+nos mesmos T0000–T0099 fixos (100 T), conforme D-COST.
+
+Equivalência ε=0: IC percentil pareado 95% (10.000 draws) do ganho médio
+restrito B2−B1* estritamente em (−1,+1) mês por ruído, e por k na camada 1;
+IC contendo zero é insuficiente. Bootstrap → rank estrito → decisão conjunta;
+29/30 passa, 28/30 falha. Nova execução E0* requer defeito independente
+reproduzido por teste falhando e corrigido em plano separado; manter B1* e
+registrar nova versão de código/perfil, seed e run ID. Conclusão RQ1′ positiva
+ou negativa exige camadas 0/1/2 completas, não-inferioridade L0, E0*, G4,
+D5, alcance, FAR comparável e todos os gates. Falha/incompletude = inconclusivo.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Entregar uma implementação verificável de E1′ até 23/10/2026, validando B1\* sob D-G0/D-E0*, com E0 inconclusivo e comparação com FAR fixa.
@@ -25,7 +84,9 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
   no commit limpo `017bd1a` (30/09): `implementado` e `validado tecnicamente`.
   E0* falhou em `trivial_baseline` (limite inferior −0.20186060618499926);
   FAR falhou em ARAGUAIA/B1*, XINGU/B1* e RIO CAETES/zscore.
-  `interpretation_allowed=false`; fallback D-GT3 pendente, não utilizado.
+  `interpretation_allowed=false`; nenhum fallback foi usado no run histórico.
+  D-RATIFY-2026-10-21 agora exige NB2 inválido/não convergente → região/gate
+  indisponível, sem fallback em blocos no protocolo de 23/10.
   Detalhes: [execução real](../../development.md#resultado-real-e0-30092026).
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
   a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
@@ -65,11 +126,11 @@ a revisão D-E0*-R1 foi consumida pelo scoring de 30/09. E0* e FAR falharam;
 a aprovação técnica do código não aprova os gates.
 
 P1–P2: `implementado`, com componentes `validado tecnicamente` pela suíte registrada
-no plano E0. P3: preparação e scoring NB2 convergente `implementado`; fallback
-D-GT3 pendente. A comparação real foi executada, sem
+no plano E0. P3: preparação e scoring NB2 convergente `implementado`; regra prospectiva
+D-GT3 de falha fechada (D-RATIFY). A comparação real foi executada, sem
 `gate aprovado` para E0\* e sem `interpretação autorizada` para E1′.
 D-G0a concluiu a busca sem proveniência verificável; hardware já registrado em
-[reference-provenance](../../reference-provenance.md). O piloto D-COST ainda falta.
+[reference-provenance](../../reference-provenance.md). D-COST/D-REACH foram aferidos em 20/10; bancada não executada.
 
 ```mermaid
 flowchart TD
@@ -92,9 +153,10 @@ flowchart TD
 ```
 
 P4 e P6 estão implementados e validados tecnicamente; o artefato real
-P4 permanece preservado, sem aprovação de G3. P5 tem preparação de fonte
-[registrada](../../gao-source-preparation.md), mas a Step 1 segue parcial:
-manifesto de referência, fixture e perfil científico estão pendentes.
+P4 permanece preservado, sem aprovação de G3. P5 tem simulador técnico,
+manifesto e fixture [registrados](../../gao-source-preparation.md); o perfil
+foi ratificado em 21/10; fontes verificadas em 22/10 e G4 aprovado em 23/10
+somente para o perfil fixo (D-G4), sem liberar interpretação.
 A comparação regional E0\* e a calibração foram executadas em 30/09, com
 falha de E0* e FAR preservada. A autorização B1* de D-G0 não libera interpretação.
 As trilhas independentes não autorizam subagentes automaticamente; `think`,
@@ -107,13 +169,13 @@ As trilhas independentes não autorizam subagentes automaticamente; `think`,
 | P0    | [E0](headd-l0-e0.md), histórico Task 1                                         | Auditoria realizada; D-G0 autoriza B1\*, E0 inconclusivo.                                        |
 | P1    | E0, validação ativa P1                                                                    | Longa, hashes, ordem canônica e coerência exata 13→1 em 132 meses (G1).                          |
 | P2    | E0, validação ativa P2                                                                    | Componentes existentes; comportamento corrigido separado de paridade de primitivas.              |
-| P3    | E0, validação ativa P3; [Experimentos](headd-l0-experiments.md), Task 0 parcial | Caminho NB2 convergente implementado/validado; E0* e FAR falharam, fallback pendente. G2 não aprovado. |
+| P3    | E0, validação ativa P3; [Experimentos](headd-l0-experiments.md), Task 0 parcial | Caminho NB2 convergente implementado/validado; E0* e FAR falharam, NB2 prospectivo falha fechado. G2 não aprovado. |
 | P4    | [Grafo/simulação](headd-l0-graph-simulation.md), Task 1 implementada/validada tecnicamente | A/W, mapa, GEXF, 30 placebos e manifest real preservados; G3 não aprovado. |
-| P5    | Grafo/simulação, Tasks 2–3 futuras; Step 1 parcial | Fonte caracterizada; paridade, manifesto e perfil pendentes antes do integrador; G4 não aprovado. |
-| P6    | Grafo/simulação, Task 4 implementada/validada tecnicamente | Features locais integradas ao E0*, com nomes/janelas registrados; integração relacional E1 futura; G5 não aprovado. |
-| P7    | Experimentos, Tasks 1–2 futuras                                                           | Runner, smoke e FAR; G6: seeds/partições independentes e única variável por braço.               |
-| P8    | Experimentos, Tasks 3–4 futuras                                                           | Camadas 0/1/2, nulos, D-COST e inferência; G7 ou conclusão inconclusiva explícita.               |
-| P9    | Experimentos, Task 5 futura                                                               | Notebooks, figuras, tabelas e README reproduzíveis.                                              |
+| P5    | Grafo/simulação, simulador/manifesto/fixture técnicos existentes | Perfil fixo com fontes/diagnósticos verificados; G4 aprovado em 23/10 somente para esse perfil (D-G4); interpretação bloqueada. |
+| P6    | Grafo/simulação, Task 4 implementada/validada tecnicamente | Features locais integradas ao E0*, com nomes/janelas registrados; features relacionais integradas ao runner E1 técnico; G5 não aprovado. |
+| P7    | Runner reduzido e smoke implementados | D-COST representado; smoke técnico não aprova FAR/G6 ou interpretação. |
+| P8    | Camadas 0/1/2 incompletas; camada 1 não implementada | Bancada não executada; sem G7/interpretação; conclusão inconclusiva enquanto faltarem gates/evidência. |
+| P9    | Exportador descritivo/notebook entregues no PR #3 | Tabelas/figuras/limitações com exit 2; sem interpretação autorizada. |
 
 ## Agenda de execução e cortes de escopo
 
@@ -138,15 +200,16 @@ Camada1 (injeção epidêmica+nulos paramétricos) tem prioridade sobre todos os
 - [x] Hardware D-COST registrado (27/09); atualizar somente se o ambiente do piloto mudar.
 - [x] Validar P1–P3 pela sequência ativa do plano E0; não recriar componentes/exportadores.
 - [x] Implementar e validar tecnicamente P4/P6; G3/G5 permanecem separados da integração e interpretação.
-- [ ] Completar a preparação P5 ([fonte registrada](../../gao-source-preparation.md)); aprovar perfil antes do integrador, validar uma região antes de acoplar e fixar faixa R0 antes da camada 1.
+- [x] Completar evidência P5 e revisão G4: fontes/diagnósticos de 22/10; G4 aprovado em 23/10 somente para o perfil fixo (D-G4), sem liberar interpretação.
 - [x] Registrar D-E0*-R1 datada antes do primeiro commit de integração E0\*; conferir SHA deste commit na Task 0.
-- [x] Confirmar features locais P6, tabela regional de classes/contraste sem cutoff por scores e P1–P3 antes do scoring Task 0. Scoring NB2 convergente executado em 30/09; fallback pendente.
-- [ ] Executar piloto D-COST após detectores+acoplamento; aplicar 48 h/96 h antes de observar efeitos.
-- [ ] Verificar alcance D-REACH antes dos braços; células sem poder não contam como evidência negativa.
+- [x] Confirmar features locais P6, tabela regional de classes/contraste sem cutoff por scores e P1–P3 antes do scoring Task 0. Scoring NB2 convergente executado em 30/09; D-RATIFY exige falha fechada prospectiva.
+- [x] Aferir D-COST em 20/10 antes de efeitos; aplicar (a)+(b), subset implementado; bancada não executada.
+- [x] Aferir D-REACH em 20/10 antes dos braços: ≥50% em ε=.20 nos três ruídos; não é efeito de detecção.
 - [x] Avaliar E0* no caminho NB2 convergente: executado em 30/09, E0*/FAR falharam; nenhuma interpretação autorizada.
-- [ ] Completar fallback D-GT3 após especificação aprovada; manter camadas E1 0/1/2 condicionadas aos gates, separadas da execução E0*.
+- [ ] Verificar implementação prospectiva D-GT3 de falha fechada em plano próprio; manter camadas 0/1/2 condicionadas aos gates, sem fallback em blocos.
 - [ ] Executar P7–P8 com FAR e seeds disjuntas; verificar comparabilidade antes de interpretar lead time.
-- [ ] Executar P9; reportar resultados negativos sem expandir o grafo.
+- [x] Entregar P9 descritivo no PR #3; exit 2 com limitações e bloqueios, sem resultado inferencial.
+- [ ] Completar relatório conjunto das três camadas somente após gates/evidência; caso contrário inconclusivo.
 - [ ] Em cada componente: teste público, paridade ou comportamento, ruff/format/pytest, config por nome e artefatos pelo runner.
 - [ ] Commit local por tarefa; nenhuma publicação/push implícito.
 

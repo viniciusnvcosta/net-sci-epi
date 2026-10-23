@@ -4,12 +4,16 @@ Cliff's point statistic and rank-test primitives follow CDADE fbfa609
 (evaluation/stats.py, Apache-2.0). RNG, HAC and stopping behavior are corrected.
 """
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from itertools import combinations
 from typing import cast
 
 import numpy as np
+import pandas as pd
 from scipy.stats import friedmanchisquare, norm, rankdata, wilcoxon
+
+from headd_l0.data import hierarchy
+from headd_l0.evaluate import paired_lead_gains
 
 
 @dataclass(frozen=True)
@@ -239,3 +243,81 @@ def secondary_protocol(
             "n_units": ci.n_units,
         }
     return SecondaryResult(friedman, wx, dm, cliffs, None)
+
+
+def primary_analysis(
+    comparisons: pd.DataFrame,
+    rng: np.random.Generator,
+    *,
+    n_transition: int,
+    n_placebo_transition: int,
+    n_boot: int = 10000,
+) -> dict:
+    """Bootstrap B2-B1* by noise/epsilon, then rank against 30 matched placebos.
+
+    Args:
+        comparisons: Runner comparison rows; includes all 13 regional onset rows.
+        rng: Independent bootstrap stream from the run manifest.
+        n_transition: Full T count per cell (200 under D-COST).
+        n_placebo_transition: Fixed T prefix for every placebo (100 under D-COST).
+        n_boot: Paired replicate draws per cell.
+
+    Returns:
+        Per-cell gain CIs and strict placebo win fractions. Epsilon-zero
+        equivalence remains unratified; no hypothesis acceptance is invented.
+        This numerical routine does not authorize scientific interpretation.
+    """
+    if not 1 <= n_placebo_transition <= n_transition or comparisons.empty:
+        raise ValueError("invalid primary design")
+    if not (comparisons.arm.eq("B2") & comparisons.label.eq("T")).all():
+        raise ValueError("primary analysis requires paired B2 transition rows")
+    placebos = [f"B2-placebo-{i:02d}" for i in range(30)]
+    cells, groups = [], []
+    for (noise, epsilon), group in comparisons.groupby(["noise", "epsilon"], sort=True):
+        group = group.loc[group.reference != "B0"]
+        if set(group.reference) != {"B1*", *placebos}:
+            raise ValueError("primary design requires B1* and all 30 placebos")
+        ids = [f"{noise}:{epsilon:g}:evaluation:T:{i:04d}" for i in range(n_transition)]
+        for reference in ("B1*", *placebos):
+            paired = group.loc[group.reference == reference]
+            expected_n = n_transition if reference == "B1*" else n_placebo_transition
+            if (
+                set(paired.task) != set(hierarchy().leaves)
+                or len(paired) != expected_n * 13
+            ):
+                raise ValueError("missing regional rows in the predeclared design")
+        delta = paired_lead_gains(group.loc[group.reference == "B1*"], ids)
+        ci = task_bootstrap(delta, rng, n_boot)
+        cells.append({"noise": noise, "epsilon": float(epsilon), **asdict(ci)})
+        groups.append((group, ids[:n_placebo_transition]))
+    # Complete all primary CIs before the placebo stage, as pre-registered.
+    for cell, (group, ids) in zip(cells, groups, strict=True):
+        gains = []
+        baseline = group.loc[(group.reference == "B1*") & group.replicate_id.isin(ids)]
+        keys = ["replicate_id", "task"]
+        for reference in placebos:
+            paired = group.loc[group.reference == reference]
+            aligned = paired.merge(
+                baseline[keys + ["onset"]],
+                on=keys,
+                suffixes=("", "_baseline"),
+                validate="one_to_one",
+            )
+            if (
+                len(aligned) != len(paired)
+                or not aligned.onset.eq(aligned.onset_baseline).all()
+            ):
+                raise ValueError("placebo IDs and reached regions must match B2/B1*")
+            gains.append(float(paired_lead_gains(paired, ids).mean()))
+        cell.update(
+            placebo_rank=placebo_rank(0.0, -np.asarray(gains)),
+            placebo_n_units=len(ids),
+            equivalence_status="not_ratified"
+            if cell["epsilon"] == 0
+            else "not_applicable",
+        )
+    return {
+        "cells": cells,
+        "hypothesis_supported": None,
+        "criterion_status": "epsilon_zero_equivalence_not_ratified",
+    }

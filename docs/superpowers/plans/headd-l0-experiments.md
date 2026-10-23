@@ -1,5 +1,38 @@
 # HEADD-Series L0 Experiments Implementation Plan
 
+## Estado vigente — 21/10/2026 (D-RATIFY)
+
+[D-RATIFY-2026-10-21](../../protocol-decisions.md#d-ratify-2026-10-21--ratificação-científica-prospectiva) ratifica prospectivamente perfil/regras, sem aprovar gates ou alterar
+manifests. Registros datados e passos de implementação abaixo preservam a
+história; este estado precede seus rótulos antigos. E0 inconclusivo, E0*/FAR
+reprovados, G4/verificação de bytes oficiais pendentes; interpretação bloqueada.
+P5, runner D-COST e exportador descritivo existem. Camada 1/injeção/runner
+não implementados; bancada não executada (projeção serial 82,29–104,74 h).
+
+Perfil fixo `P5-IMPL-2026-10-19-v1`: equações Gao 1–3; fonte AR1(T)>AR1(N)
+em white/env/dem, CV(T)<CV(N) em white e > em env/dem; rótulos, seis pares de
+medianas/hashes a `1e-12`. Sem bytes: `source_archive_verification=pending`.
+Mensal: 64 T/64 N por ruído, AR1/CV, janelas válidas, clipping, conservação,
+θ e onsets sem sinais CV impostos. G4 exige também fonte/equações, determinismo
+e revisão científica; resumos mensais não o aprovam, sem tuning de seeds/perfil.
+
+Camada 1: R0 ~ Uniform[1.2,1.8], ν=0, k∈{1,3,6}, introdução 72–118 e
+fluxos/onsets D-GT2/D-GT4; 100 T por ruído/ε/k em IDs comuns a braços/placebos.
+São 27 células e 2.700 surtos antes do scoring. 200 N de calibração + 200 N
+de avaliação por região, disjuntos; precisão, custo, seeds estáveis e reuso
+entre células exigem desenho próprio antes de scoring, sem garantia de poder.
+Camada 2 mantém 200 T/200 N + 200 N calibração por célula e rank B2/placebos
+nos mesmos T0000–T0099 fixos (100 T), conforme D-COST.
+
+Equivalência ε=0: IC percentil pareado 95% (10.000 draws) do ganho médio
+restrito B2−B1* estritamente em (−1,+1) mês por ruído, e por k na camada 1;
+IC contendo zero é insuficiente. Bootstrap → rank estrito → decisão conjunta;
+29/30 passa, 28/30 falha. Nova execução E0* requer defeito independente
+reproduzido por teste falhando e corrigido em plano separado; manter B1* e
+registrar nova versão de código/perfil, seed e run ID. Conclusão RQ1′ positiva
+ou negativa exige camadas 0/1/2 completas, não-inferioridade L0, E0*, G4,
+D5, alcance, FAR comparável e todos os gates. Falha/incompletude = inconclusivo.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Integrar os braços com baseline autorizado, executar camadas 0/1/2 a FAR fixa e produzir conclusão rastreável sobre RQ1′, com camada 3 qualitativa.
@@ -25,7 +58,9 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
   no commit limpo `017bd1a` (30/09): `implementado` e `validado tecnicamente`.
   E0* falhou em `trivial_baseline` (limite inferior −0.20186060618499926);
   FAR falhou em ARAGUAIA/B1*, XINGU/B1* e RIO CAETES/zscore.
-  `interpretation_allowed=false`; fallback D-GT3 pendente, não utilizado.
+  `interpretation_allowed=false`; nenhum fallback foi usado no run histórico.
+  D-RATIFY-2026-10-21 agora exige NB2 inválido/não convergente → região/gate
+  indisponível, sem fallback em blocos no protocolo de 23/10.
   Detalhes: [execução real](../../development.md#resultado-real-e0-30092026).
 - Toda AUC-PR acompanha prevalência positiva da tarefa, janela e denominador;
   a [decisão histórica PA](headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada) define critérios e alternativas.
@@ -54,10 +89,11 @@ Identificar o componente/gate; nenhum rótulo implica automaticamente o seguinte
 Task 0 tem caminho NB2 convergente `implementado` e `validado tecnicamente`;
 execução real `results/e0-star-scoring-20260930` no commit limpo `017bd1a`.
 E0* e FAR falharam conforme o estado acima; PA permanece descritivo e E1′ sem
-`interpretação autorizada`. Task 0 permanece parcial pelo fallback D-GT3 ainda
-sem construção/tamanho aprovados. Falha de previsão D5 bloqueia antes de MinT/AP.
-Tasks 1–5 continuam futuras, com pré-condições próprias. P4/P6 estão implementados;
-P5 registra fonte, mas perfil e fixture seguem pendentes.
+`interpretação autorizada`. A regra D-GT3 prospectiva agora falha fechado; sua implementação
+exige verificação própria, sem fallback em blocos. Falha de previsão D5 bloqueia antes de MinT/AP.
+Tasks 1–3/5 têm runner reduzido, smoke e exportador descritivo entregues;
+a execução completa permanece futura. Task 4/camada 1 não implementada.
+P4/P6 e simulador P5 existem; perfil/fixture/manifesto fixos, G4 pendente.
 
 Modificar `run.py`, `inject.py`, `tests/test_run.py`, `tests/test_inject.py`; criar configs `e1_smoke.toml`, `e1_bench.toml`, `e1_real.toml`, `e1_local.toml`, testes de integração em `tests/test_run.py`, notebooks `01_l0_network.ipynb`, `02_e1_results.ipynb`. Atualizar README/MIGRATION só nas seções correspondentes.
 
@@ -69,7 +105,7 @@ Não criar módulos adicionais preventivamente. Se run.py exceder 400 linhas, ex
 controller aprovou a extração coesa de `e0_scoring.py`, com wrapper público e
 import local em run.py. Nenhum framework de experimentos foi acrescentado.
 
-### Task 0: Integração E0\* B1\*/z-score e nulos reais — caminho convergente validado, fallback pendente
+### Task 0: Integração E0\* B1\*/z-score e nulos reais — caminho convergente validado, falha fechada prospectiva
 
 **Entrada obrigatória:** D-E0*-R1 datada e commitada antes do primeiro commit
 que integre scoring E0\*. Antes de calcular scores, confirmar tabela regional de
@@ -100,27 +136,26 @@ Sem essa flag, o comando de preparação mantém seu comportamento.
       regional de classes/contraste, P1–P3 e features locais P6 antes do scoring;
       a autorização de B1* não satisfaz o gate.
 - [ ] **Step 2: Testes dos nulos e integração — parcial.** Caminho convergente,
-      isolamento e bloqueio de falha D5 testados; teste do fallback aguarda decisão.
+      isolamento e bloqueio de falha D5 testados; verificar em plano próprio
+      a regra prospectiva D-RATIFY de falha fechada.
       `test_null_fit_uses_training_only`: alterar meses ≥60 não muda fit;
       `test_null_calibration_evaluation_disjoint`: IDs/streams disjuntos;
       `test_null_aggregate_is_sum`: PA soma das folhas;
       `test_null_panels_have_integer_counts`: shape `[200,13,132]`, inteiros ≥0;
       `test_null_sampling_deterministic`: mesma seed produz arrays idênticos;
-      `test_null_nonconvergence_is_reported`: falha de fit e fallback em blocos
-      identificados em todos os artefatos, sem modelo substituto silencioso;
+      `test_null_nonconvergence_is_reported`: fit inválido/não convergente
+      marca região/gate indisponível em todos os artefatos; sem fallback;
       `test_e0_scoring_preserves_preflight_stream`: injeção da seed 42 idêntica à
       preparação atual; `test_e0_scoring_waits_for_pa_decision`: bloqueia antes de
       calcular scores; `test_e0_ap_reports_prevalence`: AP sempre acompanha prevalência.
       Nulos completos: treino original + 72 meses amostrados, shape `[200,13,132]`.
 - [x] **Step 3:** TDD executado: sampler, integração e evidência stale falharam
       antes da implementação e passaram depois; comandos/saídas no relatório Task 6.
-- [ ] **Step 4: Integração — parcial pelo fallback.** Caminho NB2 convergente
-      implementado e executado. A construção/tamanho de blocos ainda não foi
-      aprovada; falha D5 bloqueia antes de MinT/AP, sem previsor substituto.
-      Requisito completo ainda pendente: NB2 no treino 0–59; 200 painéis
-      de calibração + 200 de avaliação disjuntos, PA recalculado; falha de ajuste usa
-      bootstrap em blocos do treino marcado nos artefatos conforme D-GT3, sem fallback
-      silencioso. NB2 → MinT → resíduos padronizados → features locais → pool/seleção.
+- [ ] **Step 4: Verificar falha fechada prospectiva em plano próprio.** Caminho
+      NB2 convergente implementado e executado; falha D5 bloqueia antes de MinT/AP.
+      NB2 no treino 0–59; 200 painéis de calibração + 200 de avaliação
+      disjuntos, PA recalculado. Fit NB2 inválido/não convergente marca região/gate
+      indisponível conforme D-RATIFY, sem fallback em blocos. NB2 → MinT → resíduos padronizados → features locais → pool/seleção.
       Comparador: `rolling_zscore`, janela causal 12. Calibrar ambos pelo mesmo método,
       FAR 1/60, tolerância observada 1/300. Thresholds numéricos podem diferir.
       Preservar o stream oficial da injeção; derivar streams de calibração, avaliação,
@@ -164,7 +199,7 @@ Comparar configurações resolvidas dos braços removendo apenas `name/residuals
 - [ ] **Step 2:** `uv run pytest tests/test_run.py -v` → FAIL nos novos casos.
 - [ ] **Step 3: Implementar.** `tomllib` → validação → dataclass. Para E1, seeds raiz spawn(6): dados, calibração, avaliação, placebos, detectores, bootstrap; criar todas as children pela ordem canônica, antes de iterar braços. Não aplicar essa realocação ao stream oficial de injeção E0\* (Task 0). Registrar entropy/spawn_key; tarefas da mesma réplica compartilham dados/seeds de detector. Previsões NB2 e reconciliação MinT(Shrink) são calculadas uma vez por réplica e compartilhadas (D5). B0 usa features locais dos resíduos base y − μ̂; B1\* usa features locais dos resíduos reconciliados y − P·μ̂; B2 acrescenta neighbors com W real sobre os mesmos resíduos (PA com zeros relacionais); placebo troca só W. Teste demonstra que o MinT recebe contagens previstas, nunca scores; nenhum ramo substitui a reconciliação por normalização de scores.
 
-Config final: root_seed=42, train_months=60, window=12, ε=(0,.05,.20), ruídos white/env/dem, 500/500/200 por célula, n_placebos=30, target_far=1/60, seis detectores, mint_shrink/meta_des/evt_gpd. Estes complementos só são usados após revisão da spec. Smoke: 2 T+2 N por célula, 2 placebos e 2 N de calibração; exercita fallback de cauda curta, sem alegação estatística.
+Config final: root_seed=42, train_months=60, window=12, ε=(0,.05,.20), ruídos white/env/dem, 200/200/200 por célula (D-COST de 20/10), n_placebos=30, target_far=1/60, seis detectores, mint_shrink/meta_des/evt_gpd. Estes complementos só são usados após revisão da spec. Smoke: 2 T+2 N por célula, 2 placebos e 2 N de calibração; exercita fallback de cauda curta, sem alegação estatística.
 
 - [ ] **Step 4:** Testes/checks → PASS; `uv run python -m headd_l0.run configs/e1_smoke.toml` → todos os artefatos/manifest e status smoke. Repetir em outro run_id: mesmas contagens/scores/métricas, exceto timestamp/id/hash do manifesto. O smoke é técnico e não analisa RQ1′ em nenhuma rota. E0 permanece inconclusivo e B1\* já está autorizado. O smoke é apenas técnico; interpretação exige E0\* aprovado, FAR comparável, D5 e todos os demais gates válidos, sem dispensa por D-G0.
 - [ ] **Step 5:** `git add src/headd_l0/run.py tests/test_run.py configs/e1_smoke.toml configs/e1_bench.toml MIGRATION.md` e `git commit -m "feat: wire reproducible experiment arms and manifests"`.
@@ -211,7 +246,7 @@ assert missed_region_included and no_onset_region_excluded
 Fixture de empate com 2 placebos deve manter fração estrita e ordem determinística. Alterar somente timestamps futuros não muda alarmes passados no smoke completo.
 
 - [ ] **Step 2:** `uv run pytest tests/test_run.py -k 'primary or onset or detection or placebo or equivalence' -v` → FAIL.
-- [ ] **Step 3: Implementar inferência.** Primeiro bootstrap pareado Δ restricted_lead B2−baseline por ε e ruído, 10.000 draws, IC95%; depois fração dos 30 placebos superados na mesma estatística agregada. Mesmas regiões/replicates/bootstrap indices em cada comparação. No rank, B2 e todos os placebos usam os mesmos IDs pré-fixados por D-COST; não usar B2 completo contra placebo reduzido. Antes dos braços, checar D-REACH por ε/célula; mínimo aprovado ≥50% de T com algum vizinho alcançado em ε=.20. Falha marca insufficient_power, sem conclusão negativa e sem ajuste do gerador. Critério proposto: IC>0 em ambos ε>0, equivalência ±1 mês em ε=0 e rank>.95, além de E0\* aprovado sob o protocolo vigente, FAR comparável, D5 e demais gates válidos. D-G0 já autoriza B1\*, mas não é alternativa à aprovação de E0\*. Publicar também efeitos por ruído sem selecionar estratos favoráveis. FAR permanece separada de desempenho em T.
+- [ ] **Step 3: Implementar inferência.** Primeiro bootstrap pareado Δ restricted_lead B2−baseline por ε e ruído, 10.000 draws, IC95%; depois fração dos 30 placebos superados na mesma estatística agregada. Mesmas regiões/replicates/bootstrap indices em cada comparação. No rank, B2 e todos os placebos usam os mesmos IDs pré-fixados por D-COST; não usar B2 completo contra placebo reduzido. Antes dos braços, checar D-REACH por ε/célula; mínimo aprovado ≥50% de T com algum vizinho alcançado em ε=.20. Falha marca insufficient_power, sem conclusão negativa e sem ajuste do gerador. Critério ratificado D-RATIFY: IC>0 em ambos ε>0, IC percentil pareado 95% (10.000 draws) do ganho médio restrito estritamente em (−1,+1) mês em ε=0 por ruído (e por k na camada 1), e rank estrito>.95 (29/30 passa, 28/30 falha), além de E0\* aprovado sob o protocolo vigente, FAR comparável, D5 e demais gates válidos. D-G0 já autoriza B1\*, mas não é alternativa à aprovação de E0\*. Publicar também efeitos por ruído sem selecionar estratos favoráveis. FAR permanece separada de desempenho em T.
 
 ROC-AUC T/N usa um score por réplica: máximo regional no prefixo monitorado 60–83, cutoff fixo proposto 83. O cruzamento seed deve ser posterior ao cutoff por configuração validada; se não for, esse diagnóstico não é pré-onset e deve ser marcado. Não alinhar corte de features ao onset futuro. AP por região e métricas de tempo têm máscaras temporais explícitas; não comparar AP macro com tabela E0 por tarefa.
 
@@ -243,7 +278,7 @@ def inject_epidemic(counts: np.ndarray, W: np.ndarray,
 **Nulos:** consumir `sample_nb2` e os painéis de calibração/avaliação da Task 0;
 não duplicar implementação em `inject.py`. Modelo NB2 fixo, sem `RealNullConfig`.
 
-**Gate de desenho:** D-GT4 fixou tamanho (casos observados em excesso na semente, alvo k × max(mediana mensal de treino, 1), k ∈ {1,3,6}, realizado sempre reportado), introdução uniforme em 72–118, θ igual ao da bancada e truncamento permitido e contado no mês 131. **Pendentes com o usuário:** a faixa de R0 e o perfil completo do simulador (D-GT2/D-GT4), a fixar após a validação de uma região. O contrato de EpidemicInjectionConfig deve referenciar esse perfil/hash sem configuração global oculta. O motor expõe `EpidemicFlows` (grafo/simulação Task 3). Não inventar esses valores: a tarefa para neste ponto até a decisão.
+**Gate de desenho:** D-GT4 fixou tamanho (casos observados em excesso na semente, alvo k × max(mediana mensal de treino, 1), k ∈ {1,3,6}, realizado sempre reportado), introdução uniforme em 72–118, θ igual ao da bancada e truncamento permitido e contado no mês 131. **Ratificados por D-RATIFY:** perfil `P5-IMPL-2026-10-19-v1`, R0 ~ Uniform[1.2,1.8], escolhas sintéticas, não estimativas epidemiológicas. G4 e E0* seguem pré-requisitos de execução. O contrato de EpidemicInjectionConfig deve referenciar esse perfil/hash sem configuração global oculta. O motor expõe `EpidemicFlows` (grafo/simulação Task 3). A implementação da camada 1 exige spec/plano próprios; ratificação de valores não aprova seus gates.
 
 - [ ] **Step 1: Escrever os testes de injeção.** `test_epsilon_zero_leaves_non_seed_untouched`, `test_training_months_untouched`, `test_size_relative_to_training_median`, `test_onsets_exact_and_censored`, `test_aggregate_recomputed`, `test_real_counts_not_mutated`, `test_deterministic_given_seed`. Asserção do tamanho usa a definição aprovada em D-GT4, não igualdade arbitrária após binomial.
 
@@ -265,7 +300,7 @@ np.testing.assert_array_equal(aggregated[0], out.counts.sum(axis=0))
       esta referência preserva a numeração histórica sem duplicar trabalho.
 - [ ] **Step 7: Escrever testes das análises por camada.** `test_local_layer_uses_bounded_injection` exige `inject_original_bounded` com seeds da camada 0, PA calculado pela soma das regiões e máscara PA pela união regional; `test_e0_star_runs_before_e1` exige o E0\* avaliado antes de qualquer resultado; `test_noninferiority_resamples_regions` verifica pares B1\*/B2, bootstrap sobre as 13 regiões, limite inferior do IC ≥ −0,02 e PA reportado à parte; `test_real_primary_uses_epidemic_onsets` verifica definição camada 1; `test_real_gate_blocks_unresolved_choices` impede conclusão antes dos critérios aprovados; `test_secondary_stops_at_friedman` preserva ordem estatística. Se B1\* autorizado, teste exige baseline_idB1\* e E0inconclusive, sem substituir tabelas de paridade.
 - [ ] **Step 8:** `uv run pytest tests/test_run.py -k 'local_layer or noninferiority or real_primary or real_gate or secondary' -v` → FAIL.
-- [ ] **Step 9: Integrar configurações e inferência.** Camada 0 usa e1_local.toml e `inject_original_bounded`; consome o E0\* produzido pela Task 0 após D-E0*-R1, classes/contraste e P6, e, com ele aprovado, a não-inferioridade: limite inferior do IC 95% da média de ΔAUC-PR(B2 − B1\*) ≥ −0,02, bootstrap pareado de 10.000 reamostras sobre as 13 regiões, PA reportado à parte. Falha é custo do método, não refutação de RQ1′. Camada1 usa e1_real.toml,100seeds propostas compartilhadas entre braços, estratos ε/k e perfil de ruído fixado. Antes dos braços medir D-REACH; executar bootstrap pareado→rankplacebo→critério conjunto como na camada 2, com equivalência ε=0 e FAR válida. Reutilizar os mesmos fundos reais não cria100observações epidemiológicas independentes; explicitar inferência condicional aos fundos e injeções.
+- [ ] **Step 9: Integrar configurações e inferência.** Camada 0 usa e1_local.toml e `inject_original_bounded`; consome o E0\* produzido pela Task 0 após D-E0*-R1, classes/contraste e P6, e, com ele aprovado, a não-inferioridade: limite inferior do IC 95% da média de ΔAUC-PR(B2 − B1\*) ≥ −0,02, bootstrap pareado de 10.000 reamostras sobre as 13 regiões, PA reportado à parte. Falha é custo do método, não refutação de RQ1′. Camada 1 usa futuramente e1_real.toml, 100 T por célula ruído/ε/k (27 células, 2.700 surtos antes de scoring), mesmos IDs para braços/placebos. Precisão, custo, seeds estáveis e reuso de nulos entre células aguardam desenho próprio; não há garantia de poder. Antes dos braços medir D-REACH; executar bootstrap pareado→rankplacebo→critério conjunto como na camada 2, com equivalência ε=0 e FAR válida. Reutilizar os mesmos fundos reais não cria 100 observações epidemiológicas independentes; explicitar inferência condicional aos fundos e injeções.
 
 Preservar análise secundária: AP por região/método agregada sobre seeds antes de ranks; Friedman→Wilcoxon/Bonferroni→DM/HAC→Cliff/IC95%, interrompendo se Friedman p>.05. DM usa perdas quadráticas de alarmes0/1 versus máscara0/1 e lag12; Cliff usa AP por região. Bootstrap temporal em blocos pode diagnosticar estabilidade, mas não é o gerador nulo principal; o pulso ad hoc foi removido sem sensibilidade paralela.
 

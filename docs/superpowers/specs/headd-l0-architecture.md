@@ -1,13 +1,46 @@
 # HEADD-Series L0 — arquitetura e decisões de implementação
 
-Data original: 26/09/2026. Atualização documental: 19/10/2026.
+## Estado vigente — 21/10/2026 (D-RATIFY)
+
+A [D-RATIFY-2026-10-21](../../protocol-decisions.md#d-ratify-2026-10-21--ratificação-científica-prospectiva)
+precede as pendências e propostas históricas das §§7–10 abaixo. O autor
+aprovou a spec/plano de ratificação: regras/perfil ratificados, gates não.
+E0 inconclusivo; E0\*/FAR de 30/09 reprovados; G4 e verificação dos bytes
+oficiais pendentes; `interpretation_allowed=false`.
+
+- P5 fixo: `P5-IMPL-2026-10-19-v1`, equações Gao 1–3; predecessor só divergências.
+  Fonte: AR1(T)>AR1(N) nos três ruídos, CV(T)<CV(N) em white e > em env/dem;
+  conferir rótulos, seis pares de medianas/hashes a `1e-12` quando houver bytes.
+  Ausência = `source_archive_verification=pending`. Mensal: 64 T/64 N por ruído,
+  AR1/CV, janelas válidas, clipping, conservação, θ e onsets, sem sinais CV
+  impostos; G4 exige também fonte/equações, determinismo e revisão científica.
+- Equivalência ε=0: IC percentil pareado 95% (10.000 draws) do ganho médio
+  restrito B2−B1\* estritamente em (−1,+1) mês por ruído, e por k na camada 1.
+  IC contendo zero não basta. Bootstrap → rank estrito → decisão conjunta;
+  mesmos 100 T para B2/placebos; 29/30 passa, 28/30 falha.
+- Camada 1: R0 ~ Uniform[1.2,1.8], ν=0, k∈{1,3,6}, introdução 72–118,
+  fluxos/onsets D-GT2/D-GT4, cópia imutável de contagens e PA soma. 100 T por
+  ruído/ε/k = 27 células = 2.700 surtos antes do scoring; 200 N de calibração
+  e 200 de avaliação por região, disjuntos. Precisão, custo, seeds estáveis
+  e reuso de nulos entre células aguardam desenho próprio, sem garantia de poder.
+- NB2 inválido/não convergente falha fechado (região/gate indisponível), sem
+  fallback em blocos; FAR 1/60 e tolerância 1/300. Novo E0* exige defeito
+  independente demonstrado por teste falhando/corrigido em plano separado,
+  `baseline_id=B1*` e nova versão de código/perfil, seed e run ID.
+- Simulador, runner reduzido D-COST e exportador descritivo existem; camada 1
+  não implementada e bancada não executada. Camada 2: 200 T/200 N + 200 N
+  de calibração por célula; rank nos T0000–T0099 fixos. Projeção 82–105 h.
+  Conclusão positiva ou negativa exige camadas 0/1/2 completas, não-inferioridade
+  L0 e todos os gates (E0\*, G4, D5, alcance e FAR); incompletude/falha = inconclusivo.
+
+Data original: 26/09/2026. Atualização documental: 21/10/2026.
 E0 inconclusivo; B1\* autorizado. O pré-gate histórico falhou por
 `single_class:PA`. D-E0*-R1 (28/09) revisou a condição 2 para ambas as
 classes nas 13 regiões, com PA descritivo. Scoring NB2 convergente executado
 no commit limpo `017bd1a` (30/09): E0* falhou em trivial_baseline, limite inferior
 −0.20186060618499926; FAR falhou em ARAGUAIA/B1*, XINGU/B1* e
 RIO CAETES/zscore. `interpretation_allowed=false`. Task 0 tem caminho
-convergente implementado/validado; fallback D-GT3 pendente, não usado.
+convergente implementado/validado; nenhum fallback usado; D-RATIFY exige NB2 inválido/não convergente → gate indisponível.
 Detalhes: [execução real](../../development.md#resultado-real-e0-30092026).
 
 ## Vocabulário de status
@@ -32,7 +65,7 @@ Fontes históricas lidas em 26/09 (hashes não representam a revisão atual): `A
 
 Referência CDADE: `/home/vinvs/projects/hybrid-theory`, commit **`fbfa609bba6cb0b0f2a9e8d73be18022aec319b7`**. As leituras de código usaram `git show HEAD:<path>`, não arquivos modificados do working tree. E0 deve fixar esse SHA completo, nunca resolver `HEAD` novamente durante uma execução. Os resultados locais não possuem, por si só, proveniência suficiente para certificar E0.
 
-Estado atual: Python ≥3.12; `src/headd_l0/`, testes e dependências do baseline já existem. P1–P2 estão implementados; P3 prepara injeção/classes; Task 0 integra e executou scoring NB2 convergente, com fallback ainda pendente. P4 grafo e P6 features estão `implementado` e `validado tecnicamente`; seus gates científicos não estão aprovados. P5 tem [perfil técnico, manifesto e fixture próprios](../../gao-source-preparation.md#technical-profile-p5-impl-2026-10-19-v1) sob D-P5-IMPL (19/10): implementação/validação técnica autorizadas, simulador futuro, ratificação científica e G4 pendentes. Comandos atuais: [development](../../development.md).
+Estado atual: Python ≥3.12; `src/headd_l0/`, testes e dependências do baseline já existem. P1–P2 estão implementados; P3 prepara injeção/classes; Task 0 integra e executou scoring NB2 convergente, sem fallback em blocos sob D-RATIFY. P4 grafo e P6 features estão `implementado` e `validado tecnicamente`; seus gates científicos não estão aprovados. P5 tem [perfil técnico, manifesto e fixture próprios](../../gao-source-preparation.md#technical-profile-p5-impl-2026-10-19-v1) sob D-P5-IMPL (19/10): simulador implementado e validado tecnicamente, perfil ratificado em D-RATIFY, G4 pendente. O runner representa o subset D-COST desde a Task 6b; P8/P9 descritivo foi entregue na Task 7, sem execução da bancada nem interpretação autorizada. Comandos atuais: [development](../../development.md).
 
 Não implementar M, REGIC, GNN, GANF/GDN, hhh4 completo, Tycho, L4/L5 ou SEIRS+ agent-based. B-Gao, B3/Φ e variante SEIRS são extensões condicionais, não dependências da entrega principal.
 
@@ -64,9 +97,9 @@ Esta tabela preserva as observações históricas da leitura inicial. A auditori
 
 ## 4. Mapa de código e responsabilidade
 
-O mapa combina contratos atuais de baseline, grafo/features e scoring E0*
-com contratos **futuros** de simulador, runner E1 completo e camada 1. Nomes/arquivos ausentes nessas
-trilhas são entregas futuras; o exporter indicado é histórico aposentado.
+O mapa preserva os contratos do planejamento original; o estado corrente do
+simulador e runner está na seção 1. Nomes/arquivos ainda ausentes são entregas
+futuras; o exporter CDADE indicado é histórico aposentado.
 
 Manter o layout do AGENTS. `tests/test_<module>.py` espelha cada módulo. Não criar serviços, factories, registry global ou camadas de repositório. Cada módulo mira 150–300 linhas e só se divide ao ultrapassar aproximadamente 400.
 
@@ -83,8 +116,8 @@ Manter o layout do AGENTS. `tests/test_<module>.py` espelha cada módulo. Não c
 | `src/headd_l0/features.py`                             | `FeatureBatch`, representação local/S/vizinhos e indicadores causais; eixos explícitos.                                                                                                           |
 | `src/headd_l0/simulate.py`                             | `SimConfig`, `SimResult`, `EndemicCalibration`, uma região, extensão acoplada/gêmeas e componente de surto reutilizado pela camada 1; proveniência de casos importados observados.                |
 | `src/headd_l0/inject.py`                               | `InjectionConfig`, `InjectionResult`; injeção limitada da camada 0. Futuros `EpidemicInjectionConfig`/`EpidemicInjectionResult` e adaptador da camada 1; amostragem NB2 pertence a `forecast.py`. |
-| `src/headd_l0/run.py`                                  | Atuais: `E0Config`, preparação, gate, CLI e wrapper `run_e0_scoring`. Futuros: `ExperimentConfig`, `ArmSpec`, `RunResult` e runner E1.                                                                                                      |
-| `src/headd_l0/e0_scoring.py` | Integração NB2/MinT/features locais/pool/seleção, 200+200 nulos, evidência de componentes e artefatos E0*. |
+| `src/headd_l0/run.py`                                  | Atuais: `E0Config`, preparação, gate, CLI e wrapper `run_e0_scoring`. Futuros: `ExperimentConfig`, `ArmSpec`, `RunResult` e runner E1.                                                            |
+| `src/headd_l0/e0_scoring.py`                           | Integração NB2/MinT/features locais/pool/seleção, 200+200 nulos, evidência de componentes e artefatos E0\*.                                                                                       |
 | `scripts/export_cdade_reference.py`                    | Histórico aposentado: exporter recuperável por MIGRATION; não recriar nem exigir na validação atual.                                                                                              |
 | `tests/reference/`                                     | Pequenas fixtures determinísticas e seus manifests; nenhum resultado fabricado.                                                                                                                   |
 | `configs/*.toml`                                       | Atuais: `data`, `e0_star` (preparação), `e0_star_scoring`, `l0_graph`. Futuros: `sim_single`, `e1_bench`, `e1_real`, `e1_local`; extensões só quando priorizadas.                                 |
@@ -159,30 +192,30 @@ Representação local: resíduo padronizado em t, t−1 e diferença temporal; a
 
 ## 7. Decisões experimentais propostas para revisão
 
-**D-E0*-R1 (28/09):** condição 2 exige ambas as classes nas 13 tarefas
+**D-E0\*-R1 (28/09):** condição 2 exige ambas as classes nas 13 tarefas
 regionais; PA mantém soma/união coerente, com prevalência, cobertura e coerência
 descritivas, sem AUC-PR como critério. Condições 1/3/4 não mudam. A tabela
 pré-scoring de positivos/negativos/prevalência e a discussão de contraste estão
 no [registro](../../protocol-decisions.md#d-e0-r1--revisão-regional-da-condição-2).
-A decisão antecede scores e o primeiro commit de integração E0*. Task 0 requer
+A decisão antecede scores e o primeiro commit de integração E0\*. Task 0 requer
 features locais P6 antes do scoring; P1–P3 e a regra regional estão
 validados tecnicamente. Ver [alternativas históricas no E0](../plans/headd-l0-e0.md#decisão-pendente-sobre-pa--comparação-regional-selada).
 Toda AUC-PR futura acompanha prevalência, janela e denominador; nenhuma seed
 substitui a 42 e não se escolhe cutoff de contraste olhando scores.
 
-As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). D-P5-IMPL (19/10) fixa perfil e faixa técnica de R0; sua ratificação científica para D-GT2/D-GT4 continua pendente, assim como os eventos da camada 3 (D-L3) e a construção/tamanho do fallback D-GT3 de E0*. O caminho NB2 convergente foi executado, com E0*/FAR reprovados. Hardware registrado em 27/09; piloto D-COST ainda pendente.
+As decisões D-G0, D-E0\*, D2, D3, D5, D6, D-GT1–D-GT4, D-COST e D-REACH (27/09) constam no [registro de decisões](../../protocol-decisions.md). D-P5-IMPL (19/10) fixa perfil e faixa técnica de R0; D-RATIFY (21/10) ratifica esses valores e a equivalência ±1 mês, com NB2 inválido/não convergente falhando fechado; eventos da camada 3 (D-L3) seguem pendentes. O caminho NB2 convergente foi executado, com E0\*/FAR reprovados. Piloto D-COST aferido em 20/10, com hardware e projeção de 82–105 h registrados; subset implementado na Task 6b e bancada não executada.
 
 | Camada      | Ground truth / uso                                                                                                                                                                             | Regra                                                                                                                                                                                                              |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 0           | `inject_original_bounded`: tipos, magnitudes e ordem aleatória do original; shifts/drifts de 3–6 meses; onset em 60–131. O `inject_original` literal só caracteriza o defeito, em `tests/`     | E0 inconclusivo; E0\* (sanidade de B1\* contra z-score móvel causal) antes de tudo; não-inferioridade: limite inferior do IC 95% da média de ΔAUC-PR(B2 − B1\*) ≥ −0,02, bootstrap sobre as 13 regiões, PA à parte |
 | 1           | Componente epidêmico de `simulate.py`, ν=0, somado ao SIVEP; A gera propagação por C                                                                                                           | Evidência semi-real principal: IC>0 em ε>0, equivalência em ε=0, rank>.95; gates próprios                                                                                                                          |
 | 2           | Metapopulação totalmente sintética                                                                                                                                                             | Protocolo científico preservado; dimensionamento sujeito somente à escada pré-registrada D-COST                                                                                                                    |
-| Nulos reais | NB2 com tendência e dois pares de harmônicos (`forecast.py`, o mesmo modelo das previsões do MinT), ajustado nos meses 0–59; 200 séries de calibração + 200 de avaliação por região, disjuntas | FAR 1/60, tolerância 1/300; ajuste sem convergência → bootstrap em blocos do treino, marcado; nas demais regiões, blocos só diagnóstico                                                                            |
+| Nulos reais | NB2 com tendência e dois pares de harmônicos (`forecast.py`, o mesmo modelo das previsões do MinT), ajustado nos meses 0–59; 200 séries de calibração + 200 de avaliação por região, disjuntas | FAR 1/60, tolerância 1/300; NB2 inválido/não convergente → região/gate indisponível, sem fallback em blocos (D-RATIFY)                                                                                             |
 | 3           | Eventos documentados com fonte verificada no notebook 02                                                                                                                                       | Checagem qualitativa, sem critério formal                                                                                                                                                                          |
 
 O pulso de 3SD/atraso1 mês/amplitude0,5 é removido, sem sensibilidade paralela. Nas camadas 1/2 B2 é um oráculo porque o gerador usa A; a evidência central inclui comparação com placebos e padrão em ε. A soma epidêmica supõe ausência de interação com o fundo endêmico, inclusive depleção de suscetíveis compartilhados.
 
-Na camada 1, tamanho-alvo=k×mediana mensal de treino da semente, k proposto=(1,3,6); introdução uniforme72–118 inclusive, θ igual à bancada. Onset semente=introdução; demais=primeiro mês com casos importados observados≥1, ausência=−1. Tamanho = casos observados em excesso na semente, alvo k × max(mediana, 1), com o realizado sempre reportado; truncamento no mês 131 permitido e contado (D-GT4). D-P5-IMPL fixa R0 uniforme[1,2;1,8] e perfil para implementação; a ratificação científica desses valores continua bloqueante para interpretação. Onsets da camada 2 continuam R0/2SD.
+Na camada 1, tamanho-alvo=k×mediana mensal de treino da semente, k proposto=(1,3,6); introdução uniforme72–118 inclusive, θ igual à bancada. Onset semente=introdução; demais=primeiro mês com casos importados observados≥1, ausência=−1. Tamanho = casos observados em excesso na semente, alvo k × max(mediana, 1), com o realizado sempre reportado; truncamento no mês 131 permitido e contado (D-GT4). D-P5-IMPL fixa R0 uniforme[1,2;1,8] e perfil para implementação; D-RATIFY ratifica esses valores, sem aprovar G4 ou interpretação. Onsets da camada 2 continuam R0/2SD.
 
 Antes de rodar braços, D-REACH mede fraçãoT com onset em ao menos um vizinho por ε/célula; mínimo ≥ 50% em ε = 0,20, por tipo de ruído (D-REACH). Abaixo disso, reportar sem poder, não resultado negativo; não ajustar o gerador olhando avaliação.
 
@@ -203,7 +236,7 @@ Os valores fixados por README/AGENTS são obrigatórios, salvo revisão explíci
 
 D-COST antecipa o piloto para ~02/10 após detectores+simulador acoplado, sem inverter a ordem de porte. Registrar o hardware antes do piloto; gatilhos sobre a projeção da execução completa: > 48 h → degrau (a), > 96 h → degrau (b). Escada: 30 placebos em 100T fixas/célula (rank compara B2 no mesmo subconjunto e preserva N); depois 200T+200N/célula; depois opcionais. IDs e parâmetros são congelados antes dos efeitos. A seleção existe; declarar custo da integração ainda não medida, sem certificar pipeline completo. Camada1 precede B-Gao/Φ/SEIRS; camada 0 não é cortada.
 
-D-P5-IMPL fixa Nᵢ efetivo=100000 (não inferido de casos), θ=.5, R0=.8→1.6 na semente T, γ=1/14 e µ=1/365 por dia, ruídos, sazonalidade e demais convenções no [manifesto P5](../../../tests/reference/gao_manifest.json). SD do onset é o desvio-padrão amostral (`ddof=1`) da série observada da gêmea nos 60 meses de treino, congelado; SD=0 exige excesso estritamente positivo. Estimar νᵢ só das medianas de treino, condicionado aos parâmetros fixados; ν e θ não são identificáveis separadamente por essas medianas. Esse perfil autoriza implementação/validação técnica, mas continua sujeito à ratificação científica; nenhum parâmetro é default oculto nem fato epidemiológico atribuído a Gao.
+D-P5-IMPL fixa Nᵢ efetivo=100000 (não inferido de casos), θ=.5, R0=.8→1.6 na semente T, γ=1/14 e µ=1/365 por dia, ruídos, sazonalidade e demais convenções no [manifesto P5](../../../tests/reference/gao_manifest.json). SD do onset é o desvio-padrão amostral (`ddof=1`) da série observada da gêmea nos 60 meses de treino, congelado; SD=0 exige excesso estritamente positivo. Estimar νᵢ só das medianas de treino, condicionado aos parâmetros fixados; ν e θ não são identificáveis separadamente por essas medianas. Esse perfil foi ratificado por D-RATIFY; G4 segue pendente; nenhum parâmetro é default oculto nem fato epidemiológico atribuído a Gao.
 
 ## 8. Grafo, simulação e features
 
@@ -219,9 +252,8 @@ A fixture própria cobre seis passos nas equações do suplemento com inputs e
 esperados independentes da produção, hash e tolerância absoluta `1e-10`.
 O predecessor é somente caracterização. Paridade da fonte preserva os
 rótulos arquivados e CV branco T<N; não exigir o sinal oposto nem equivalência
-entre features de I e incidência mensal. Isso qualifica o antigo critério
-direcional para validação técnica; sua substituição científica não foi
-ratificada. As fontes externas não estão disponíveis localmente para nova
+entre features de I e incidência mensal. D-RATIFY ratifica a substituição do antigo critério
+direcional; isso não aprova G4. As fontes externas não estão disponíveis localmente para nova
 verificação: os hashes/medianas permanecem os registrados em 29/09.
 G4 continua pendente e `interpretation_allowed=false`.
 
@@ -243,8 +275,8 @@ Testes rápidos sem rede; integração geográfica/fixtures originais marcada; s
 
 ## 10. Questões que impedem execução automática
 
-1. D-E0*-R1 foi registrada antes da integração; PA é descritivo. E0* e FAR falharam na execução de 30/09, mantendo interpretação bloqueada. A especificação do fallback D-GT3 permanece pendente.
-2. Ratificar cientificamente as convenções da §7 e o perfil técnico D-P5-IMPL antes de interpretar E1; documentar se o critério de equivalência é aceito. Implementação/validação técnica de P5 já autorizadas não aprovam G4.
+1. D-E0*-R1 foi registrada antes da integração; PA é descritivo. E0* e FAR falharam na execução de 30/09, mantendo interpretação bloqueada. D-RATIFY agora exige falha NB2 fechada, sem fallback em blocos.
+2. D-RATIFY ratificou o perfil e a equivalência ±1 mês; completar evidência/fonte e revisão G4 antes de interpretar E1; exigir camadas 0/1/2 completas. Implementação/validação técnica de P5 já autorizadas não aprovam G4.
 3. Preservar D5 já aprovada: MinT sobre previsões de contagem, features sobre resíduos padronizados; P6 independe de P5.
 4. Obter malha com 13 regiões e conectividade compatível, ou registrar a variante antes dos placebos.
 
