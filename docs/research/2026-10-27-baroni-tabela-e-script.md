@@ -19,6 +19,15 @@ O código renomeia as duas colunas da relação territorial e as quatro da tabel
 
 O `merge` com `tb_regsaud` é interno e pode excluir códigos regionais sem correspondência; códigos duplicados em `tb_regsaud` podem multiplicar linhas. Como essa segunda tabela não foi fornecida, não é possível verificar sua unicidade, cobertura, nomes, versão ou o resultado efetivo do join. A linha inicial do arquivo chama a função antes de sua definição; o arquivo foi inspecionado como texto e não é uma receita independente comprovadamente executável de ponta a ponta. Também não foi localizado nele o processamento posterior que gerou `PASIVEPDailyPerHr.csv`.
 
+Como diagnóstico auxiliar, a `tb_regsaud.csv` do pacote territorial DATASUS
+de 2023, SHA-256 `c79bf2cac0b1608066f1860eb1fabac9b4382777a1c46a600e76e4748dccc8ff`,
+contém exatamente uma linha ativa para cada um dos 13 códigos regionais dos
+144 municípios de PA na relação fornecida. Uma junção por código com esse
+snapshot produz 144 linhas, sem município ausente ou multiplicado. Isso não
+verifica a tabela histórica nem os nomes efetivamente usados por Baroni;
+a tabela de 2023 tem seis colunas e não pode ser passada diretamente à função
+R, que espera quatro. Não executar essa substituição no experimento.
+
 ## Consequência para L0
 
 O mapa com Tailândia em Lago agora é o **candidato prioritário de alinhamento** com a tabela fornecida e com as contagens de 2013, sujeito à confirmação da linhagem e revisão científica. P4 permanece referência histórica imutável. A análise exploratória anterior aponta uma alteração de 25 para 26 arestas e exige regenerar W e placebos para qualquer novo protocolo; não autoriza sobrescrever artefatos, alterar resultados ou afirmar ganho de desempenho. A divergência de vigência administrativa e a abrangência de 2009–2019 continuam abertas; D1 não passa automaticamente, D2 OD permanece suspenso conforme o plano, e E0*/FAR, G3 e demais gates permanecem inalterados.
@@ -57,4 +66,14 @@ c = g.merge(old, on='municipio', how='left', validate='one_to_one')
 assert len(c) == 144 and c.regiao.notna().all()
 assert c.loc[c.regiao.ne(c.p4), ['municipio', 'regiao', 'p4']].values.tolist() == [['150795', '15004', '15011']]
 print('PA: 144 pares concordantes com DATASUS 2023; uma diferença frente a P4')
+with zipfile.ZipFile('/tmp/headd-castro-20261027/base_territorial_2023.zip') as z:
+    names = pd.read_csv(z.open('tb_regsaud.csv'), dtype=str, encoding='latin1')
+municipal = pa[pa.municipio.ne('150000')]
+matched_names = names[names.CO_REGSAUD.isin(municipal.regiao)]
+assert len(matched_names) == matched_names.CO_REGSAUD.nunique() == 13
+assert matched_names.CO_STATUS.eq('ATIVO').all()
+joined_names = municipal.merge(matched_names, left_on='regiao', right_on='CO_REGSAUD',
+                               how='left', validate='many_to_one')
+assert len(joined_names) == 144 and joined_names.CO_REGSAUD.notna().all()
+print('Snapshot 2023: 13 códigos únicos ativos; 144 municípios sem multiplicação')
 ```
