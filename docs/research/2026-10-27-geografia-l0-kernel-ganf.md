@@ -78,6 +78,31 @@ obtidas no teste espacial por pontos. Assim, **a atribuição a Tocantins já
 existe nos atributos do GeoParquet**, antes da dissolução e Queen. Isso não
 explica por que a fonte tem esse valor nem demonstra defeito no código local.
 
+O [script de preparação geobr na tag v2.0.0](https://github.com/ipea/geobr_prep_data/blob/04a8304cf5bf8c82a1b454bda04908f0c3512246/R/health_region_before_2020.R)
+oferece uma hipótese rastreável para essa atribuição: para anos anteriores a
+2020, seu código prevê ler `br_regsaud.MAP` do pacote de mapas DATASUS do
+ano, obter um ponto de superfície para cada município e fazer uma junção
+espacial com as regiões; depois associa o resultado às geometrias municipais
+e grava o GeoParquet. A tag aponta para o commit
+`04a8304cf5bf8c82a1b454bda04908f0c3512246`; o script consultado tem SHA-256
+`169784ac94f93117448ce6ee63673f1a720b0e4e992236cc67007d9bd75c1e4b`.
+O código foi lido, não executado. Isso identifica o método previsto nessa
+versão, mas não prova, sem reconstrução e conferência dos insumos, que o
+arquivo P4 foi gerado exatamente por esse script nem se Tailândia já consta
+em Tocantins no mapa DATASUS original ou houve efeito da junção espacial.
+É uma atribuição geométrica potencial, não comprovação da tabela usada para
+agregar notificações.
+
+O [pacote de mapas DATASUS rotulado 2013](ftp://ftp.datasus.gov.br/territorio/mapas/br_mapas_2013.zip)
+foi obtido em 27/10/2026, SHA-256
+`23de96702b70b264ed8ebe4f0a0c79872e13a91fc1e2a8ce471e5c1e83abc886`.
+Ele contém `br_regsaud.MAP` e `br_regsaude.MAP`, ambos com data interna ZIP
+15/04/2025; o script seleciona o primeiro. Esses metadados não provam quais
+bytes foram utilizados na construção do artefato P4 nem a vigência do mapa;
+os arquivos `.MAP` não foram decodificados nesta verificação. Comparar seus
+polígonos com o ponto de superfície de Tailândia, preservando hashes e o
+predicado espacial exato, é uma possibilidade de investigação adicional.
+
 Fonte P4: `healthregions_2013.parquet`, SHA-256
 `42de74c7506a5ce52b46ba4d5abdde6b321eebf649b09c08f641fc2e56d8918e`;
 13 regiões agregadas, 25 arestas. Fonte/código e processamento em
