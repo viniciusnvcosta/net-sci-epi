@@ -3,6 +3,7 @@ import zipfile
 
 import geopandas as gpd
 from shapely.geometry import Polygon
+from shapely.ops import unary_union
 from shapely.validation import make_valid
 
 b = zipfile.ZipFile("/tmp/headd-castro-20261027/br_mapas_2013.zip").read(
@@ -69,3 +70,14 @@ print(
     "different_vs_P4",
     different,
 )
+
+tail = mun.loc[mun.CD_GEOCMU == "1507953"].geometry.iloc[0]
+tail_projected = gpd.GeoSeries([tail], crs=4674).to_crs(5880).iloc[0]
+for region_code in ("15004", "15011"):
+    region = unary_union(regions[region_code])
+    projected = gpd.GeoSeries([region], crs=4674).to_crs(5880).iloc[0]
+    print(
+        region_code,
+        "overlap_share",
+        tail_projected.intersection(projected).area / tail_projected.area,
+    )

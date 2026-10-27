@@ -115,6 +115,15 @@ resultado apoia a origem da atribuição no mapa consultado, mas não prova
 que essa versão do `.MAP` foi o insumo do P4, nem a validade normativa ou
 a correspondência com a série de notificações.
 
+Na mesma leitura exploratória, a interseção do polígono municipal de
+Tailândia com o polígono DATASUS de Tocantins cobre aproximadamente **99,41%**
+da área municipal; com Lago de Tucuruí, **0%**. A área foi calculada após
+projeção EPSG:5880, com `make_valid` e união dos anéis interpretados como
+polígonos independentes. As malhas são distintas e esse leitor não preserva
+eventuais buracos; a diferença residual não identifica, por si, erro de
+limites. Esse resultado oferece suporte espacial além do ponto representativo,
+mas mantém as mesmas limitações de versão, vigência e linhagem acima.
+
 Fonte P4: `healthregions_2013.parquet`, SHA-256
 `42de74c7506a5ce52b46ba4d5abdde6b321eebf649b09c08f641fc2e56d8918e`;
 13 regiões agregadas, 25 arestas. Fonte/código e processamento em
