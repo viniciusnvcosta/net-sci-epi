@@ -98,10 +98,22 @@ foi obtido em 27/10/2026, SHA-256
 `23de96702b70b264ed8ebe4f0a0c79872e13a91fc1e2a8ce471e5c1e83abc886`.
 Ele contém `br_regsaud.MAP` e `br_regsaude.MAP`, ambos com data interna ZIP
 15/04/2025; o script seleciona o primeiro. Esses metadados não provam quais
-bytes foram utilizados na construção do artefato P4 nem a vigência do mapa;
-os arquivos `.MAP` não foram decodificados nesta verificação. Comparar seus
-polígonos com o ponto de superfície de Tailândia, preservando hashes e o
-predicado espacial exato, é uma possibilidade de investigação adicional.
+bytes foram utilizados na construção do artefato P4 nem a vigência do mapa.
+
+Uma decodificação exploratória independente de `br_regsaud.MAP`, SHA-256
+`9177f36d8f1b9225d3942fd950addeec158d326789d59b12b337349d5fda6d98`,
+encontrou o ponto de superfície de Tailândia no polígono `15011` Tocantins.
+Os 144 pontos da malha municipal 2013 de PA tiveram uma região única e
+concordaram com os 144 atributos de P4. A malha municipal ZIP usada tem
+SHA-256 `db318af3a1bbf52cff3df64706e69a606fe85689666e0f35d0132b518c4c065e`.
+O [script exploratório](2026-10-27-verificar-mapa-datasus.py) está registrado
+para reprodução com esses arquivos em `/tmp/headd-castro-20261027` e o
+GeoParquet P4 arquivado. Ele interpreta o formato conforme o leitor geobr,
+trata anéis como polígonos independentes e usa `covers` com `make_valid`;
+não é uma reprodução bit a bit de DuckSpatial ou da limpeza geobr. O
+resultado apoia a origem da atribuição no mapa consultado, mas não prova
+que essa versão do `.MAP` foi o insumo do P4, nem a validade normativa ou
+a correspondência com a série de notificações.
 
 Fonte P4: `healthregions_2013.parquet`, SHA-256
 `42de74c7506a5ce52b46ba4d5abdde6b321eebf649b09c08f641fc2e56d8918e`;
