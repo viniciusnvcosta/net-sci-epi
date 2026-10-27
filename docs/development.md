@@ -146,6 +146,17 @@ canônico ficam no manifest; exige-se correspondência exata com a tabela de
 13 pares código–nome DataSUS/PA de 2013 (`datasus-pa-2013-v1`). Códigos
 desconhecidos ou associados ao nome de outra região bloqueiam a aquisição.
 
+**Ressalva de composição municipal, 27/10/2026:** o validador dos 13 pares
+código–nome e a conectividade não verificam quais municípios compõem cada
+série regional. P4 atribui Tailândia a Tocantins; outros mapas DATASUS e a
+reagregação de notificações de 2013 sustentam Lago de Tucuruí como candidato
+mais compatível com a série nesse ano. A origem da tabela usada pela série e
+a vigência das fontes continuam em investigação. A evidência, suas
+limitações e a sensibilidade de A estão na [auditoria geográfica](research/2026-10-27-geografia-l0-kernel-ganf.md).
+O P4 abaixo permanece registro histórico, não uma comprovação de alinhamento
+municipal para toda a série. Nenhuma dessas verificações aprova G3 ou altera
+gates, manifests ou resultados.
+
 A execução real única em **2026-09-29T16:35:04Z**, commit limpo
 `7208531475b658ab34ff33d823455a4a12121509`, retornou 13 regiões válidas,
 EPSG:4674, sem geometrias vazias. A Queen é conexa, com 25 arestas e graus na
