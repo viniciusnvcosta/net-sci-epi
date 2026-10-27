@@ -144,6 +144,20 @@ o primeiro. Essa divergência cartográfica explica uma possibilidade concreta
 para as representações opostas, mas não demonstra que qualquer mapa produziu
 os dados de Eze nem resolve o conflito normativo.
 
+**Outro pacote territorial com data interna anterior:** o catálogo público
+DATASUS também lista [mrno_mapas_2013.zip](ftp://ftp.datasus.gov.br/territorio/mapas/mrno_mapas_2013.zip),
+SHA-256 `f0037099633c6aec3d79efc1a617b4667889eefcfda565b2c2f6c65690785085`,
+cujo membro `mrno_regsaud.MAP` tem data interna ZIP 27/05/2016 14:12 e
+SHA-256 `2a47a5ab51bfc35136b09be30cb88e35b71fa1d393a0fb562c88cd3d91c35b33`.
+Na mesma leitura exploratória dos 144 pontos, o mapa Norte diverge do P4
+somente em Tailândia, atribuída a Lago. As sobreposições aproximadas da área
+municipal são 99,74% com Lago e 0,09% com Tocantins, sujeitas às limitações
+do leitor e das malhas já expostas. A comparação pode ser reproduzida com
+o argumento `mrno_regsaud.MAP` no script. A data interna e a data da listagem
+não provam que esses bytes existiam em 2016 nem a vigência jurídica do mapa;
+trata-se de nova evidência cartográfica coerente com Lago, não da tabela de
+agregação de Baroni/Eze e não de prova para toda a série 2009–2019.
+
 Fonte P4: `healthregions_2013.parquet`, SHA-256
 `42de74c7506a5ce52b46ba4d5abdde6b321eebf649b09c08f641fc2e56d8918e`;
 13 regiões agregadas, 25 arestas. Fonte/código e processamento em

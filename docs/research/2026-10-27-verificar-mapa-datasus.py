@@ -8,10 +8,15 @@ from shapely.ops import unary_union
 from shapely.validation import make_valid
 
 member = sys.argv[1] if len(sys.argv) > 1 else "br_regsaud.MAP"
-if member not in {"br_regsaud.MAP", "br_regsaude.MAP"}:
-    raise ValueError("Expected br_regsaud.MAP or br_regsaude.MAP")
+archives = {
+    "br_regsaud.MAP": "br_mapas_2013.zip",
+    "br_regsaude.MAP": "br_mapas_2013.zip",
+    "mrno_regsaud.MAP": "mrno_mapas_2013.zip",
+}
+if member not in archives:
+    raise ValueError("Unknown map member")
 print("map", member)
-b = zipfile.ZipFile("/tmp/headd-castro-20261027/br_mapas_2013.zip").read(member)
+b = zipfile.ZipFile("/tmp/headd-castro-20261027/" + archives[member]).read(member)
 pos = 18
 regions = {}
 while pos < len(b):
