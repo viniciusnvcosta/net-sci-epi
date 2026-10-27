@@ -46,6 +46,27 @@ porque altera A, W, graus/placebos e possivelmente os próprios dados.
    altera seu regimento em referência à CIB 77. Isso não determina a causa
    da classificação na fonte geográfica de 2013 nem os dados usados em L0.
 
+### Contexto da divergência entre CIR e regionalização
+
+A [notícia institucional da CIES Pará de 07/11/2013](https://ciespara.wordpress.com/2013/11/07/organizacao-da-cies-chega-a-regiao-de-saude-tocantins/)
+descreve nove municípios como integrantes da região Tocantins e Tailândia
+como município de Lago que havia solicitado transferência para aderir à CIR
+Tocantins. É uma descrição contemporânea de uma solicitação, não o ato que
+decide sua vigência; não basta para explicar ou invalidar o regimento publicado
+em julho de 2013. Ela reforça a necessidade de distinguir participação em
+instâncias regionais, pedido de transferência e composição pactuada para a
+série. A página foi consultada diretamente em 27/10/2026; o arquivo HTML da
+listagem de novembro consultado teve SHA-256
+`7a8e02bb39dfa97fa346ac2020b68345e3aa20af6d12ad3bd0cfaf35e43b9787`.
+
+O texto da própria CIB 77/2024 também registra um pedido municipal de 2023
+e resoluções das CIRs como antecedentes, antes de pactuar a alteração da
+CIB 90 e fixar sua entrada em vigor na publicação. Isso é evidência adicional
+de que solicitação, manifestação regional e pactuação estadual não devem ser
+tratadas como eventos automaticamente equivalentes. A sequência não prova que
+nada mais ocorreu entre 2013 e 2024 e não estabelece a versão territorial
+usada por Baroni ou Eze. O conflito documental permanece aberto.
+
 ### A divergência já está no arquivo de origem geográfica
 
 O `healthregions_2013.parquet` arquivado tem 144 registros municipais de PA.
