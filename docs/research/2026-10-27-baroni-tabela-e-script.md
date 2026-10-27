@@ -6,6 +6,7 @@ Em 27/10/2026, o usuário disponibilizou na raiz deste worktree `rl_municip_regs
 | --- | --- | --- |
 | `rl_municip_regsaud.csv` | `9de50c97ec32ab159cf8e7361da7cb7e2cd08692eaa213f06d8f77d19cf45f6f` | 5.658 linhas, sem cabeçalho; separador `;`; município e região. |
 | `data_integration_process.r` | `f16801d31eb829548ed5c3830c1c729d7470abe93d70c1a7117a3c5b61c1ea12` | Texto de integração; funções e dados não executados. |
+| `tb_regsaud.csv` | `a386f78d581255487bbf047b753d0c7335f471310ab3635a8e6a8926401af77d` | Fornecida posteriormente pelo usuário; 466 linhas, quatro colunas, separador `;`, sem cabeçalho. |
 
 ## Comparação de composição
 
@@ -17,7 +18,7 @@ Esta é evidência direta da composição da tabela fornecida e reforça a [reag
 
 O código renomeia as duas colunas da relação territorial e as quatro da tabela `tb_regsaud`. Faz um `merge` interno de município–região com `tb_regsaud` pelo código da região e seleciona o código do município e o nome regional. Faz então três `merge(..., all.x=TRUE)` pelos códigos `MUN_NOTI`, `MUN_RESI` e `MUN_INFE`, produzindo respectivamente `notification.hr`, `home.hr` e `infection.hr`. O mesmo objeto territorial é usado nas três junções, sem chave de ano ou intervalo de vigência explícitos no trecho. Isso descreve uma atribuição fixa **se os mesmos objetos forem fornecidos à função**, e não prova a organização administrativa vigente em cada ano.
 
-O `merge` com `tb_regsaud` é interno e pode excluir códigos regionais sem correspondência; códigos duplicados em `tb_regsaud` podem multiplicar linhas. Como essa segunda tabela não foi fornecida, não é possível verificar sua unicidade, cobertura, nomes, versão ou o resultado efetivo do join. A linha inicial do arquivo chama a função antes de sua definição; o arquivo foi inspecionado como texto e não é uma receita independente comprovadamente executável de ponta a ponta. Também não foi localizado nele o processamento posterior que gerou `PASIVEPDailyPerHr.csv`.
+O `merge` com `tb_regsaud` é interno e pode excluir códigos regionais sem correspondência; códigos duplicados em `tb_regsaud` podem multiplicar linhas. Na tabela fornecida posteriormente, todos os 466 códigos regionais são únicos e todos os 5.658 códigos da relação municipal encontram correspondência; a junção não multiplica municípios. Nos 144 municípios de PA, há 144 linhas, com 13 códigos ativos e nomes canônicos; `150795 → 15004 → LAGO DE TUCURUI`. Isso verifica o join das duas tabelas fornecidas, não a cobertura ou unicidade de registros no SIVEP, nem que essas versões tenham produzido o CSV L0. A linha inicial do arquivo chama a função antes de sua definição; o arquivo foi inspecionado como texto e não é uma receita independente comprovadamente executável de ponta a ponta. Também não foi localizado nele o processamento posterior que gerou `PASIVEPDailyPerHr.csv`.
 
 Como diagnóstico auxiliar, a `tb_regsaud.csv` do pacote territorial DATASUS
 de 2023, SHA-256 `c79bf2cac0b1608066f1860eb1fabac9b4382777a1c46a600e76e4748dccc8ff`,
@@ -32,7 +33,7 @@ R, que espera quatro. Não executar essa substituição no experimento.
 
 O mapa com Tailândia em Lago agora é o **candidato prioritário de alinhamento** com a tabela fornecida e com as contagens de 2013, sujeito à confirmação da linhagem e revisão científica. P4 permanece referência histórica imutável. A análise exploratória anterior aponta uma alteração de 25 para 26 arestas e exige regenerar W e placebos para qualquer novo protocolo; não autoriza sobrescrever artefatos, alterar resultados ou afirmar ganho de desempenho. A divergência de vigência administrativa e a abrangência de 2009–2019 continuam abertas; D1 não passa automaticamente, D2 OD permanece suspenso conforme o plano, e E0*/FAR, G3 e demais gates permanecem inalterados.
 
-Próximas verificações: obter a tabela histórica `tb_regsaud` correspondente, verificar origem e versão dos três arquivos e os joins/cardinalidade; identificar o processamento da série Eze e verificar a relação entre os bytes usados e o CSV L0. Qualquer nova geografia deve receber identificação própria e revisão prospectiva, sem mudar o perfil ou as evidências históricas.
+Próximas verificações: verificar origem e versão dos três arquivos e cobertura do join no SIVEP; identificar o processamento da série Eze e verificar a relação entre os bytes usados e o CSV L0. Qualquer nova geografia deve receber identificação própria e revisão prospectiva, sem mudar o perfil ou as evidências históricas.
 
 ## Reprodução das comparações de PA
 
@@ -57,6 +58,18 @@ assert (joined._merge == 'both').sum() == 144
 assert (joined.loc[joined._merge.eq('both'), 'CO_REGSAUD'] ==
         joined.loc[joined._merge.eq('both'), 'regiao']).all()
 assert joined.loc[joined._merge.eq('right_only'), 'municipio'].tolist() == ['150000']
+historic_names = pd.read_csv('tb_regsaud.csv', sep=';', header=None,
+                             names=['regiao', 'status', 'nome', 'ordem'], dtype=str,
+                             encoding='latin1')
+assert len(historic_names) == 466 and historic_names.regiao.is_unique
+historic_join = old.merge(historic_names, on='regiao', how='left', validate='many_to_one')
+assert len(historic_join) == len(old) == 5658 and historic_join.nome.notna().all()
+pa_join = historic_join[historic_join.municipio.str.startswith('15') &
+                        historic_join.municipio.ne('150000')]
+assert len(pa_join) == 144 and pa_join.municipio.is_unique
+assert pa_join.regiao.nunique() == 13 and pa_join.status.eq('ATIVO').all()
+assert pa_join.loc[pa_join.municipio.eq('150795'), 'nome'].item() == 'LAGO DE TUCURUI'
+print('Tabelas fornecidas: 5658 relações correspondidas; PA 144 linhas')
 g = pd.read_parquet('/home/vinvs/projects/net-sci-epi/.worktrees/_archive/2026-10-23/second-execution/data/processed/graph/healthregions_2013.parquet',
                     columns=['code_muni6', 'code_health_region', 'abbrev_state'])
 g = g[g.abbrev_state.eq('PA')].copy()

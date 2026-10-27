@@ -12,6 +12,8 @@ Posteriormente, a [tabela territorial e o script fornecidos pelo usuário](2026-
 indicaram Tailândia em Lago e concordância dos 144 pares de PA com o DATASUS
 2023; o script descreve uma junção fixa sem chave temporal explícita. Sua
 versão e vínculo efetivo com a geração da série L0 ainda não foram provados.
+A tabela de nomes posteriormente fornecida produz um único nome por município
+nessa junção e confirma `15004 → LAGO DE TUCURUI`.
 O [rastreio posterior](2026-10-27-origem-serie-e-tabela-territorial.md)
 confirma que o CSV de Eze publicado é idêntico ao CSV local, mas não identifica
 a tabela histórica que gerou a série. Essas verificações não demonstram
@@ -226,11 +228,11 @@ print(j.loc[j.regiao_p4 != j.CO_REGSAUD.astype(int),
 
 ## A pista mais direta para a série L0: Baroni et al.
 
-**Atualização:** a relação e o script foram depois fornecidos pelo usuário e
+**Atualização:** a relação, o script e a tabela de nomes foram fornecidos pelo usuário e
 examinados na [auditoria dos arquivos](2026-10-27-baroni-tabela-e-script.md).
 Os registros de HTTP 403 abaixo descrevem a consulta anônima anterior, não a
-disponibilidade dos arquivos agora recebidos. A tabela `tb_regsaud` e o vínculo
-exato com a série ainda não foram verificados.
+disponibilidade dos arquivos agora recebidos. As tabelas foram comparadas; o
+vínculo exato das versões com a série ainda não foi verificado.
 
 O README do repositório CDADE original atribui sua série SIVEP a Baroni et
 al., mas não comprova os bytes e processamento que geraram o CSV local.
