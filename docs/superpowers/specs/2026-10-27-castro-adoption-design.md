@@ -12,11 +12,11 @@ de implementação ou de um novo protocolo científico.
 
 Foram consideradas três entradas:
 
-| Entrada | Ganho e dependência | Encaminhamento proposto |
-| --- | --- | --- |
-| Proveniência e contrato de dados | Usa os arquivos existentes e explicita o que falta | Primeira etapa recomendada; este desenho |
-| Construção de F infecção→notificação | Permite estudar fluxos observados; exige OD real datada e correspondência territorial | Etapa posterior condicionada aos dados |
-| Baseline hhh4 e aprendizagem de grafo | Permite avaliar modelos adicionais; exige objetivo, validação e escopo próprios | Desenho separado posterior |
+| Entrada                               | Ganho e dependência                                                                   | Encaminhamento proposto                  |
+| ------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------- |
+| Proveniência e contrato de dados      | Usa os arquivos existentes e explicita o que falta                                    | Primeira etapa recomendada; este desenho |
+| Construção de F infecção→notificação  | Permite estudar fluxos observados; exige OD real datada e correspondência territorial | Etapa posterior condicionada aos dados   |
+| Baseline hhh4 e aprendizagem de grafo | Permite avaliar modelos adicionais; exige objetivo, validação e escopo próprios       | Desenho separado posterior               |
 
 A solicitação de iniciar a recomendação é entendida como autorização para
 preparar esta adoção gradual. O recorte documental e os critérios abaixo são
@@ -28,10 +28,10 @@ Em 27/10, leitura dos CSVs e SHA-256 confirmou que as cópias locais são
 idênticas às fontes apontadas por `configs/data.toml`, em
 `../hybrid-theory/data/raw`:
 
-| Arquivo | Linhas | SHA-256 |
-| --- | --- | --- |
-| `PA.csv` | 132 | `ba437eff83a537addcdda93aca09401d5033804b83a0b767baa55788267041f5` |
-| `PASIVEPDailyPerHr.csv` | 7.592 | `ad61c77c8c187713cd47e72bb5f028eda1203e3f5e4962c5970d41abd9ae7188` |
+| Arquivo                 | Linhas | SHA-256                                                            |
+| ----------------------- | ------ | ------------------------------------------------------------------ |
+| `PA.csv`                | 132    | `ba437eff83a537addcdda93aca09401d5033804b83a0b767baa55788267041f5` |
+| `PASIVEPDailyPerHr.csv` | 7.592  | `ad61c77c8c187713cd47e72bb5f028eda1203e3f5e4962c5970d41abd9ae7188` |
 
 O CSV regional contém somente `notification.year`, `notification.month`,
 `notification.hr`, `exam.result` e `testperhr`. O loader em
