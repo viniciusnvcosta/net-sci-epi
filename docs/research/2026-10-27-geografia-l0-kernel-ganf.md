@@ -124,6 +124,26 @@ eventuais buracos; a diferença residual não identifica, por si, erro de
 limites. Esse resultado oferece suporte espacial além do ponto representativo,
 mas mantém as mesmas limitações de versão, vigência e linhagem acima.
 
+**Divergência dentro do próprio pacote DATASUS:** o segundo arquivo,
+`br_regsaude.MAP`, SHA-256
+`e0e2d67afef7cf6f881c662025539885534cbd76391a84bb5e78f41e741fcab9`,
+foi submetido à mesma leitura exploratória e aos mesmos 144 pontos. Nele,
+todos têm correspondência única, mas Tailândia é a única divergência em
+relação a P4: o ponto está em Lago (`15004`), enquanto no primeiro mapa está
+em Tocantins (`15011`). O polígono municipal sobrepõe aproximadamente
+99,10% de Lago e 0,31% de Tocantins nesse segundo mapa, com as mesmas
+ressalvas sobre projeção, anéis e diferenças de malhas. Os dois arquivos
+estão no mesmo ZIP e não constituem fontes independentes. Ainda não sabemos
+por que há dois mapas, sua finalidade específica ou qual deles teria
+vigência para o estudo. O script geobr da tag examinada seleciona
+`br_regsaud.MAP`, não `br_regsaude.MAP`.
+
+Para reproduzir a comparação, executar o script exploratório com argumento
+`br_regsaud.MAP` e novamente com `br_regsaude.MAP`; o argumento ausente usa
+o primeiro. Essa divergência cartográfica explica uma possibilidade concreta
+para as representações opostas, mas não demonstra que qualquer mapa produziu
+os dados de Eze nem resolve o conflito normativo.
+
 Fonte P4: `healthregions_2013.parquet`, SHA-256
 `42de74c7506a5ce52b46ba4d5abdde6b321eebf649b09c08f641fc2e56d8918e`;
 13 regiões agregadas, 25 arestas. Fonte/código e processamento em
