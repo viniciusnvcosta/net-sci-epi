@@ -2,6 +2,12 @@
 
 Data: 27/10/2026. Investigação descritiva, sem alteração do protocolo ou dos dados brutos.
 
+**Atualização:** após esta consulta, o usuário forneceu a relação territorial
+e o script de integração. A [auditoria desses arquivos](2026-10-27-baroni-tabela-e-script.md)
+encontrou Tailândia em Lago e 144/144 pares de PA concordantes com DATASUS
+2023; a versão efetivamente usada na geração da série ainda não foi provada.
+O HTTP 403 relatado abaixo é a condição da consulta anônima anterior.
+
 ## Série publicada por Eze e colaboradores
 
 O artigo de Eze e colaboradores referencia o [repositório público da análise](https://github.com/KingPeter2014/Anomaly_in_malaria_surveillance_data). Na revisão `8fd4067bba3f4491bded0948a67d14b08fabfe33`, o [CSV regional](https://github.com/KingPeter2014/Anomaly_in_malaria_surveillance_data/blob/8fd4067bba3f4491bded0948a67d14b08fabfe33/PASIVEPDailyPerHr.csv) tem SHA-256 `ad61c77c8c187713cd47e72bb5f028eda1203e3f5e4962c5970d41abd9ae7188`, idêntico ao de `data/raw/sivep/PASIVEPDailyPerHr.csv` no projeto. Isso identifica a mesma versão dos bytes publicados, mas não prova por si só toda a cadeia anterior de processamento.
