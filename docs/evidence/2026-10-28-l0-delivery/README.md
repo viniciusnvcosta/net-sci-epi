@@ -54,3 +54,28 @@ antes e depois da leitura e preserva v1. O manifesto v2 tem SHA-256
 os dois painéis novamente concordam em todas as células e têm o mesmo hash
 canônico informado acima. Essa conferência não prova proveniência oficial dos
 bytes integrados.
+
+## Grafo candidato parcial
+
+`results/l0-delivery-graph-partial-v1/candidate.graphml` contém 13 nós e 52
+arcos direcionados, com código, nome, tipo Queen e os pesos W verificados contra
+as matrizes do pacote. SHA-256:
+`061420b84c8bc0b97dc56efb9978a5156f04880194341b5ca8fe78e04cd7f59b`.
+Seu manifesto SHA-256
+`776250d4cbe10a4fa298dade3222da50dee7a9d6ac1cf32cf195add54d04e32f`
+registra `partial_population_pending`. Não há atributo de população:
+`tabela1378.csv` recebido tem situação do domicílio Urbana, inadequada para a
+população total solicitada. Aguardamos a seleção Total; não imputar zero.
+A direção dos arcos representa índices de W, não fluxo de pessoas.
+
+## Piloto SIR
+
+`results/l0-sir-pilot-20261028-v1/manifest.json` (SHA-256
+`b7559c78a67e500d8148e03dc457d146ae3ebe4f591992f66c47b8508ff4735f`)
+registra `pilot_failed`, com `interpretation_allowed=false` e D-COST pendente.
+O primeiro painel (white, ε=0, T, endereço piloto 0) não passou no ajuste
+NB2: reprodução diagnóstica com a mesma seed apontou 10 dos 14 ajustes sem
+convergência; não houve ajuste do pool de detectores. Não há medição completa
+por braço ou projeção de custo e a bancada exploratória não foi executada.
+Não alterar sementes ou parâmetros para transformar esse resultado em sucesso.
+A reprodução diagnóstica não modifica a evidência histórica E0*/FAR.
