@@ -4,6 +4,13 @@ Investigação de 27/10/2026. Complementa a [comparação de atos e grafos](2026
 e o [dossiê de dados](2026-10-27-adocao-castro-proveniencia.md). A análise
 não substitui fontes, perfis ou resultados históricos.
 
+**Atualização de 28/10:** a [auditoria do conjunto integrado fornecido](2026-10-28-auditoria-integrated-2009-2019.md)
+encontrou concordância completa com o CSV L0 nos 7.592 grupos observados de
+região × mês × resultado em 2009–2019, além de concordância município–região
+com as tabelas fornecidas em todos os registros de notificação de PA. Isso
+reforça o candidato Lago para alinhar a geografia à série fixa, sem provar a
+vigência administrativa mensal ou a cadeia exata de produção do CSV L0.
+
 **Atualização da evidência, 27/10:** a [reagregação independente de 2013](2026-10-27-auditoria-reagregacao-2013.md)
 reproduziu 1.560/1.560 células região × mês × resultado da série L0 com
 Tailândia em Lago; com P4, foram 1.502/1.560. O candidato Lago tem, portanto,
@@ -16,8 +23,8 @@ A tabela de nomes posteriormente fornecida produz um único nome por município
 nessa junção e confirma `15004 → LAGO DE TUCURUI`.
 O [rastreio posterior](2026-10-27-origem-serie-e-tabela-territorial.md)
 confirma que o CSV de Eze publicado é idêntico ao CSV local, mas não identifica
-a tabela histórica que gerou a série. Essas verificações não demonstram
-compatibilidade nos demais anos nem autorizam substituir A, alterar gates ou
+a tabela histórica que gerou a série. A verificação posterior de 28/10 amplia
+a compatibilidade observacional aos demais anos; ela não autoriza substituir A, alterar gates ou
 inferir o desempenho do candidato. A referência P4 é preservada por ser a
 usada historicamente; não por ter maior suporte de alinhamento em 2013.
 
