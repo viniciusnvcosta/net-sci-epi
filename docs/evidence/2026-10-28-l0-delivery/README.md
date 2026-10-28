@@ -40,3 +40,17 @@ integridade, mas não havia renderizador disponível para revisão visual.
 Faltam verificação de layout, distinção explícita do orçamento histórico,
 grafo candidato, fontes e eventuais resultados exploratórios; preservar esta
 versão e gerar nova identidade ao completá-la.
+
+A cópia posterior `results/l0-delivery-slides-v2/HEADD-Series-L0-atualizada.pptx`
+(SHA-256 `fdebea58a45ee9416630c2ec4ebd885f0e3da495b6332e1228b186aeb4358252`)
+inclui a diferença P4/candidata e o orçamento histórico no texto. É igualmente
+preliminar: não foi renderizada e ainda não incorpora o grafo com população ou
+a execução exploratória. Sua integridade ZIP foi verificada; a v1 foi mantida.
+
+A revisão técnica identificou que v1 calculava os hashes das referências após
+carregá-las. A execução v2, com código do commit `d206a2d`, verifica os hashes
+antes e depois da leitura e preserva v1. O manifesto v2 tem SHA-256
+`fc38f1c6094f605ee75342343d699553bcdd5785e52ef0efade2ffbd14458740`;
+os dois painéis novamente concordam em todas as células e têm o mesmo hash
+canônico informado acima. Essa conferência não prova proveniência oficial dos
+bytes integrados.

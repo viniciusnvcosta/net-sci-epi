@@ -66,3 +66,16 @@ def test_rejects_inexact_weights(tmp_path):
     w = np.array([[0.0, 1.00000001], [1.0, 0.0]])
     with pytest.raises(ValueError, match="invalid"):
         export_graph(a, w, [("1", "A"), ("2", "B")], {"1": 1, "2": 1}, tmp_path / "g")
+
+
+def test_export_rejects_disconnected_graph(tmp_path):
+    a = np.zeros((4, 4), dtype=int)
+    a[0, 1] = a[1, 0] = a[2, 3] = a[3, 2] = 1
+    with pytest.raises(ValueError, match="invalid"):
+        export_graph(
+            a,
+            a.astype(float),
+            [("1", "A"), ("2", "B"), ("3", "C"), ("4", "D")],
+            {"1": 1, "2": 1, "3": 1, "4": 1},
+            tmp_path / "g",
+        )

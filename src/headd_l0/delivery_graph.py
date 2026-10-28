@@ -54,6 +54,7 @@ def export_graph(
         or not np.array_equal(a, a.T)
         or np.any(np.diag(a))
         or np.any(a.sum(axis=1) == 0)
+        or not nx.is_connected(nx.from_numpy_array(a))
         or not np.array_equal(w, a / a.sum(axis=1)[:, None])
         or len({code for code, _ in regions}) != n
         or set(population) != {code for code, _ in regions}
