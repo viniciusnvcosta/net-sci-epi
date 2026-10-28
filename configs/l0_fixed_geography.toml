@@ -1,0 +1,11 @@
+relation = "rl_municip_regsaud.csv"
+relation_sha256 = "9de50c97ec32ab159cf8e7361da7cb7e2cd08692eaa213f06d8f77d19cf45f6f"
+names = "tb_regsaud.csv"
+names_sha256 = "a386f78d581255487bbf047b753d0c7335f471310ab3635a8e6a8926401af77d"
+geometry = "/home/vinvs/projects/net-sci-epi/.worktrees/_archive/2026-10-23/second-execution/data/processed/graph/healthregions_2013.parquet"
+geometry_sha256 = "42de74c7506a5ce52b46ba4d5abdde6b321eebf649b09c08f641fc2e56d8918e"
+p4_adjacency = "/home/vinvs/projects/net-sci-epi/.worktrees/_archive/2026-10-23/second-execution/data/processed/graph/adjacency.npy"
+p4_adjacency_sha256 = "eb34aee7e9623451b93d1c207c85c0aec76b5f3e4add27f5028352c096472d9a"
+output_dir = "results/l0-fixed-geography-candidate-v1"
+root_seed = 42
+n_placebos = 30

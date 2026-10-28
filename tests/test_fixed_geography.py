@@ -1,6 +1,10 @@
 """Tests for the fixed-series geography candidate."""
 
+import hashlib
+import json
+
 import geopandas as gpd
+import networkx as nx
 import numpy as np
 import pandas as pd
 import pytest
@@ -117,3 +121,97 @@ def test_candidate_graph_rejects_bad_geometry(connected_regions, failure):
         connected_regions.loc[0, "geometry"] = box(50, 0, 51, 1)
     with pytest.raises(ValueError):
         candidate_graph(connected_regions)
+
+
+@pytest.fixture
+def publication_inputs(tmp_path, geography_inputs, monkeypatch):
+    from headd_l0 import fixed_geography as fixed
+
+    municipalities, relation, names = geography_inputs
+    relation = pd.concat(
+        [relation, pd.DataFrame({"municipality": ["150000"], "region": ["15000"]})],
+        ignore_index=True,
+    )
+    paths = {
+        key: tmp_path / key for key in ("relation", "names", "geometry", "p4_adjacency")
+    }
+    relation.to_csv(paths["relation"], sep=";", header=False, index=False)
+    names.to_csv(paths["names"], sep=";", header=False, index=False)
+    municipalities.to_parquet(paths["geometry"])
+    original = nx.to_numpy_array(nx.cycle_graph(13), dtype=np.uint8)
+    with paths["p4_adjacency"].open("wb") as f:
+        np.save(f, original)
+    rng = np.random.default_rng(42)
+    draws = []
+    seen = {original.tobytes()}
+    while len(draws) < 30:
+        order = rng.permutation(13)
+        graph = nx.Graph()
+        graph.add_nodes_from(range(13))
+        graph.add_edges_from(zip(order, np.roll(order, -1)))
+        candidate = nx.to_numpy_array(graph, nodelist=range(13), dtype=np.uint8)
+        if candidate.tobytes() not in seen:
+            draws.append(candidate)
+            seen.add(candidate.tobytes())
+    monkeypatch.setattr(fixed, "candidate_graph", lambda _: (original, original / 2))
+    monkeypatch.setattr(fixed, "_draw_placebos", lambda *_: (draws, {"budget": {}}))
+    hashes = {
+        key: hashlib.sha256(path.read_bytes()).hexdigest()
+        for key, path in paths.items()
+    }
+    config = tmp_path / "run.toml"
+    output = tmp_path / "output"
+    config.write_text(
+        "\n".join(
+            [
+                f'{key} = "{path}"\n{key}_sha256 = "{hashes[key]}"'
+                for key, path in paths.items()
+            ]
+        )
+        + f'\noutput_dir = "{output}"\nroot_seed = 42\nn_placebos = 30\n'
+    )
+    return config, output, paths, original, draws
+
+
+def test_publication_succeeds_with_manifest(publication_inputs):
+    from headd_l0.fixed_geography import main
+
+    config, output, _, _, _ = publication_inputs
+    assert main([str(config)]) == 0
+    manifest = json.loads((output / "manifest.json").read_text())
+    assert manifest["root_seed"] == 42
+    assert manifest["interpretation_allowed"] is False
+    for name, digest in manifest["outputs"].items():
+        assert hashlib.sha256((output / name).read_bytes()).hexdigest() == digest
+
+
+@pytest.mark.parametrize(
+    "failure", ["hash", "exists", "generator", "duplicate", "disconnected", "degree"]
+)
+def test_publication_rejects_failure(publication_inputs, monkeypatch, failure):
+    from headd_l0 import fixed_geography as fixed
+
+    config, output, paths, original, draws = publication_inputs
+    if failure == "hash":
+        paths["relation"].write_text("changed")
+    elif failure == "exists":
+        output.mkdir()
+        (output / "keep").write_text("unchanged")
+    elif failure == "generator":
+
+        def fail(*args):
+            raise RuntimeError("no candidates")
+
+        monkeypatch.setattr(fixed, "_draw_placebos", fail)
+    else:
+        if failure == "duplicate":
+            draws[-1] = draws[0]
+        elif failure == "disconnected":
+            draws[-1] = np.zeros_like(original)
+        else:
+            draws[-1] = np.ones_like(original) - np.eye(13, dtype=np.uint8)
+    with pytest.raises((ValueError, FileExistsError, RuntimeError)):
+        fixed.main([str(config)])
+    assert not (output / "manifest.json").exists()
+    if failure == "exists":
+        assert (output / "keep").read_text() == "unchanged"
