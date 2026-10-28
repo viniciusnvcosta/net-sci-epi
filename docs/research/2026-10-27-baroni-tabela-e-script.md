@@ -42,6 +42,10 @@ notificação, residência e infecção são mantidos. O script R recebido mant�
 as colunas de data no retorno, além de criar mês/ano; a documentação e esse
 trecho não demonstram em que etapa, versão ou produto o dia foi omitido.
 Não inferir frequência diária efetiva pelo nome `PASIVEPDailyPerHr.csv`.
+O próprio CSV L0 contém as colunas `notification.year`, `notification.month`,
+`notification.hr`, `exam.result` e `testperhr`: não há coluna de dia. Isso
+confirma a granularidade mensal do arquivo usado, mas não esclarece em qual
+etapa o dia eventualmente foi omitido dos dados anteriores.
 
 A tabela 2 do PDF, p. 4, informa preenchimento de 100% para região e município
 de notificação, 12,62% para região e município de infecção e 12,94% para
