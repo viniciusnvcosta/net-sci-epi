@@ -4,6 +4,7 @@ import json
 import resource
 import subprocess
 import tempfile
+import tomllib
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -22,12 +23,53 @@ from headd_l0.exploratory import (
     simulate_replicate,
 )
 
+CONFIG_PATH = Path("configs/l0_exploratory.toml")
+PROTOCOL_PATH = Path("docs/protocols/2026-10-28-sir-exploratorio.md")
+
+
+def _protocol_identity() -> dict[str, str]:
+    config = tomllib.loads(CONFIG_PATH.read_text())
+    expected = {
+        "name": "l0_sir_exploratory",
+        "root_seed": 20261028,
+        "noise": "white",
+        "epsilon": [0.0, 0.2],
+        "train_months": 60,
+        "window": 12,
+        "target_far": 1 / 60,
+        "far_tolerance": 1 / 300,
+        "n_null_calibration": 200,
+        "n_null_evaluation": 200,
+        "candidate_manifest_sha256": "7a2050e059d037960fd0fce8839d66f57dd9d6cab5942441ea3ea54bee9d4fe0",
+        "placebo_candidates": [0, 1, 2],
+        "baseline_id": "B1*",
+        "profile_id": "P5-IMPL-2026-10-19-v1",
+        "interpretation_allowed": False,
+        "endemic_manifest_sha256": "6cce8698b56d7b9ec4774e6ed0645bd6ab0ed78d08cbce51d2fc15605a9abbc0",
+        "endemic_calibration_sha256": "1f2a99787ce9e4cdd858fb6fe5a6c0931ed40d3d41d80a748380372aa0c47c3e",
+        "detectors": ["pca", "lof", "knn", "hbos", "iforest", "mcd"],
+        "selection_k": 5,
+    }
+    if config != expected:
+        raise ValueError("config differs from implemented protocol")
+    return {
+        "config_sha256": _sha256(CONFIG_PATH),
+        "protocol_sha256": _sha256(PROTOCOL_PATH),
+    }
+
+
+def _input_identity(manifest: Path, calibration_dir: Path) -> dict[str, str]:
+    return {
+        "candidate_manifest_sha256": _sha256(manifest),
+        "endemic_manifest_sha256": _sha256(calibration_dir / "manifest.json"),
+    }
+
 
 def _source_identity() -> dict[str, str]:
     return {p.name: _sha256(p) for p in sorted(Path(__file__).parent.glob("*.py"))}
 
 
-def _verify_budget(path: Path) -> dict:
+def _verify_budget(path: Path, identity: dict | None = None) -> dict:
     """Require a committed cost-based budget with a verified pilot manifest."""
     root = Path(
         subprocess.run(
@@ -47,14 +89,29 @@ def _verify_budget(path: Path) -> dict:
     pilot = Path(budget["pilot_manifest"])
     if _sha256(pilot) != budget["pilot_manifest_sha256"]:
         raise ValueError("pilot manifest hash mismatch")
-    if json.loads(pilot.read_text()).get("status") != "pilot_complete":
+    pilot_record = json.loads(pilot.read_text())
+    if pilot_record.get("status") != "pilot_complete":
         raise ValueError("pilot not complete")
+    if identity is None or any(pilot_record.get(k) != v for k, v in identity.items()):
+        raise ValueError("pilot identity mismatch")
     if (
         type(budget["n_transition"]) is not int
         or budget["n_transition"] < 1
         or budget["placebo_ids"] not in ([0], [0, 1], [0, 1, 2])
     ):
         raise ValueError("unsupported exploratory budget")
+    records = pilot_record.get("records", [])
+    if len(records) != 4:
+        raise ValueError("pilot records incomplete")
+    wall = budget.get("wall_budget_seconds")
+    if not isinstance(wall, (int, float)) or isinstance(wall, bool) or wall <= 0:
+        raise ValueError("invalid wall budget")
+    worst = max(r["simulation_seconds"] + r["scoring_seconds"] for r in records)
+    if (
+        not np.isfinite(worst)
+        or 2 * (400 + budget["n_transition"]) * worst * 1.25 > wall
+    ):
+        raise ValueError("pilot projected cost exceeds budget")
     return budget
 
 
@@ -65,7 +122,16 @@ def run_experiment(
     if output.exists() or output.is_symlink():
         raise FileExistsError(output)
     source_identity = _source_identity()
-    budget = _verify_budget(budget_path)
+    protocol_identity = _protocol_identity()
+    input_identity = _input_identity(manifest_path, calibration_dir)
+    budget = _verify_budget(
+        budget_path,
+        {
+            "source_sha256": source_identity,
+            "protocol_identity": protocol_identity,
+            **input_identity,
+        },
+    )
     a, w, p4, placebo = load_graphs(manifest_path)
     hazards = load_hazards(calibration_dir)
     graphs = {
@@ -115,8 +181,14 @@ def run_experiment(
         for key, value in scores.items():
             results[f"epsilon_{cell}_{key}"] = value
         results[f"epsilon_{cell}_onsets"] = np.stack(onsets)
-    if _source_identity() != source_identity:
+    if (
+        _source_identity() != source_identity
+        or _protocol_identity() != protocol_identity
+        or _input_identity(manifest_path, calibration_dir) != input_identity
+    ):
         raise ValueError("source changed during experiment")
+    load_graphs(manifest_path)
+    load_hazards(calibration_dir)
     output.parent.mkdir(parents=True, exist_ok=True)
     stage = Path(tempfile.mkdtemp(prefix=f".{output.name}-", dir=output.parent))
     pd.DataFrame(far_rows).to_csv(stage / "far.csv", index=False)
@@ -136,11 +208,9 @@ def run_experiment(
             "zscore",
         ],
         "seed_addresses": "simulation=(partition,epsilon,label,index); detector=(3,partition,epsilon,label,index); children 0=region,1=simulation",
-        "source_sha256": {
-            p.name: _sha256(p) for p in Path(__file__).parent.glob("*.py")
-        },
-        "candidate_manifest_sha256": _sha256(manifest_path),
-        "endemic_manifest_sha256": _sha256(calibration_dir / "manifest.json"),
+        "source_sha256": source_identity,
+        "protocol_identity": protocol_identity,
+        **input_identity,
         "budget_sha256": _sha256(budget_path),
         "n_calibration": 200,
         "n_null_evaluation": 200,
@@ -159,6 +229,8 @@ def run_pilot(manifest_path: Path, calibration_dir: Path, output: Path) -> None:
     if output.exists() or output.is_symlink():
         raise FileExistsError(output)
     source_identity = _source_identity()
+    protocol_identity = _protocol_identity()
+    input_identity = _input_identity(manifest_path, calibration_dir)
     a, w, p4, placebo = load_graphs(manifest_path)
     hazards = load_hazards(calibration_dir)
     graphs = {
@@ -171,8 +243,14 @@ def run_pilot(manifest_path: Path, calibration_dir: Path, output: Path) -> None:
         status, error = "pilot_complete", None
     except (ValueError, RuntimeError, ArithmeticError) as exc:
         records, status, error = [], "pilot_failed", str(exc)
-    if _source_identity() != source_identity:
-        raise ValueError("source changed during pilot")
+    if (
+        _source_identity() != source_identity
+        or _protocol_identity() != protocol_identity
+        or _input_identity(manifest_path, calibration_dir) != input_identity
+    ):
+        raise ValueError("source or inputs changed during pilot")
+    load_graphs(manifest_path)
+    load_hazards(calibration_dir)
     output.parent.mkdir(parents=True, exist_ok=True)
     stage = Path(tempfile.mkdtemp(prefix=f".{output.name}-", dir=output.parent))
     projection = None
@@ -196,9 +274,9 @@ def run_pilot(manifest_path: Path, calibration_dir: Path, output: Path) -> None:
         "interpretation_allowed": False,
         "records": records,
         "peak_rss_kib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
-        "candidate_manifest_sha256": _sha256(manifest_path),
-        "endemic_manifest_sha256": _sha256(calibration_dir / "manifest.json"),
+        **input_identity,
         "source_sha256": source_identity,
+        "protocol_identity": protocol_identity,
         "root_seed": 20261028,
         "per_arm_timings": "individual measurements include repeated shared fitting",
         "d_cost_status": "pending",

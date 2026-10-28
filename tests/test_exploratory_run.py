@@ -15,7 +15,7 @@ def test_experiment_preserves_inputs_and_blocks_inference(tmp_path, monkeypatch)
     monkeypatch.setattr(
         runner,
         "_verify_budget",
-        lambda _: {"n_transition": 1, "placebo_ids": [0, 1, 2]},
+        lambda *_: {"n_transition": 1, "placebo_ids": [0, 1, 2]},
     )
     monkeypatch.setattr(
         runner, "load_graphs", lambda _: (matrix, matrix, matrix, placebo)
@@ -65,10 +65,12 @@ def test_experiment_failure_never_publishes(tmp_path, monkeypatch):
     from headd_l0 import exploratory_run as runner
 
     matrix = np.eye(13)
+    (tmp_path / "m").write_text("{}")
+    (tmp_path / "manifest.json").write_text("{}")
     monkeypatch.setattr(
         runner,
         "_verify_budget",
-        lambda _: {"n_transition": 1, "placebo_ids": [0, 1, 2]},
+        lambda *_: {"n_transition": 1, "placebo_ids": [0, 1, 2]},
     )
     monkeypatch.setattr(
         runner,
@@ -90,10 +92,12 @@ def test_source_change_during_experiment_fails_closed(tmp_path, monkeypatch):
     from headd_l0 import exploratory_run as runner
 
     matrix = np.eye(13)
+    (tmp_path / "m").write_text("{}")
+    (tmp_path / "manifest.json").write_text("{}")
     monkeypatch.setattr(
         runner,
         "_verify_budget",
-        lambda _: {"n_transition": 1, "placebo_ids": [0, 1, 2]},
+        lambda *_: {"n_transition": 1, "placebo_ids": [0, 1, 2]},
     )
     monkeypatch.setattr(
         runner,
@@ -213,3 +217,115 @@ def test_pilot_projection_labels_extrapolation(tmp_path, monkeypatch):
     assert result["d_cost_status"] == "pending"
     assert result["cost_projection"]["seconds"] > 0
     assert "extrapol" in result["cost_projection"]["limitation"]
+
+
+def test_protocol_rejects_config_drift(tmp_path, monkeypatch):
+    from headd_l0 import exploratory_run as runner
+
+    config = tmp_path / "config.toml"
+    config.write_text("root_seed = 999\n")
+    protocol = tmp_path / "protocol.md"
+    protocol.write_text("protocol")
+    monkeypatch.setattr(runner, "CONFIG_PATH", config)
+    monkeypatch.setattr(runner, "PROTOCOL_PATH", protocol)
+    with pytest.raises(ValueError, match="config"):
+        runner._protocol_identity()
+
+
+def test_pilot_rejects_input_changed_during_measurement(tmp_path, monkeypatch):
+    from headd_l0 import exploratory_run as runner
+
+    matrix = np.eye(13)
+    monkeypatch.setattr(
+        runner,
+        "load_graphs",
+        lambda _: (matrix, matrix, matrix, np.repeat(matrix[None], 30, axis=0)),
+    )
+    monkeypatch.setattr(runner, "load_hazards", lambda _: (0.1,) * 13)
+    manifest = tmp_path / "candidate.json"
+    manifest.write_text("original")
+    (tmp_path / "manifest.json").write_text("{}")
+
+    def mutate(*args):
+        manifest.write_text("changed")
+        return []
+
+    monkeypatch.setattr(runner, "measure_pilot", mutate)
+    with pytest.raises(ValueError, match="changed"):
+        runner.run_pilot(manifest, tmp_path, tmp_path / "out")
+    assert not (tmp_path / "out").exists()
+
+
+def test_budget_rejects_pilot_for_other_code(tmp_path, monkeypatch):
+    import hashlib
+
+    from headd_l0 import exploratory_run as runner
+
+    pilot = tmp_path / "pilot.json"
+    pilot.write_text(
+        json.dumps({"status": "pilot_complete", "source_sha256": {"source": "old"}})
+    )
+    budget = tmp_path / "budget.json"
+    budget.write_text(
+        json.dumps(
+            {
+                "n_transition": 1,
+                "placebo_ids": [0],
+                "pilot_manifest": str(pilot),
+                "pilot_manifest_sha256": hashlib.sha256(pilot.read_bytes()).hexdigest(),
+            }
+        )
+    )
+    monkeypatch.setattr(
+        runner.subprocess,
+        "run",
+        lambda cmd, **kwargs: SimpleNamespace(
+            stdout=str(tmp_path) if "--show-toplevel" in cmd else budget.read_bytes()
+        ),
+    )
+    with pytest.raises(ValueError, match="pilot identity"):
+        runner._verify_budget(budget, {"source_sha256": {"source": "new"}})
+
+
+def test_budget_checks_cost_and_exact_pilot_identity(tmp_path, monkeypatch):
+    import hashlib
+
+    from headd_l0 import exploratory_run as runner
+
+    identity = {
+        "source_sha256": {"a": "hash"},
+        "protocol_identity": {"config": "hash"},
+        "candidate_manifest_sha256": "a",
+        "endemic_manifest_sha256": "b",
+    }
+    pilot = tmp_path / "pilot.json"
+    pilot.write_text(
+        json.dumps(
+            {
+                "status": "pilot_complete",
+                **identity,
+                "records": [{"simulation_seconds": 1.0, "scoring_seconds": 2.0}] * 4,
+            }
+        )
+    )
+    budget = tmp_path / "budget.json"
+    data = {
+        "n_transition": 1,
+        "placebo_ids": [0],
+        "pilot_manifest": str(pilot),
+        "pilot_manifest_sha256": hashlib.sha256(pilot.read_bytes()).hexdigest(),
+        "wall_budget_seconds": 100,
+    }
+    monkeypatch.setattr(
+        runner.subprocess,
+        "run",
+        lambda cmd, **kwargs: SimpleNamespace(
+            stdout=str(tmp_path) if "--show-toplevel" in cmd else budget.read_bytes()
+        ),
+    )
+    budget.write_text(json.dumps(data))
+    with pytest.raises(ValueError, match="cost"):
+        runner._verify_budget(budget, identity)
+    data["wall_budget_seconds"] = 5000
+    budget.write_text(json.dumps(data))
+    assert runner._verify_budget(budget, identity)["n_transition"] == 1

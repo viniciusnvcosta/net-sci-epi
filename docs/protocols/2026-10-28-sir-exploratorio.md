@@ -42,3 +42,9 @@ O arquivo local está no worktree arquivado `second-execution`, sob
 `data/processed/endemic-white/`. Validar hashes, status `ready`, perfil, ruído,
 ordem e valores antes do uso. Essa calibração sintética não é estimativa de
 transmissão regional. Pool fixo PCA, LOF, KNN, HBOS, IF, MCD; seleção K=5.
+
+O piloto será limitado a 1.800 segundos de relógio por processo. Um timeout
+não constitui piloto concluído nem autoriza orçamento ou execução final. As
+medições por braço repetem ajustes compartilhados e são estimativas de custo,
+não ganho científico. A projeção D-COST extrapola os quatro painéis white e
+apresenta suas suposições; D-COST continua pendente até conferência formal.
