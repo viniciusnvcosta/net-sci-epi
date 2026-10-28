@@ -32,3 +32,13 @@ do manifesto v2 e arrays (incluindo os 30 placebos e a ordem dos nomes),
 revisão de custo e publicação sem sobrescrita. Qualquer ajuste NB2 inválido
 falha fechado. Registrar seeds, código, tempos, inputs, hashes, falhas e
 `interpretation_allowed=false`. Nenhuma significância confirmatória.
+
+Para esta demonstração, os hazards são os 13 valores da calibração white
+`endemic-white` já produzida sob P5; manifesto SHA-256
+`6cce8698b56d7b9ec4774e6ed0645bd6ab0ed78d08cbce51d2fc15605a9abbc0`
+e NPZ SHA-256
+`1f2a99787ce9e4cdd858fb6fe5a6c0931ed40d3d41d80a748380372aa0c47c3e`.
+O arquivo local está no worktree arquivado `second-execution`, sob
+`data/processed/endemic-white/`. Validar hashes, status `ready`, perfil, ruído,
+ordem e valores antes do uso. Essa calibração sintética não é estimativa de
+transmissão regional. Pool fixo PCA, LOF, KNN, HBOS, IF, MCD; seleção K=5.

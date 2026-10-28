@@ -14,3 +14,7 @@ placebo_candidates = [0, 1, 2]
 baseline_id = "B1*"
 profile_id = "P5-IMPL-2026-10-19-v1"
 interpretation_allowed = false
+endemic_manifest_sha256 = "6cce8698b56d7b9ec4774e6ed0645bd6ab0ed78d08cbce51d2fc15605a9abbc0"
+endemic_calibration_sha256 = "1f2a99787ce9e4cdd858fb6fe5a6c0931ed40d3d41d80a748380372aa0c47c3e"
+detectors = ["pca", "lof", "knn", "hbos", "iforest", "mcd"]
+selection_k = 5
