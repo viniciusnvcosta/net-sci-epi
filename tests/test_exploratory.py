@@ -212,3 +212,122 @@ def test_far_reports_per_arm_counts():
     assert len(rows) == 91
     assert rows[0]["alarms"] == 240 and rows[0]["n"] == 14400 and rows[0]["passed"]
     assert not rows[1]["passed"]
+
+
+def test_pilot_uses_candidate_weights_and_discards_scores(monkeypatch):
+    from types import SimpleNamespace
+
+    from headd_l0 import exploratory
+
+    a = np.eye(13)
+    calls = []
+
+    def fake_sim(weights, epsilon, label, partition, index, hazards):
+        calls.append((weights.copy(), epsilon, label, partition, index))
+        return SimpleNamespace(counts=np.zeros((13, 132)))
+
+    monkeypatch.setattr(exploratory, "simulate_replicate", fake_sim)
+    monkeypatch.setattr(
+        exploratory, "score_replicate", lambda *args: np.zeros((7, 13, 72))
+    )
+    monkeypatch.setattr(exploratory, "measure_arm_costs", lambda *args: {})
+    records = exploratory.measure_pilot(a, {}, (1e-6,) * 13)
+    assert len(records) == 4
+    assert {(x[1], x[2]) for x in calls} == {
+        (0.0, "T"),
+        (0.0, "N"),
+        (0.2, "T"),
+        (0.2, "N"),
+    }
+    assert all(np.array_equal(x[0], a) and x[3] == "pilot" for x in calls)
+    assert all(
+        "scores" not in record and record["simulation_seconds"] >= 0
+        for record in records
+    )
+
+
+def test_timing_requires_both_far_checks():
+    from headd_l0.exploratory import evaluate_timings
+
+    scores = np.zeros((1, 7, 13, 72))
+    scores[0, 1, 0, 10] = 2
+    onsets = np.full((1, 13), -1)
+    onsets[0, 0] = 70
+    far = [
+        {"arm": a, "region": r, "threshold": 1.0, "passed": True}
+        for a in range(7)
+        for r in range(13)
+    ]
+    far[0]["passed"] = False
+    rows = evaluate_timings(scores, onsets, far)
+    row = next(x for x in rows if x["region"] == 0 and x["reference_arm"] == 0)
+    assert row["b2_restricted_lead"] == 0
+    assert row["comparable"] is False and row["gain"] is None
+
+
+def test_budget_can_use_one_placebo(monkeypatch):
+    from headd_l0 import exploratory
+
+    monkeypatch.setattr(
+        exploratory,
+        "_score",
+        lambda counts, cfg, arms, graphs, seed: (
+            np.zeros((len(arms), 13, 72)),
+            {},
+            {"fit_valid": True},
+        ),
+    )
+    values = exploratory.score_replicate(
+        np.ones((13, 132)), {}, np.random.SeedSequence(3), 1
+    )
+    assert values.shape == (5, 13, 72)
+    cal = np.zeros((200, 5, 13, 72))
+    far = exploratory.evaluate_far(cal, cal.copy(), range(200), range(1000, 1200))
+    assert len(far) == 65
+
+
+def test_arm_costs_measure_all_predeclared_arms(monkeypatch):
+    from headd_l0 import exploratory
+
+    monkeypatch.setattr(
+        exploratory,
+        "_score",
+        lambda counts, cfg, arms, graphs, seed: (
+            np.zeros((len(arms), 13, 72)),
+            {},
+            {"fit_valid": True},
+        ),
+    )
+    times = exploratory.measure_arm_costs(
+        np.ones((13, 132)), {}, np.random.SeedSequence(3)
+    )
+    assert set(times) == {
+        "B1*",
+        "B2",
+        "B2-P4",
+        "B2-placebo-00",
+        "B2-placebo-01",
+        "B2-placebo-02",
+        "zscore",
+    }
+    assert all(value >= 0 for value in times.values())
+
+
+def test_candidate_rejects_changed_source_code(graph_package, monkeypatch):
+    from headd_l0 import exploratory
+
+    source = graph_package.parent / "code.py"
+    source.write_text("original")
+    manifest = json.loads(graph_package.read_text())
+    manifest["source_sha256"] = {
+        str(source): hashlib.sha256(source.read_bytes()).hexdigest()
+    }
+    graph_package.write_text(json.dumps(manifest))
+    monkeypatch.setattr(
+        exploratory,
+        "CANDIDATE_MANIFEST_SHA256",
+        hashlib.sha256(graph_package.read_bytes()).hexdigest(),
+    )
+    source.write_text("changed")
+    with pytest.raises(ValueError, match="hash"):
+        load_graphs(graph_package)
