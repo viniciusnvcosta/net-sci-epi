@@ -30,12 +30,15 @@ usada historicamente; não por ter maior suporte de alinhamento em 2013.
 
 ## Decisão recomendada
 
-Para a pergunta L0 existente, a geografia mais adequada é aquela que coincide
-com a correspondência municipal efetivamente usada para construir a série
-`notification.hr`. **Ela ainda não foi identificada com segurança.** Até
-isso ocorrer, manter a A P4 arquivada como referência provisória e preservar
-o cenário Tailândia→Lago como sensibilidade documentada. Não declarar nenhuma
-delas a reconstrução ótima ou oficial de toda a série 2009–2019.
+Para a pergunta L0 existente, recomendar como **candidato prioritário** a
+adjacência reconstruída com a composição municipal das tabelas fornecidas,
+incluindo Tailândia em Lago. O conjunto integrado fornecido confirma essa
+correspondência nos registros de notificação observados e reproduz as
+contagens L0 em 2009–2019; o município não observado e a linhagem exata
+continuam limites. Preservar a A P4 arquivada como referência histórica e
+comparador de sensibilidade. O candidato requer especificação, validação e
+revisão antes de qualquer uso experimental; não foi reconhecido como a
+regionalização administrativa vigente em todos os meses.
 
 É uma decisão de continuidade técnica, não aprovação do gate G3. Soma exata
 das 13 regiões a PA confirma coerência aritmética, não identifica os
