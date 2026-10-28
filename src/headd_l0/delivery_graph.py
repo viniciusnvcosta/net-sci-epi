@@ -1,5 +1,6 @@
 """Build geographic review exports without altering candidate evidence."""
 
+import json
 import os
 import tempfile
 from pathlib import Path
@@ -7,6 +8,11 @@ from pathlib import Path
 import networkx as nx
 import numpy as np
 import pandas as pd
+
+from headd_l0._sim_validation_io import _publish, _sha256
+from headd_l0.data import hierarchy
+from headd_l0.exploratory import load_graphs
+from headd_l0.graph_io import PA_HEALTH_REGIONS_2013
 
 
 def aggregate_population(
@@ -42,7 +48,7 @@ def export_graph(
     a: np.ndarray,
     w: np.ndarray,
     regions: list[tuple[str, str]],
-    population: dict[str, int],
+    population: dict[str, int] | None,
     output: Path,
 ) -> None:
     """Write the Queen graph with one weighted directed arc per matrix entry."""
@@ -57,15 +63,23 @@ def export_graph(
         or not nx.is_connected(nx.from_numpy_array(a))
         or not np.array_equal(w, a / a.sum(axis=1)[:, None])
         or len({code for code, _ in regions}) != n
-        or set(population) != {code for code, _ in regions}
-        or any(type(value) is not int or value < 0 for value in population.values())
+        or (population is not None and set(population) != {code for code, _ in regions})
+        or (
+            population is not None
+            and any(
+                type(value) is not int or value < 0 for value in population.values()
+            )
+        )
     ):
         raise ValueError("invalid graph or population binding")
     if output.exists() or output.is_symlink():
         raise FileExistsError(output)
     graph = nx.DiGraph()
     for code, name in regions:
-        graph.add_node(code, code=code, name=name, population=population[code])
+        attrs = {"code": code, "name": name}
+        if population is not None:
+            attrs["population"] = population[code]
+        graph.add_node(code, **attrs)
     for i, (code, _) in enumerate(regions):
         for j, (other, _) in enumerate(regions):
             if a[i, j]:
@@ -79,3 +93,29 @@ def export_graph(
         os.link(temporary, output)
     finally:
         Path(temporary).unlink()
+
+
+def export_candidate_without_population(manifest_path: Path, output: Path) -> None:
+    """Publish a candidate-bound graph explicitly marked population-pending."""
+    if output.exists() or output.is_symlink():
+        raise FileExistsError(output)
+    a, w, _, _ = load_graphs(manifest_path)
+    codes = {name: str(code) for code, name in PA_HEALTH_REGIONS_2013.items()}
+    regions = [(codes[name], name) for name in hierarchy().leaves]
+    output.parent.mkdir(parents=True, exist_ok=True)
+    stage = Path(tempfile.mkdtemp(prefix=f".{output.name}-", dir=output.parent))
+    export_graph(a, w, regions, None, stage / "candidate.graphml")
+    np.save(stage / "adjacency.npy", a)
+    np.save(stage / "W.npy", w)
+    manifest = {
+        "status": "partial_population_pending",
+        "interpretation_allowed": False,
+        "candidate_manifest_sha256": _sha256(manifest_path),
+        "node_order": [name for _, name in regions],
+        "population": "pending",
+        "outputs": {p.name: _sha256(p) for p in stage.iterdir()},
+    }
+    (stage / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n"
+    )
+    _publish(stage, output)

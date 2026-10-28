@@ -79,3 +79,35 @@ def test_export_rejects_disconnected_graph(tmp_path):
             {"1": 1, "2": 1, "3": 1, "4": 1},
             tmp_path / "g",
         )
+
+
+def test_graph_export_without_population_marks_absence(tmp_path):
+    a = np.array([[0, 1], [1, 0]])
+    output = tmp_path / "g.graphml"
+    export_graph(a, a.astype(float), [("1", "A"), ("2", "B")], None, output)
+    graph = nx.read_graphml(output)
+    assert all("population" not in node for _, node in graph.nodes(data=True))
+
+
+def test_candidate_export_is_bound_and_partial(tmp_path, monkeypatch):
+    import json
+
+    from headd_l0 import delivery_graph
+
+    candidate = nx.cycle_graph(13)
+    a = nx.to_numpy_array(candidate, dtype=np.uint8)
+    w = a / 2
+    placebo = np.repeat(a[None], 30, axis=0)
+    monkeypatch.setattr(delivery_graph, "load_graphs", lambda _: (a, w, a, placebo))
+    manifest = tmp_path / "candidate.json"
+    manifest.write_text("{}")
+    output = tmp_path / "package"
+    delivery_graph.export_candidate_without_population(manifest, output)
+    record = json.loads((output / "manifest.json").read_text())
+    graph = nx.read_graphml(output / "candidate.graphml")
+    assert record["status"] == "partial_population_pending"
+    assert record["interpretation_allowed"] is False
+    assert len(graph) == 13 and graph.number_of_edges() == 26
+    assert all("population" not in x for _, x in graph.nodes(data=True))
+    with pytest.raises(FileExistsError):
+        delivery_graph.export_candidate_without_population(manifest, output)
