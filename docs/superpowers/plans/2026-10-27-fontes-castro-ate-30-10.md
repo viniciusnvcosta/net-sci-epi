@@ -1,5 +1,11 @@
 # Plano de execução: fontes de dados e adoção Castro até 30/10
 
+> **Atualização de 28/10:** D0–D3 abaixo registram a etapa de fontes já
+> executada; o complemento prioritário de geografia e seus limites estão em
+> [plano de continuidade](2026-10-28-geografia-l0-ate-30-10.md). D1 permanece
+> não aprovado e D2 OD suspenso. A auditoria posterior da série não altera
+> retroativamente esses estados.
+
 > **Para execução:** usar `superpowers:executing-plans` em modo nativo;
 > itens usam caixas de seleção. Qualquer código novo requer ciclo TDD.
 
