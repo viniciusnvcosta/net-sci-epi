@@ -61,3 +61,24 @@ def test_candidate_binding_and_generator(graph_package):
     target.write_bytes(target.read_bytes() + b"X")
     with pytest.raises(ValueError, match="hash"):
         load_graphs(graph_package)
+
+
+def test_candidate_rejects_changed_source(graph_package, monkeypatch):
+    from headd_l0 import exploratory
+
+    source = graph_package.parent / "relation.csv"
+    source.write_text("original")
+    manifest = json.loads(graph_package.read_text())
+    manifest["inputs"]["relation"] = {
+        "path": str(source),
+        "sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+    }
+    graph_package.write_text(json.dumps(manifest))
+    monkeypatch.setattr(
+        exploratory,
+        "CANDIDATE_MANIFEST_SHA256",
+        hashlib.sha256(graph_package.read_bytes()).hexdigest(),
+    )
+    source.write_text("changed")
+    with pytest.raises(ValueError, match="hash"):
+        load_graphs(graph_package)

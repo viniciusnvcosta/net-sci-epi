@@ -26,6 +26,12 @@ def load_graphs(
     for name, digest in metadata["outputs"].items():
         if _sha256(manifest_path.parent / name) != digest:
             raise ValueError(f"output hash mismatch: {name}")
+    for info in metadata["inputs"].values():
+        path = Path(info["path"])
+        if not path.is_absolute():
+            path = manifest_path.parents[2] / path
+        if _sha256(path) != info["sha256"]:
+            raise ValueError(f"input hash mismatch: {path}")
     p4_info = metadata["inputs"]["p4_adjacency"]
     p4_path = Path(p4_info["path"])
     if _sha256(p4_path) != p4_info["sha256"]:
