@@ -1,5 +1,7 @@
 """Build geographic review exports without altering candidate evidence."""
 
+import os
+import tempfile
 from pathlib import Path
 
 import networkx as nx
@@ -52,7 +54,7 @@ def export_graph(
         or not np.array_equal(a, a.T)
         or np.any(np.diag(a))
         or np.any(a.sum(axis=1) == 0)
-        or not np.allclose(w, a / a.sum(axis=1)[:, None])
+        or not np.array_equal(w, a / a.sum(axis=1)[:, None])
         or len({code for code, _ in regions}) != n
         or set(population) != {code for code, _ in regions}
         or any(type(value) is not int or value < 0 for value in population.values())
@@ -67,5 +69,12 @@ def export_graph(
         for j, (other, _) in enumerate(regions):
             if a[i, j]:
                 graph.add_edge(code, other, type="queen", weight=float(w[i, j]))
-    with output.open("xb") as handle:
-        nx.write_graphml(graph, handle)
+    descriptor, temporary = tempfile.mkstemp(
+        prefix=f".{output.name}-", dir=output.parent
+    )
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            nx.write_graphml(graph, handle)
+        os.link(temporary, output)
+    finally:
+        Path(temporary).unlink()

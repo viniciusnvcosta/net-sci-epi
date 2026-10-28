@@ -107,16 +107,19 @@ def main(argv: list[str] | None = None) -> int:
             }
         )
     result = canonical_panel(pd.DataFrame(rows))
+    raw_names = ("PA.csv", "PASIVEPDailyPerHr.csv")
+    reference_hashes = {name: _sha256(args.raw_dir / name) for name in raw_names}
     original = load_sivep(args.raw_dir)
+    if any(
+        _sha256(args.raw_dir / name) != reference_hashes[name] for name in raw_names
+    ):
+        raise ValueError("reference source changed during read")
     reference = (original.counts, original.tests)
     report = {
         "status": "comparison",
         "interpretation_allowed": False,
         "integrated_sha256": INTEGRATED_SHA256,
-        "reference_sha256": {
-            name: _sha256(args.raw_dir / name)
-            for name in ("PA.csv", "PASIVEPDailyPerHr.csv")
-        },
+        "reference_sha256": reference_hashes,
         "canonical_hash_integrated": panel_hash(result),
         "canonical_hash_reference": panel_hash(reference),
         "positive_equal": bool(np.array_equal(result[0], reference[0])),

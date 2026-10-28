@@ -40,3 +40,29 @@ def test_export_rejects_bad_binding(tmp_path):
             {"1": 1, "2": 1},
             tmp_path / "g",
         )
+
+
+def test_publish_atomic_no_replace(tmp_path, monkeypatch):
+    a = np.array([[0, 1], [1, 0]])
+    w = a.astype(float)
+    output = tmp_path / "graph.graphml"
+
+    def fail(graph, handle):
+        handle.write(b"partial")
+        raise OSError("interrupted")
+
+    monkeypatch.setattr(nx, "write_graphml", fail)
+    with pytest.raises(OSError, match="interrupted"):
+        export_graph(a, w, [("1", "A"), ("2", "B")], {"1": 10, "2": 20}, output)
+    assert not output.exists()
+    output.write_text("preserve")
+    with pytest.raises(FileExistsError):
+        export_graph(a, w, [("1", "A"), ("2", "B")], {"1": 10, "2": 20}, output)
+    assert output.read_text() == "preserve"
+
+
+def test_rejects_inexact_weights(tmp_path):
+    a = np.array([[0, 1], [1, 0]])
+    w = np.array([[0.0, 1.00000001], [1.0, 0.0]])
+    with pytest.raises(ValueError, match="invalid"):
+        export_graph(a, w, [("1", "A"), ("2", "B")], {"1": 1, "2": 1}, tmp_path / "g")

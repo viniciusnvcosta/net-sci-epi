@@ -50,3 +50,39 @@ def test_canonical_panel_order(groups):
     b = canonical_panel(groups.sample(frac=1, random_state=3))
     assert all(np.array_equal(x, y) for x, y in zip(a, b, strict=True))
     assert panel_hash(a) == panel_hash(b)
+
+
+def test_reference_mutation_during_load_fails(tmp_path, monkeypatch, groups):
+    import hashlib
+    from types import SimpleNamespace
+
+    from headd_l0 import panel_reproduction as reproduction
+
+    integrated = tmp_path / "integrated.tsv"
+    source = groups.rename(
+        columns={"region": "notification.hr", "species": "exam.result"}
+    )
+    source["notification.year"] = source.month.dt.year
+    source["notification.month"] = source.month.dt.month
+    source["notification.state"] = "PA"
+    expanded = source.loc[source.index.repeat(source["count"])]
+    expanded.to_csv(integrated, sep="\t", index=False)
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    for name in ("PA.csv", "PASIVEPDailyPerHr.csv"):
+        (raw / name).write_text("before")
+    monkeypatch.setattr(
+        reproduction,
+        "INTEGRATED_SHA256",
+        hashlib.sha256(integrated.read_bytes()).hexdigest(),
+    )
+
+    def mutate(_):
+        (raw / "PA.csv").write_text("after")
+        positives, totals = canonical_panel(groups)
+        return SimpleNamespace(counts=positives, tests=totals)
+
+    monkeypatch.setattr(reproduction, "load_sivep", mutate)
+    with pytest.raises(ValueError, match="changed"):
+        reproduction.main([str(integrated), str(raw), str(tmp_path / "output")])
+    assert not (tmp_path / "output").exists()
