@@ -1,0 +1,16 @@
+# Prospectivo e exploratório; não é um perfil de bancada ratificado.
+name = "l0_sir_exploratory"
+root_seed = 20261028
+noise = "white"
+epsilon = [0.0, 0.2]
+train_months = 60
+window = 12
+target_far = 0.016666666666666666
+far_tolerance = 0.0033333333333333335
+n_null_calibration = 200
+n_null_evaluation = 200
+candidate_manifest_sha256 = "7a2050e059d037960fd0fce8839d66f57dd9d6cab5942441ea3ea54bee9d4fe0"
+placebo_candidates = [0, 1, 2]
+baseline_id = "B1*"
+profile_id = "P5-IMPL-2026-10-19-v1"
+interpretation_allowed = false
