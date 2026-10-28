@@ -7,6 +7,7 @@ Em 27/10/2026, o usuário disponibilizou na raiz deste worktree `rl_municip_regs
 | `rl_municip_regsaud.csv` | `9de50c97ec32ab159cf8e7361da7cb7e2cd08692eaa213f06d8f77d19cf45f6f` | 5.658 linhas, sem cabeçalho; separador `;`; município e região. |
 | `data_integration_process.r` | `f16801d31eb829548ed5c3830c1c729d7470abe93d70c1a7117a3c5b61c1ea12` | Texto de integração; funções e dados não executados. |
 | `tb_regsaud.csv` | `a386f78d581255487bbf047b753d0c7335f471310ab3635a8e6a8926401af77d` | Fornecida posteriormente pelo usuário; 466 linhas, quatro colunas, separador `;`, sem cabeçalho. |
+| `integrated-dataset.pdf` | `86f31b9a27a9a79a2aee10f929f6d99c94e4fd49d9f280f26ac60a0d548448e3` | Documentação fornecida pelo usuário, quatro páginas; metadados internos indicam 23/04/2020. |
 
 ## Comparação de composição
 
@@ -28,6 +29,31 @@ snapshot produz 144 linhas, sem município ausente ou multiplicado. Isso não
 verifica a tabela histórica nem os nomes efetivamente usados por Baroni;
 a tabela de 2023 tem seis colunas e não pode ser passada diretamente à função
 R, que espera quatro. Não executar essa substituição no experimento.
+
+## Documentação do conjunto integrado
+
+O PDF fornecido descreve o pré-processamento do conjunto integrado; seus
+metadados de criação são apenas uma pista de versão, não confirmação de
+linhagem do CSV Eze/L0. Na p. 1, descreve a remoção de atributos de
+identificação e localidades e a limpeza de inconsistências de datas. Nas
+pp. 2–3, informa que dia, mês e ano das datas são transformados em atributos
+de mês/ano, com omissão do dia por privacidade, e que códigos municipais de
+notificação, residência e infecção são mantidos. O script R recebido mantém
+as colunas de data no retorno, além de criar mês/ano; a documentação e esse
+trecho não demonstram em que etapa, versão ou produto o dia foi omitido.
+Não inferir frequência diária efetiva pelo nome `PASIVEPDailyPerHr.csv`.
+
+A tabela 2 do PDF, p. 4, informa preenchimento de 100% para região e município
+de notificação, 12,62% para região e município de infecção e 12,94% para
+região e município de residência. Esses percentuais referem-se ao conjunto
+integrado descrito, não foram recalculados por ano, Pará ou resultado de
+exame e não comprovam a qualidade dos códigos preenchidos. O artigo de Baroni
+observa que informação pessoal só é fornecida para exames positivos: os
+campos esparsos podem sofrer seleção por resultado. Comparações de fluxos
+exigiriam denominadores, cobertura e mecanismos de ausência específicos antes
+de construir qualquer OD; os percentuais não identificam mobilidade observada.
+O PDF não documenta a criação do CSV agregado de Eze nem prova quais versões
+das tabelas foram usadas nesse arquivo.
 
 ## Consequência para L0
 
