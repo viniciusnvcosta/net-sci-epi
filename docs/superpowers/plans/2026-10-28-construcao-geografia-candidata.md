@@ -17,6 +17,11 @@ sem dependências novas.
 
 **Spec:** [geografia da série fixa](../specs/2026-10-28-geografia-serie-fixa-design.md).
 
+**Estado em 28/10:** desenho retrospectivo e construção técnica aprovados pelo
+usuário. A implementação, a revisão técnica e as duas saídas preservadas estão
+descritas no [registro de execução](../../research/2026-10-28-execucao-geografia-candidata.md).
+Revisão científica independente e decisão de uso experimental continuam pendentes.
+
 ## Restrições globais
 
 - Dados, resultados, perfil e gates históricos imutáveis; sem M, OD, GANF ou
