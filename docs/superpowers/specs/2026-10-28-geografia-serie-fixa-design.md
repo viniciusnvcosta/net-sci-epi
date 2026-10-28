@@ -39,7 +39,10 @@ do conjunto integrado; ele não foi recalculado para esta spec.
 
 ## Composição e construção propostas
 
-1. Selecionar PA e associar os códigos municipais de seis dígitos da tabela
+1. Ler a relação nacional com separador `;` e sem cabeçalho. Selecionar PA,
+   registrar e excluir exclusivamente o agregado `150000 → 15000`, que não é
+   município; não confundir as linhas nacionais externas com entradas inválidas
+   da seleção de PA. Associar os códigos municipais de seis dígitos da tabela
    aos sete dígitos IBGE da geometria, removendo apenas o dígito verificador;
    validar formatos e verificar exatamente 144 códigos distintos em cada
    fonte e uma correspondência um-para-um, sem descartar ou multiplicar linhas.
