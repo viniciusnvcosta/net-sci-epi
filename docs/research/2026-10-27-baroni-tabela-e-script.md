@@ -1,5 +1,10 @@
 # Auditoria da tabela e do script de integração disponibilizados
 
+**Atualização de 28/10:** o conjunto integrado fornecido foi comparado com a
+série L0 em todos os anos 2009–2019; os 7.592 grupos observados coincidem, e
+os municípios de notificação presentes concordam com as tabelas fornecidas.
+Ver [auditoria e limites](2026-10-28-auditoria-integrated-2009-2019.md).
+
 Em 27/10/2026, o usuário disponibilizou na raiz deste worktree `rl_municip_regsaud.csv` e `data_integration_process.r`. A análise leu os arquivos sem modificá-los nem executar o código R. Os nomes correspondem aos artefatos [syn21552452 e syn21555551 identificados no artigo de Baroni et al.](https://pmc.ncbi.nlm.nih.gov/articles/PMC7271548/), mas não foi obtida confirmação independente de versão ou checksum do Synapse para os bytes recebidos.
 
 | Arquivo fornecido | SHA-256 | Observação |
@@ -69,7 +74,7 @@ independente da versão dos dados subjacentes ou de sua relação com o L0.
 
 ## Consequência para L0
 
-O mapa com Tailândia em Lago agora é o **candidato prioritário de alinhamento** com a tabela fornecida e com as contagens de 2013, sujeito à confirmação da linhagem e revisão científica. P4 permanece referência histórica imutável. A análise exploratória anterior aponta uma alteração de 25 para 26 arestas e exige regenerar W e placebos para qualquer novo protocolo; não autoriza sobrescrever artefatos, alterar resultados ou afirmar ganho de desempenho. A divergência de vigência administrativa e a abrangência de 2009–2019 continuam abertas; D1 não passa automaticamente, D2 OD permanece suspenso conforme o plano, e E0*/FAR, G3 e demais gates permanecem inalterados.
+O mapa com Tailândia em Lago é o **candidato prioritário de alinhamento** com as tabelas fornecidas e as contagens de 2009–2019, sujeito à confirmação da linhagem e revisão científica. P4 permanece referência histórica imutável. A análise exploratória anterior aponta uma alteração de 25 para 26 arestas e exige regenerar W e placebos para qualquer novo protocolo; não autoriza sobrescrever artefatos, alterar resultados ou afirmar ganho de desempenho. A divergência de vigência administrativa ao longo de 2009–2019 continua aberta; D1 não passa automaticamente, D2 OD permanece suspenso conforme o plano, e E0*/FAR, G3 e demais gates permanecem inalterados.
 
 Próximas verificações: verificar origem e versão dos três arquivos e cobertura do join no SIVEP; identificar o processamento da série Eze e verificar a relação entre os bytes usados e o CSV L0. Qualquer nova geografia deve receber identificação própria e revisão prospectiva, sem mudar o perfil ou as evidências históricas.
 
