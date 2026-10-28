@@ -11,6 +11,7 @@ from headd_l0.detectors import rolling_zscore
 from headd_l0.e1 import ArmSpec, ExperimentConfig, _score
 from headd_l0.graph import _validate
 from headd_l0.simulate import SimConfig, SimResult, simulate
+from headd_l0.threshold import calibration_report, check_far
 
 CANDIDATE_MANIFEST_SHA256 = (
     "7a2050e059d037960fd0fce8839d66f57dd9d6cab5942441ea3ea54bee9d4fe0"
@@ -130,3 +131,77 @@ def simulate_replicate(
         endemic_hazard=endemic_hazard,
     )
     return simulate(config, weights, np.random.default_rng(simulation_seed))
+
+
+ENDEMIC_MANIFEST_SHA256 = (
+    "6cce8698b56d7b9ec4774e6ed0645bd6ab0ed78d08cbce51d2fc15605a9abbc0"
+)
+ENDEMIC_ARTIFACT_SHA256 = (
+    "1f2a99787ce9e4cdd858fb6fe5a6c0931ed40d3d41d80a748380372aa0c47c3e"
+)
+
+
+def load_hazards(directory: Path) -> tuple[float, ...]:
+    """Load the frozen P5 white calibration, rejecting altered or invalid data."""
+    manifest = directory / "manifest.json"
+    artifact = directory / "endemic_calibration.npz"
+    if (
+        _sha256(manifest) != ENDEMIC_MANIFEST_SHA256
+        or _sha256(artifact) != ENDEMIC_ARTIFACT_SHA256
+    ):
+        raise ValueError("endemic calibration hash mismatch")
+    metadata = json.loads(manifest.read_text())
+    if (
+        metadata["status"] != "ready"
+        or metadata["config"]["noise"] != "white"
+        or metadata["config"]["profile_id"] != "P5-IMPL-2026-10-19-v1"
+        or metadata["artifact_sha256"][artifact.name] != ENDEMIC_ARTIFACT_SHA256
+    ):
+        raise ValueError("invalid endemic manifest")
+    with np.load(artifact, allow_pickle=False) as saved:
+        hazards = saved["hazards"]
+        if (
+            tuple(saved["names"]) != hierarchy().leaves
+            or hazards.shape != (13,)
+            or not np.isfinite(hazards).all()
+            or (hazards < 0).any()
+        ):
+            raise ValueError("invalid endemic hazards")
+        return tuple(float(value) for value in hazards)
+
+
+def evaluate_far(
+    calibration: np.ndarray,
+    evaluation: np.ndarray,
+    calibration_ids: range,
+    evaluation_ids: range,
+) -> list[dict]:
+    """Calibrate and check each arm/region on complete disjoint null streams."""
+    if calibration.shape != (200, 7, 13, 72) or evaluation.shape != (200, 7, 13, 72):
+        raise ValueError("requires 200 null replicates per partition")
+    if not np.isfinite(calibration).all() or not np.isfinite(evaluation).all():
+        raise ValueError("scores must be finite")
+    if len(set(calibration_ids)) != 200 or len(set(evaluation_ids)) != 200:
+        raise ValueError("expected unique null addresses")
+    if set(calibration_ids) & set(evaluation_ids):
+        raise ValueError("null stream overlap")
+    rows = []
+    for arm in range(7):
+        for region in range(13):
+            fit = calibration_report(calibration[:, arm, region, :].ravel(), 1 / 60)
+            check = check_far(
+                evaluation[:, arm, region, :].ravel() > fit.threshold, 1 / 60, 1 / 300
+            )
+            rows.append(
+                {
+                    "arm": arm,
+                    "region": region,
+                    "threshold": fit.threshold,
+                    "calibration_n": fit.n,
+                    "n": check.n,
+                    "alarms": check.alarms,
+                    "observed_far": check.observed_far,
+                    "passed": check.passed,
+                }
+            )
+    return rows

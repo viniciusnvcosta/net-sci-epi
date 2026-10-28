@@ -143,3 +143,72 @@ def test_simulation_seed_addresses_and_generator(monkeypatch):
     assert seen[0][2] == seen[1][2]
     assert seen[0][2] != seen[2][2]
     assert seen[0][0].epsilon == 0.2
+
+
+def test_calibration_binding_rejects_changed_bytes(tmp_path, monkeypatch):
+    from headd_l0 import exploratory
+
+    artifact = tmp_path / "endemic_calibration.npz"
+    np.savez(artifact, names=np.array(hierarchy().leaves), hazards=np.full(13, 0.1))
+    digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "status": "ready",
+                "config": {"noise": "white", "profile_id": "P5-IMPL-2026-10-19-v1"},
+                "artifact_sha256": {artifact.name: digest(artifact)},
+            }
+        )
+    )
+    monkeypatch.setattr(exploratory, "ENDEMIC_MANIFEST_SHA256", digest(manifest))
+    monkeypatch.setattr(exploratory, "ENDEMIC_ARTIFACT_SHA256", digest(artifact))
+    assert exploratory.load_hazards(tmp_path) == (0.1,) * 13
+    artifact.write_bytes(artifact.read_bytes() + b"X")
+    with pytest.raises(ValueError, match="hash"):
+        exploratory.load_hazards(tmp_path)
+
+
+def test_far_requires_disjoint_complete_nulls():
+    from headd_l0.exploratory import evaluate_far
+
+    calibration = np.zeros((2, 7, 13, 72))
+    evaluation = np.zeros((2, 7, 13, 72))
+    with pytest.raises(ValueError, match="200"):
+        evaluate_far(
+            calibration,
+            evaluation,
+            range(len(calibration)),
+            range(1000, 1000 + len(evaluation)),
+        )
+    calibration = np.zeros((200, 7, 13, 72))
+    evaluation = np.zeros((200, 7, 13, 72))
+    evaluation[0, 0, 0, 0] = np.nan
+    with pytest.raises(ValueError, match="finite"):
+        evaluate_far(
+            calibration,
+            evaluation,
+            range(len(calibration)),
+            range(1000, 1000 + len(evaluation)),
+        )
+
+
+def test_far_rejects_overlapping_streams():
+    from headd_l0.exploratory import evaluate_far
+
+    scores = np.zeros((200, 7, 13, 72))
+    with pytest.raises(ValueError, match="overlap"):
+        evaluate_far(scores, scores, range(200), range(200))
+
+
+def test_far_reports_per_arm_counts():
+    from headd_l0.exploratory import evaluate_far
+
+    calibration = np.zeros((200, 7, 13, 72))
+    evaluation = np.zeros_like(calibration)
+    evaluation[:3, 0, 0, :] = 1
+    evaluation[3, 0, 0, :24] = 1
+    rows = evaluate_far(calibration, evaluation, range(200), range(1000, 1200))
+    assert len(rows) == 91
+    assert rows[0]["alarms"] == 240 and rows[0]["n"] == 14400 and rows[0]["passed"]
+    assert not rows[1]["passed"]
