@@ -8,6 +8,7 @@ Em 27/10/2026, o usuário disponibilizou na raiz deste worktree `rl_municip_regs
 | `data_integration_process.r` | `f16801d31eb829548ed5c3830c1c729d7470abe93d70c1a7117a3c5b61c1ea12` | Texto de integração; funções e dados não executados. |
 | `tb_regsaud.csv` | `a386f78d581255487bbf047b753d0c7335f471310ab3635a8e6a8926401af77d` | Fornecida posteriormente pelo usuário; 466 linhas, quatro colunas, separador `;`, sem cabeçalho. |
 | `integrated-dataset.pdf` | `86f31b9a27a9a79a2aee10f929f6d99c94e4fd49d9f280f26ac60a0d548448e3` | Documentação fornecida pelo usuário, quatro páginas; metadados internos indicam 23/04/2020. |
+| `exploratory-analysis.pdf` | `85aa21988dea02b6f1fc8a4b1d1df95215c64b8d557ef9406cb9ab3b39900361` | Análise exploratória fornecida pelo usuário, três páginas; metadados internos indicam 10/02/2020. |
 
 ## Comparação de composição
 
@@ -58,6 +59,13 @@ exigiriam denominadores, cobertura e mecanismos de ausência específicos antes
 de construir qualquer OD; os percentuais não identificam mobilidade observada.
 O PDF não documenta a criação do CSV agregado de Eze nem prova quais versões
 das tabelas foram usadas nesse arquivo.
+
+O segundo PDF, [análise exploratória de Baroni](https://www.synapse.org/Synapse:syn21585579),
+descreve contagens de exames positivos e negativos por mês e ano (p. 1) e
+registros por estado e categorias de intervalo (p. 2). Não documenta a
+composição municipal regional nem o código ou filtros que geraram o CSV
+regional de Eze. Seus metadados internos são uma pista de data, não prova
+independente da versão dos dados subjacentes ou de sua relação com o L0.
 
 ## Consequência para L0
 
