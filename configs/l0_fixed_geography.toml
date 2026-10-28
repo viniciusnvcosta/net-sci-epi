@@ -6,6 +6,6 @@ geometry = "/home/vinvs/projects/net-sci-epi/.worktrees/_archive/2026-10-23/seco
 geometry_sha256 = "42de74c7506a5ce52b46ba4d5abdde6b321eebf649b09c08f641fc2e56d8918e"
 p4_adjacency = "/home/vinvs/projects/net-sci-epi/.worktrees/_archive/2026-10-23/second-execution/data/processed/graph/adjacency.npy"
 p4_adjacency_sha256 = "eb34aee7e9623451b93d1c207c85c0aec76b5f3e4add27f5028352c096472d9a"
-output_dir = "results/l0-fixed-geography-candidate-v1"
+output_dir = "results/l0-fixed-geography-candidate-v2"
 root_seed = 42
 n_placebos = 30

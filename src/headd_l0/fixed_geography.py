@@ -3,6 +3,7 @@
 import argparse
 import json
 import subprocess
+import sys
 import tempfile
 import tomllib
 import unicodedata
@@ -13,6 +14,7 @@ from pathlib import Path
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import shapely
 
 from headd_l0._sim_validation_io import _publish, _sha256
 from headd_l0.data import hierarchy
@@ -194,20 +196,40 @@ def main(argv: list[str] | None = None) -> int:
     np.save(stage / "W.npy", w)
     np.save(stage / "placebos.npy", np.stack(draws))
     outputs = {p.name: _sha256(p) for p in sorted(stage.glob("*.npy"))}
+    root = Path(__file__).resolve().parents[2]
     commit = subprocess.run(
-        ["git", "rev-parse", "HEAD"], check=True, capture_output=True, text=True
+        ["git", "-C", str(root), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
     ).stdout.strip()
+    source_status = subprocess.run(
+        ["git", "-C", str(root), "status", "--porcelain", "--", "src/headd_l0"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.splitlines()
+    source_hashes = {
+        str(p.relative_to(root)): _sha256(p)
+        for p in sorted((root / "src/headd_l0").glob("*.py"))
+    }
     manifest = {
         "status": "candidate_only",
         "interpretation_allowed": False,
         "rule": "fixed-series-pa-v1",
         "timestamp_utc": datetime.now(UTC).isoformat(),
         "git_commit": commit,
+        "source_sha256": source_hashes,
+        "source_git_status": source_status,
+        "config_sha256": _sha256(args.config),
         "inputs": inputs,
         "outputs": outputs,
         "versions": {
-            name: version(name) for name in ("numpy", "pandas", "geopandas", "libpysal")
+            name: version(name)
+            for name in ("numpy", "pandas", "geopandas", "libpysal", "shapely")
         },
+        "python_version": sys.version,
+        "geos_version": shapely.geos_version_string,
         "root_seed": 42,
         "n_placebos": 30,
         "placebo_budget": SWAP_BUDGET,
@@ -222,6 +244,12 @@ def main(argv: list[str] | None = None) -> int:
         "p4_degrees": p4.sum(axis=1).tolist(),
         "added_edges": _edges(a & (1 - p4), labels),
         "removed_edges": _edges(p4 & (1 - a), labels),
+        "topology_check": "expected"
+        if len(_edges(a, labels)) == 26
+        and len(_edges(p4, labels)) == 25
+        and _edges(a & (1 - p4), labels) == [["LAGO DE TUCURUI", "METROPOLITANA II"]]
+        and not _edges(p4 & (1 - a), labels)
+        else "unexpected",
         "p4_W": row_normalize(p4).tolist(),
         "W": w.tolist(),
     }

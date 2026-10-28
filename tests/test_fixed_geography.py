@@ -185,6 +185,39 @@ def test_publication_succeeds_with_manifest(publication_inputs):
         assert hashlib.sha256((output / name).read_bytes()).hexdigest() == digest
 
 
+def test_publication_records_executed_sources(
+    publication_inputs, monkeypatch, tmp_path
+):
+    import subprocess
+    from pathlib import Path
+
+    from headd_l0 import fixed_geography as fixed
+
+    config, output, _, _, _ = publication_inputs
+    monkeypatch.chdir(tmp_path)
+    assert fixed.main([str(config)]) == 0
+    manifest = json.loads((output / "manifest.json").read_text())
+    root = Path(fixed.__file__).resolve().parents[2]
+    expected_commit = subprocess.check_output(
+        ["git", "-C", str(root), "rev-parse", "HEAD"], text=True
+    ).strip()
+    assert manifest["git_commit"] == expected_commit
+    assert manifest["config_sha256"] == hashlib.sha256(config.read_bytes()).hexdigest()
+    for path, digest in manifest["source_sha256"].items():
+        assert hashlib.sha256((root / path).read_bytes()).hexdigest() == digest
+    assert "src/headd_l0/fixed_geography.py" in manifest["source_sha256"]
+
+
+def test_publication_marks_topology_mismatch(publication_inputs):
+    from headd_l0.fixed_geography import main
+
+    config, output, _, _, _ = publication_inputs
+    assert main([str(config)]) == 0
+    manifest = json.loads((output / "manifest.json").read_text())
+    assert manifest["topology_check"] == "unexpected"
+    assert manifest["interpretation_allowed"] is False
+
+
 @pytest.mark.parametrize(
     "failure", ["hash", "exists", "generator", "duplicate", "disconnected", "degree"]
 )
