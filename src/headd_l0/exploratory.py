@@ -10,6 +10,7 @@ from headd_l0.data import hierarchy
 from headd_l0.detectors import rolling_zscore
 from headd_l0.e1 import ArmSpec, ExperimentConfig, _score
 from headd_l0.graph import _validate
+from headd_l0.simulate import SimConfig, SimResult, simulate
 
 CANDIDATE_MANIFEST_SHA256 = (
     "7a2050e059d037960fd0fce8839d66f57dd9d6cab5942441ea3ea54bee9d4fe0"
@@ -94,3 +95,38 @@ def score_replicate(
         raise ValueError("invalid NB2 or ensemble score")
     baseline = rolling_zscore(counts, window=12)[:, 60:]
     return np.concatenate([result, baseline[None, :, :]])
+
+
+def simulate_replicate(
+    weights: np.ndarray,
+    epsilon: float,
+    label: str,
+    partition: str,
+    index: int,
+    endemic_hazard: tuple[float, ...],
+) -> SimResult:
+    """Simulate on the supplied candidate weights with stable partition seeds."""
+    if partition not in ("pilot", "calibration", "evaluation") or label not in (
+        "T",
+        "N",
+    ):
+        raise ValueError("invalid partition or label")
+    if epsilon not in (0.0, 0.2) or type(index) is not int or index < 0:
+        raise ValueError("invalid cell address")
+    address = (
+        ("pilot", "calibration", "evaluation").index(partition),
+        (0.0, 0.2).index(epsilon),
+        ("T", "N").index(label),
+        index,
+    )
+    sequence = np.random.SeedSequence(20261028, spawn_key=address)
+    region_seed, simulation_seed = sequence.spawn(2)
+    region = int(np.random.default_rng(region_seed).integers(13))
+    config = SimConfig(
+        noise="white",
+        epsilon=epsilon,
+        label=label,
+        seed_region=region,
+        endemic_hazard=endemic_hazard,
+    )
+    return simulate(config, weights, np.random.default_rng(simulation_seed))

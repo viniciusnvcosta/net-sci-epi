@@ -120,3 +120,26 @@ def test_score_fails_closed_on_invalid_nb2(monkeypatch):
     monkeypatch.setattr(exploratory, "_score", invalid)
     with pytest.raises(ValueError, match="invalid NB2"):
         exploratory.score_replicate(np.ones((13, 132)), {}, np.random.SeedSequence(1))
+
+
+def test_simulation_seed_addresses_and_generator(monkeypatch):
+    from headd_l0 import exploratory
+
+    seen = []
+
+    def fake_simulate(config, weights, rng):
+        seen.append((config, weights.copy(), rng.integers(100000)))
+        return "result"
+
+    monkeypatch.setattr(exploratory, "simulate", fake_simulate)
+    w = np.eye(13)
+    assert (
+        exploratory.simulate_replicate(w, 0.2, "T", "pilot", 0, (1e-6,) * 13)
+        == "result"
+    )
+    exploratory.simulate_replicate(w, 0.2, "T", "pilot", 0, (1e-6,) * 13)
+    exploratory.simulate_replicate(w, 0.2, "T", "evaluation", 0, (1e-6,) * 13)
+    assert np.array_equal(seen[0][1], w)
+    assert seen[0][2] == seen[1][2]
+    assert seen[0][2] != seen[2][2]
+    assert seen[0][0].epsilon == 0.2
