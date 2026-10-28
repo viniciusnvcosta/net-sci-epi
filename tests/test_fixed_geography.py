@@ -77,3 +77,43 @@ def test_crosswalk_rejects_bad_input(geography_inputs, failure):
         relation.loc[143, "region"] = "15011"
     with pytest.raises(ValueError):
         join_municipalities(municipalities, relation, names)
+
+
+@pytest.fixture
+def connected_regions():
+    from headd_l0.data import hierarchy
+
+    return gpd.GeoDataFrame(
+        {"name": hierarchy().leaves},
+        geometry=[box(i, 0, i + 1, 1) for i in range(13)],
+        crs="EPSG:4674",
+    )
+
+
+def test_candidate_graph_queen_and_weights(connected_regions):
+    from headd_l0.fixed_geography import candidate_graph
+
+    a, w = candidate_graph(connected_regions)
+    expected = np.diag(np.ones(12, dtype=np.uint8), 1)
+    expected += expected.T
+    np.testing.assert_array_equal(a, expected)
+    np.testing.assert_allclose(w.sum(axis=1), 1)
+    np.testing.assert_array_equal(np.diag(a), np.zeros(13))
+
+
+@pytest.mark.parametrize("failure", ["empty", "invalid", "island"])
+def test_candidate_graph_rejects_bad_geometry(connected_regions, failure):
+    from shapely.geometry import Polygon
+
+    from headd_l0.fixed_geography import candidate_graph
+
+    if failure == "empty":
+        connected_regions.loc[0, "geometry"] = Polygon()
+    elif failure == "invalid":
+        connected_regions.loc[0, "geometry"] = Polygon(
+            [(0, 0), (1, 1), (1, 0), (0, 1), (0, 0)]
+        )
+    else:
+        connected_regions.loc[0, "geometry"] = box(50, 0, 51, 1)
+    with pytest.raises(ValueError):
+        candidate_graph(connected_regions)

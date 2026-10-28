@@ -3,8 +3,11 @@
 import unicodedata
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 
+from headd_l0.data import hierarchy
+from headd_l0.graph import build_adjacency, row_normalize
 from headd_l0.graph_io import PA_HEALTH_REGIONS_2013
 
 
@@ -85,3 +88,17 @@ def join_municipalities(
     joined = m.merge(r, on="municipality", validate="one_to_one")
     joined["name"] = joined.region.map(mapping)
     return joined
+
+
+def candidate_graph(municipalities: gpd.GeoDataFrame) -> tuple[np.ndarray, np.ndarray]:
+    """Dissolve valid municipalities and build Queen adjacency and weights."""
+    if (
+        municipalities.geometry.isna().any()
+        or municipalities.geometry.is_empty.any()
+        or not municipalities.geometry.is_valid.all()
+        or not municipalities.geom_type.isin(["Polygon", "MultiPolygon"]).all()
+    ):
+        raise ValueError("invalid municipal geometry")
+    regions = municipalities[["name", "geometry"]].dissolve(by="name").reset_index()
+    a = build_adjacency(regions, tuple(hierarchy().leaves))
+    return a, row_normalize(a)
