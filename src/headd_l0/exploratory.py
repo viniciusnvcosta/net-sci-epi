@@ -7,6 +7,8 @@ import numpy as np
 
 from headd_l0._sim_validation_io import _sha256
 from headd_l0.data import hierarchy
+from headd_l0.detectors import rolling_zscore
+from headd_l0.e1 import ArmSpec, ExperimentConfig, _score
 from headd_l0.graph import _validate
 
 CANDIDATE_MANIFEST_SHA256 = (
@@ -56,3 +58,39 @@ def load_graphs(
             raise ValueError("invalid placebo degrees or duplicate")
         seen.add(graph.tobytes())
     return a, w, p4, placebos
+
+
+def score_replicate(
+    counts: np.ndarray, graphs: dict[str, np.ndarray], seed: np.random.SeedSequence
+) -> np.ndarray:
+    """Score one shared panel with fixed arms and a causal z-score baseline."""
+    config = ExperimentConfig(
+        name="e1_smoke",
+        run_id="exploratory",
+        root_seed=20261028,
+        output_dir=Path("results"),
+        noise_types=("white",),
+        epsilon_levels=(0, 0.2),
+        n_transition=1,
+        n_null=1,
+        n_calibration=1,
+        n_placebos=30,
+        detectors=("pca", "lof", "knn", "hbos", "iforest", "mcd"),
+        selection_k=5,
+        graph_source="synthetic_cycle_smoke_only",
+        endemic_source="fixed_profile_smoke_only",
+    )
+    arms = (
+        ArmSpec("B1*", "reconciled", None),
+        ArmSpec("B2", "reconciled", "observed"),
+        ArmSpec("B2-P4", "reconciled", "p4"),
+        *(
+            ArmSpec(f"B2-placebo-{i:02d}", "reconciled", f"placebo-{i:02d}")
+            for i in range(3)
+        ),
+    )
+    result, _, audit = _score(counts, config, arms, graphs, seed)
+    if not audit["fit_valid"] or not np.isfinite(result).all():
+        raise ValueError("invalid NB2 or ensemble score")
+    baseline = rolling_zscore(counts, window=12)[:, 60:]
+    return np.concatenate([result, baseline[None, :, :]])
