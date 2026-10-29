@@ -79,3 +79,39 @@ convergência; não houve ajuste do pool de detectores. Não há medição compl
 por braço ou projeção de custo e a bancada exploratória não foi executada.
 Não alterar sementes ou parâmetros para transformar esse resultado em sucesso.
 A reprodução diagnóstica não modifica a evidência histórica E0*/FAR.
+
+## Grafo com população do Censo 2010
+
+`results/l0-delivery-graph-v1/candidate.graphml` contém 13 nós, 52 arcos,
+códigos, nomes, pesos W e população total por região, com `interpretation_allowed=false`.
+Seu SHA-256 é
+`6c6e9d639b1b93b430b40b298cd110c053904134fd39c1ba8721e3b5445e8e42`;
+o manifesto tem SHA-256
+`d87333ae691a4a462860ec61153489cf4cc976817e2c7568f7158be7dd684e92`.
+As matrizes, pesos e hashes foram conferidos; população total agregada:
+7.581.051 habitantes. O exportador é identificado pelo commit `8b04176` e
+pelos hashes de código no manifesto. A candidata permanece sem aprovação de G3.
+
+Fonte: **IBGE, Censo Demográfico 2010, Tabela SIDRA 1378**, variável população
+residente, situação do domicílio total, sexo total, idade total e condição no
+domicílio total, em pessoas. O CSV fornecido `tabela1378.csv` tem SHA-256
+`f1a3248dec235571ff9c6984daf2f904082eaec91a76d387f3e3482723e50b54`.
+As duas notas presentes no próprio arquivo são:
+
+1. Dados do Universo.
+2. A categoria Pessoa responsável inclui as pessoas Sem declaração de
+   compartilhamento de responsabilidade pelo domicílio.
+
+Na consulta enviada, o texto visível do link menciona `k/239831783`, enquanto
+o destino é [k/1136872706](https://apisidra.ibge.gov.br/values/k/1136872706).
+O ambiente não acessou a API para confirmar a consulta; os filtros e notas foram
+conferidos no CSV, e não há verificação independente de checksum oficial.
+A licença e condições de redistribuição ainda devem ser confirmadas.
+
+O Censo lista 143 municípios do Pará em 2010; a candidata lista 144. A única
+diferença de códigos é Mojuí dos Campos (`150475`), instalado em 2013 após
+desmembramento de Santarém (`150680`), segundo o
+[IBGE](https://www.ibge.gov.br/geociencias/organizacao-do-territorio/estrutura-territorial/15761-areas-dos-municipios.html?edicao=30133&t=downloads).
+Ambos pertencem à região `15002` na composição fixa; a população de Santarém
+em 2010 foi contada uma vez nessa região. Isso não estima a população separada
+de Mojuí em 2010 nem a população por região em outros anos.
