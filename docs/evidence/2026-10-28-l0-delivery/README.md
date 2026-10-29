@@ -23,8 +23,8 @@ a identidade dos bytes locais com versão oficial não foi verificada.
 
 ## Pendências
 
-- Obter tabela e documentação do Censo IBGE 2010; acesso automático ao SIDRA
-  falhou por resolução de DNS. Exportação com população segue pendente.
+- Confirmar licença e condições de redistribuição do Censo; a tabela total foi
+  fornecida e o grafo com população foi gerado, como registrado adiante.
 - Apresentação atualizada, piloto e demonstração SIR ainda não concluídos.
 
 ## Cópia preliminar dos slides
@@ -65,7 +65,8 @@ Seu manifesto SHA-256
 `776250d4cbe10a4fa298dade3222da50dee7a9d6ac1cf32cf195add54d04e32f`
 registra `partial_population_pending`. Não há atributo de população:
 `tabela1378.csv` recebido tem situação do domicílio Urbana, inadequada para a
-população total solicitada. Aguardamos a seleção Total; não imputar zero.
+população total solicitada. Posteriormente, a tabela Total foi fornecida e
+utilizada no grafo completo documentado abaixo; o parcial permanece histórico.
 A direção dos arcos representa índices de W, não fluxo de pessoas.
 
 ## Piloto SIR
@@ -115,3 +116,11 @@ desmembramento de Santarém (`150680`), segundo o
 Ambos pertencem à região `15002` na composição fixa; a população de Santarém
 em 2010 foi contada uma vez nessa região. Isso não estima a população separada
 de Mojuí em 2010 nem a população por região em outros anos.
+
+Os mapas associados estão no worktree irmão, em
+`results/l0-geography-review-20261028-v1/`: `mapa-regioes.png` SHA-256
+`7cbb79bc1488e58f9ecd277f299e30529c2892b45268a2e9bcd8ad304aac32cb` e
+`comparacao-arestas.png` SHA-256
+`806e53195c71d414c1b97a3d467db2449357ef254924e43a7cd3a7eb56066b43`.
+Sua [proveniência e os limites](../2026-10-28-geography-review/README.md)
+permanecem independentes do novo manifesto do GraphML.
