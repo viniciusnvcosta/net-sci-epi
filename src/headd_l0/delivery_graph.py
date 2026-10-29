@@ -1,8 +1,11 @@
 """Build geographic review exports without altering candidate evidence."""
 
+import csv
 import json
 import os
+import subprocess
 import tempfile
+from datetime import UTC, datetime
 from pathlib import Path
 
 import networkx as nx
@@ -99,6 +102,9 @@ def export_candidate_without_population(manifest_path: Path, output: Path) -> No
     """Publish a candidate-bound graph explicitly marked population-pending."""
     if output.exists() or output.is_symlink():
         raise FileExistsError(output)
+    candidate_hash = _sha256(manifest_path)
+    source_files = sorted(Path(__file__).parent.glob("*.py"))
+    source_hashes = {p.name: _sha256(p) for p in source_files}
     a, w, _, _ = load_graphs(manifest_path)
     codes = {name: str(code) for code, name in PA_HEALTH_REGIONS_2013.items()}
     regions = [(codes[name], name) for name in hierarchy().leaves]
@@ -110,7 +116,12 @@ def export_candidate_without_population(manifest_path: Path, output: Path) -> No
     manifest = {
         "status": "partial_population_pending",
         "interpretation_allowed": False,
-        "candidate_manifest_sha256": _sha256(manifest_path),
+        "candidate_manifest_sha256": candidate_hash,
+        "source_sha256": source_hashes,
+        "git_commit": subprocess.run(
+            ["git", "rev-parse", "HEAD"], check=True, capture_output=True, text=True
+        ).stdout.strip(),
+        "timestamp_utc": datetime.now(UTC).isoformat(),
         "node_order": [name for _, name in regions],
         "population": "pending",
         "outputs": {p.name: _sha256(p) for p in stage.iterdir()},
@@ -118,4 +129,116 @@ def export_candidate_without_population(manifest_path: Path, output: Path) -> No
     (stage / "manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n"
     )
+    if (
+        _sha256(manifest_path) != candidate_hash
+        or {p.name: _sha256(p) for p in source_files} != source_hashes
+    ):
+        raise ValueError("source changed during export")
+    _publish(stage, output)
+
+
+def read_sidra_2010(path: Path) -> pd.DataFrame:
+    """Read SIDRA 1378 total-population rows and validate the state total."""
+    with path.open(encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.reader(handle))
+    if (
+        len(rows) < 7
+        or "Tabela 1378" not in rows[0][0]
+        or "População residente" not in rows[1][0]
+    ):
+        raise ValueError("invalid SIDRA table")
+    if [rows[i][5] for i in (3, 4, 5)] != ["2010", "Total", "Total"]:
+        raise ValueError("2010, situação Total e sexo Total required")
+    expected_notes = {
+        "1 - Dados do Universo.",
+        "2 - A categoria Pessoa responsável inclui as pessoas Sem declaração de compartilhamento de responsabilidade pelo domicílio.",
+    }
+    if not expected_notes.issubset({r[0] for r in rows if len(r) == 1}):
+        raise ValueError("missing SIDRA notes")
+    state = [r for r in rows if r and r[0] == "UF" and len(r) >= 7 and r[1] == "15"]
+    municipal = [r for r in rows if r and r[0] == "MU"]
+    if len(state) != 1 or len(municipal) != 143:
+        raise ValueError("invalid state or municipal coverage")
+    data = []
+    for row in municipal:
+        if (
+            len(row) != 7
+            or len(row[1]) != 7
+            or not row[1].isdigit()
+            or not row[1].startswith("15")
+            or row[3:5] != ["Total", "Total"]
+            or row[6] != "Pessoas"
+            or not row[5].isdigit()
+        ):
+            raise ValueError("invalid municipal SIDRA row")
+        data.append({"municipality": row[1][:6], "population": int(row[5])})
+    result = pd.DataFrame(data)
+    if result.municipality.duplicated().any() or not state[0][5].isdigit():
+        raise ValueError("duplicate municipality or invalid state total")
+    if int(result.population.sum()) != int(state[0][5]):
+        raise ValueError("municipal and state totals disagree")
+    return result
+
+
+def export_candidate_with_population(
+    manifest_path: Path, population_path: Path, output: Path
+) -> None:
+    """Publish the candidate and verified 2010 regional population without replacement."""
+    if output.exists() or output.is_symlink():
+        raise FileExistsError(output)
+    candidate_hash = _sha256(manifest_path)
+    population_hash = _sha256(population_path)
+    source_files = sorted(Path(__file__).parent.glob("*.py"))
+    source_hashes = {p.name: _sha256(p) for p in source_files}
+    a, w, _, _ = load_graphs(manifest_path)
+    metadata = json.loads(manifest_path.read_text())
+    crosswalk = pd.DataFrame(metadata["municipality_region"])
+    if len(crosswalk) != 144:
+        raise ValueError("candidate crosswalk must contain 144 municipalities")
+    census = read_sidra_2010(population_path)
+    population = aggregate_population(census, crosswalk, {"150475": "150680"})
+    codes = {name: str(code) for code, name in PA_HEALTH_REGIONS_2013.items()}
+    regions = [(codes[name], name) for name in hierarchy().leaves]
+    output.parent.mkdir(parents=True, exist_ok=True)
+    stage = Path(tempfile.mkdtemp(prefix=f".{output.name}-", dir=output.parent))
+    export_graph(a, w, regions, population, stage / "candidate.graphml")
+    np.save(stage / "adjacency.npy", a)
+    np.save(stage / "W.npy", w)
+    manifest = {
+        "status": "candidate_graph_population_complete",
+        "interpretation_allowed": False,
+        "candidate_manifest_sha256": candidate_hash,
+        "population_source_sha256": population_hash,
+        "population_source": str(population_path),
+        "population_year": 2010,
+        "population_citation": "IBGE, Censo Demográfico 2010, Tabela SIDRA 1378",
+        "population_universe": "Dados do Universo",
+        "population_notes": [
+            "1 - Dados do Universo.",
+            "2 - A categoria Pessoa responsável inclui as pessoas Sem declaração de compartilhamento de responsabilidade pelo domicílio.",
+        ],
+        "sidra_query_url": "https://apisidra.ibge.gov.br/values/k/1136872706",
+        "sidra_query_label_as_supplied": "https://apisidra.ibge.gov.br/values/k/239831783",
+        "query_independently_verified": False,
+        "population_method": "143 municipios de 2010; Mojuí dos Campos e Santarém associados ao ancestral Santarém, contado uma vez na região 15002",
+        "population_total": int(census.population.sum()),
+        "population_regions": population,
+        "source_sha256": source_hashes,
+        "git_commit": subprocess.run(
+            ["git", "rev-parse", "HEAD"], check=True, capture_output=True, text=True
+        ).stdout.strip(),
+        "timestamp_utc": datetime.now(UTC).isoformat(),
+        "node_order": [name for _, name in regions],
+        "outputs": {p.name: _sha256(p) for p in stage.iterdir()},
+    }
+    (stage / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+    )
+    if (
+        _sha256(manifest_path) != candidate_hash
+        or _sha256(population_path) != population_hash
+        or {p.name: _sha256(p) for p in source_files} != source_hashes
+    ):
+        raise ValueError("source changed during export")
+    load_graphs(manifest_path)
     _publish(stage, output)

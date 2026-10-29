@@ -111,3 +111,134 @@ def test_candidate_export_is_bound_and_partial(tmp_path, monkeypatch):
     assert all("population" not in x for _, x in graph.nodes(data=True))
     with pytest.raises(FileExistsError):
         delivery_graph.export_candidate_without_population(manifest, output)
+
+
+def test_candidate_manifest_change_fails_before_publication(tmp_path, monkeypatch):
+    from headd_l0 import delivery_graph
+
+    a = nx.to_numpy_array(nx.cycle_graph(13), dtype=np.uint8)
+    manifest = tmp_path / "candidate.json"
+    manifest.write_text("original")
+
+    def changed(_):
+        manifest.write_text("changed")
+        return a, a / 2, a, np.repeat(a[None], 30, axis=0)
+
+    monkeypatch.setattr(delivery_graph, "load_graphs", changed)
+    output = tmp_path / "package"
+    with pytest.raises(ValueError, match="changed"):
+        delivery_graph.export_candidate_without_population(manifest, output)
+    assert not output.exists()
+
+
+def test_sidra_rejects_urban_and_preserves_total(tmp_path):
+    import csv
+
+    from headd_l0.delivery_graph import read_sidra_2010
+
+    path = tmp_path / "sidra.csv"
+    rows = [
+        ["Tabela 1378"],
+        ["Variável - População residente"],
+        ["Nível", "Cód.", "Nome", "Idade", "Condição", "coluna"],
+        ["Nível", "Cód.", "Nome", "Idade", "Condição", "2010"],
+        ["Nível", "Cód.", "Nome", "Idade", "Condição", "Total"],
+        ["Nível", "Cód.", "Nome", "Idade", "Condição", "Total"],
+        ["UF", "15", "Pará", "Total", "Total", "143", "Pessoas"],
+    ]
+    rows += [
+        ["MU", f"15{i:04d}0", str(i), "Total", "Total", "1", "Pessoas"]
+        for i in range(143)
+    ]
+    rows += [
+        ["Notas"],
+        ["1 - Dados do Universo."],
+        [
+            "2 - A categoria Pessoa responsável inclui as pessoas Sem declaração de compartilhamento de responsabilidade pelo domicílio."
+        ],
+    ]
+    with path.open("w", encoding="utf-8-sig", newline="") as f:
+        csv.writer(f).writerows(rows)
+    result = read_sidra_2010(path)
+    assert len(result) == 143 and result.population.sum() == 143
+    rows[4][5] = "Urbana"
+    with path.open("w", encoding="utf-8-sig", newline="") as f:
+        csv.writer(f).writerows(rows)
+    with pytest.raises(ValueError, match="Total"):
+        read_sidra_2010(path)
+
+
+def test_candidate_export_uses_verified_census_and_unique_ancestor(
+    tmp_path, monkeypatch
+):
+    import hashlib
+    import json
+
+    from headd_l0 import delivery_graph
+    from headd_l0.graph_io import PA_HEALTH_REGIONS_2013
+
+    a = nx.to_numpy_array(nx.cycle_graph(13), dtype=np.uint8)
+    monkeypatch.setattr(
+        delivery_graph,
+        "load_graphs",
+        lambda _: (a, a / 2, a, np.repeat(a[None], 30, axis=0)),
+    )
+    codes = [str(c) for c in PA_HEALTH_REGIONS_2013]
+    crosswalk = [
+        {"municipality": f"15{i:04d}", "region": codes[i % 13]} for i in range(142)
+    ]
+    crosswalk.extend(
+        [
+            {"municipality": "150680", "region": "15002"},
+            {"municipality": "150475", "region": "15002"},
+        ]
+    )
+    source = pd.DataFrame(
+        [
+            {"municipality": r["municipality"], "population": 1}
+            for r in crosswalk
+            if r["municipality"] != "150475"
+        ]
+    )
+    monkeypatch.setattr(delivery_graph, "read_sidra_2010", lambda _: source)
+    manifest = tmp_path / "candidate.json"
+    manifest.write_text(json.dumps({"municipality_region": crosswalk}))
+    census = tmp_path / "census.csv"
+    census.write_text("verified-by-test")
+    out = tmp_path / "package"
+    delivery_graph.export_candidate_with_population(manifest, census, out)
+    graph = nx.read_graphml(out / "candidate.graphml")
+    record = json.loads((out / "manifest.json").read_text())
+    assert record["status"] == "candidate_graph_population_complete"
+    assert record["interpretation_allowed"] is False
+    assert (
+        record["population_source_sha256"]
+        == hashlib.sha256(census.read_bytes()).hexdigest()
+    )
+    assert sum(attrs["population"] for _, attrs in graph.nodes(data=True)) == 143
+    assert graph.number_of_edges() == 26
+
+
+def test_sidra_requires_universe_notes(tmp_path):
+    import csv
+
+    from headd_l0.delivery_graph import read_sidra_2010
+
+    path = tmp_path / "census.csv"
+    rows = [
+        ["Tabela 1378"],
+        ["População residente"],
+        ["Nível", "Cód.", "Nome", "Idade", "Condição", "coluna"],
+        ["Nível", "Cód.", "Nome", "Idade", "Condição", "2010"],
+        ["Nível", "Cód.", "Nome", "Idade", "Condição", "Total"],
+        ["Nível", "Cód.", "Nome", "Idade", "Condição", "Total"],
+        ["UF", "15", "Pará", "Total", "Total", "143", "Pessoas"],
+    ]
+    rows += [
+        ["MU", f"15{i:04d}0", str(i), "Total", "Total", "1", "Pessoas"]
+        for i in range(143)
+    ]
+    with path.open("w", encoding="utf-8-sig", newline="") as f:
+        csv.writer(f).writerows(rows)
+    with pytest.raises(ValueError, match="notes"):
+        read_sidra_2010(path)
