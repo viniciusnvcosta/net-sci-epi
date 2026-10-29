@@ -187,3 +187,16 @@ Não existe `metrics.parquet` de bancada nesta Task 6.
 | Smoke `e1-cost-smoke-20261020/manifest.json` | `77694f04a2d682bea049d2476aa252d297f11dba7eb6012fe9bd3df1bc3fa93d` |
 | Smoke `metrics.parquet` | `387b9a9da2b5fed862c9491d844f47590efa6015cda9fffe5c9eddf1f6e7b0ba` |
 | Reach `e1-reach-20261020/manifest.json` | `b762abc6ea3e2466c177e7deedb65376f548bba179929b8a37a538165ddd8828` |
+
+## Captura local para preparação do piloto — 28/10/2026
+
+Leitura no ambiente desta execução: AMD Ryzen 9 9900X, 8 CPUs lógicas
+visíveis; `MemTotal=26675416 kB` em `/proc/meminfo`; Linux
+`6.6.87.2-microsoft-standard-WSL2` x86_64, glibc 2.39. Ambiente Python
+3.12.12, numpy 2.5.3, pandas 3.0.6, scipy 1.18.1; `torch` não está instalado
+no ambiente Python usado. `nvidia-smi` respondeu que o acesso NVML está
+bloqueado pelo sistema operacional, portanto a GPU não foi identificada por
+esta captura. Nenhum número de série foi coletado.
+
+Esta captura não é piloto de custo nem conclui D-COST; tempo e memória por
+braço e projeção precisam de medição separada com código e artefatos validados.

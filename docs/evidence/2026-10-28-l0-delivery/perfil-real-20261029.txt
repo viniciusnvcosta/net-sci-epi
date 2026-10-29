@@ -1,0 +1,14 @@
+0 old_ok True profile_ok True alpha 0.19262923 max_delta_se 4.739714871660215e-06 all_pass True
+1 old_ok True profile_ok True alpha 0.52865407 max_delta_se 8.162164559197973e-07 all_pass True
+2 old_ok True profile_ok True alpha 0.11652872 max_delta_se 1.0219728962565956e-06 all_pass True
+3 old_ok True profile_ok True alpha 0.29108294 max_delta_se 4.073777488941907e-06 all_pass True
+4 old_ok True profile_ok True alpha 0.29338898 max_delta_se 3.675281643838821e-06 all_pass True
+5 old_ok True profile_ok True alpha 0.26629884 max_delta_se 2.5044681611821675e-06 all_pass True
+6 old_ok True profile_ok True alpha 0.3056077 max_delta_se 4.900583739947191e-06 all_pass True
+7 old_ok True profile_ok True alpha 0.16150998 max_delta_se 2.184997737547763e-06 all_pass True
+8 old_ok True profile_ok True alpha 0.31364817 max_delta_se 8.430227169635091e-07 all_pass True
+9 old_ok True profile_ok True alpha 0.31410222 max_delta_se 2.0218014972417297e-06 all_pass True
+10 old_ok True profile_ok True alpha 0.27879368 max_delta_se 6.783158764469895e-07 all_pass True
+11 old_ok True profile_ok True alpha 0.04785142 max_delta_se 1.3585473805120597e-06 all_pass True
+12 old_ok True profile_ok True alpha 2.09863276 max_delta_se 1.0960191035811688e-05 all_pass True
+13 old_ok True profile_ok True alpha 0.34937307 max_delta_se 2.7339808128189558e-06 all_pass True
