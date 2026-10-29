@@ -1,0 +1,30 @@
+pilot
+0 alpha 0.0006885246 ok True finite True dLL 121.3021 maxdiff 1.862061e-09
+1 alpha 0.01571868 ok True finite True dLL 1.951305 maxdiff 5.59545e-08
+2 alpha 7.686554e-09 ok False finite True dLL -8.302264e-06 maxdiff nan
+3 alpha 3.226599e-08 ok True finite True dLL -6.925996e-05 maxdiff nan
+4 alpha 0.0006141659 ok False finite True dLL 3.617873 maxdiff 1.230552e-09
+5 alpha 0.0003359139 ok True finite True dLL 0.2258667 maxdiff nan
+6 alpha 0.001 ok False finite True dLL 13.27647 maxdiff nan
+7 alpha 1.207748e-08 ok False finite True dLL -4.577047e-06 maxdiff nan
+8 alpha 1.006966e-07 ok True finite True dLL -5.494503e-05 maxdiff nan
+9 alpha 6.849348e-09 ok False finite True dLL -4.046707e-06 maxdiff nan
+10 alpha 3.663484e-08 ok True finite True dLL -1.666029e-05 maxdiff nan
+11 alpha 0.0007876479 ok False finite True dLL 16.40481 maxdiff 1.445876e-08
+12 alpha 3.927059e-09 ok False finite True dLL -1.219441e-06 maxdiff nan
+13 alpha 0.0003303329 ok False finite True dLL 0.876954 maxdiff nan
+real
+0 alpha 0.1926291 ok True finite True dLL 46658.21 maxdiff 4.824395e-08
+1 alpha 0.5286541 ok True finite True dLL 434.1139 maxdiff 5.567992e-07
+2 alpha 0.1165287 ok True finite True dLL 880.16 maxdiff 2.420227e-09
+3 alpha 0.291083 ok True finite True dLL 1051.957 maxdiff 4.16393e-07
+4 alpha 0.293389 ok True finite True dLL 5006.911 maxdiff 4.301032e-07
+5 alpha 0.2663024 ok True finite True dLL 2627.261 maxdiff 5.011166e-06
+6 alpha 0.305608 ok True finite True dLL 21675.64 maxdiff 1.096835e-06
+7 alpha 0.16151 ok True finite True dLL 301.3903 maxdiff 5.907144e-09
+8 alpha 0.3136478 ok True finite True dLL 309.164 maxdiff 1.540327e-06
+9 alpha 0.3141022 ok True finite True dLL 3091.546 maxdiff 5.028032e-07
+10 alpha 0.2787935 ok True finite True dLL 536.8525 maxdiff 4.624155e-07
+11 alpha 0.04785142 ok True finite True dLL 2308.37 maxdiff 6.034897e-10
+12 alpha 2.098633 ok True finite True dLL 51655.15 maxdiff 1.482839e-06
+13 alpha 0.3493732 ok True finite True dLL 5085.152 maxdiff 4.668853e-08

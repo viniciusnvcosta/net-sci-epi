@@ -1,0 +1,1428 @@
+{
+  "status": "diagnostic_only",
+  "original_sha256": "a0c318ee14b4906a03e16a27e0c84b3dee111803c9dfbe9ca472603cb86d92e7",
+  "harness_sha256": "36e6c5c139b0735c38b8dd04279180d9fc97fe31183fd4ea9edb3edb81e2c0d6",
+  "seed": 204,
+  "records": [
+    {
+      "index": 2,
+      "result": {
+        "valid": false,
+        "error": "NB2 IRLS did not converge"
+      },
+      "evaluations": [
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004718044999416486,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.02119521963278598,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 4.4923733528203697e-05,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0003052243143367415,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0008560729606181782,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004809781828143327,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004938752400430854,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004920199891742026,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004919846467449267,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004919884436893528,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004919869762454929,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004920004927536415,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004919930459875484,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004919902016057555,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004919912880609826,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004919900822888919,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004919906936196302,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004919903895382749,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.000491990273389582,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004919901443811638,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "grid",
+          "caller_line": 63,
+          "alpha": 1.0000000000000004e-06,
+          "converged": false,
+          "iterations": 100
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "result": {
+        "valid": false,
+        "error": "NB2 IRLS did not converge"
+      },
+      "evaluations": [
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004718044999416486,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.02119521963278598,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 4.4923733528203697e-05,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0002862437513691839,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0007374807622081464,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004531986985398235,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.000463301317970112,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004632034082151702,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004632216674988927,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00046322133480407903,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00046321724678144736,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00046321977331412233,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004632199385199951,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004632188082628877,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004632193795709016,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00046321916135057516,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00046321943386310664,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00046321932527870286,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "grid",
+          "caller_line": 63,
+          "alpha": 1.0000000000000004e-06,
+          "converged": false,
+          "iterations": 100
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "result": {
+        "valid": false,
+        "error": "NB2 IRLS did not converge"
+      },
+      "evaluations": [
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004718044999416486,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.02119521963278598,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 4.4923733528203697e-05,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0002858754554930874,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.000733928841858178,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004525167412406309,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00046251034688578194,
+          "converged": true,
+          "iterations": 5
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00046246103296294683,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004624803372652664,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00046248028304873503,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004624917996904771,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00046248581090374227,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004624829931186027,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00046248161568368236,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00046248097504301213,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004624809208264158,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004624806829154159,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00046248082995248584,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "grid",
+          "caller_line": 63,
+          "alpha": 1.0000000000000004e-06,
+          "converged": false,
+          "iterations": 100
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "result": {
+        "valid": false,
+        "error": "NB2 IRLS did not converge"
+      },
+      "evaluations": [
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004718044999416486,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.02119521963278598,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 4.4923733528203697e-05,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0003221062287934744,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0009586594673054955,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.000504406455562606,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005192304645710785,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005160372450982216,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005159721755556712,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005159781838767375,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005159785724426289,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005159757210192588,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005159772431475025,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005159779378314313,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005159781242263798,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005159780645760282,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "grid",
+          "caller_line": 63,
+          "alpha": 1.0000000000000004e-06,
+          "converged": false,
+          "iterations": 100
+        }
+      ]
+    },
+    {
+      "index": 19,
+      "result": {
+        "valid": false,
+        "error": "NB2 IRLS did not converge"
+      },
+      "evaluations": [
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004718044999416486,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.02119521963278598,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 4.4923733528203697e-05,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00031686168338417313,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0009227886662109559,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004969060495078299,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005110404510769015,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005082824989171396,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005082262591673069,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.000508231559020032,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005082308298247609,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005082303717236947,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005082311020663458,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005082311712517753,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005082313193660346,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005082312301205753,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "grid",
+          "caller_line": 63,
+          "alpha": 1.0000000000000004e-06,
+          "converged": true,
+          "iterations": 13
+        },
+        {
+          "phase": "grid",
+          "caller_line": 63,
+          "alpha": 2.738419634264361e-06,
+          "converged": false,
+          "iterations": 100
+        }
+      ]
+    },
+    {
+      "index": 20,
+      "result": {
+        "valid": false,
+        "error": "NB2 IRLS did not converge"
+      },
+      "evaluations": [
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004718044999416486,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.02119521963278598,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 4.4923733528203697e-05,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00034609601441811904,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0011001587635786868,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.000536330993173803,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005530852346265035,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005483350994719401,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005482491152675719,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005482566698966971,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005482545453644632,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005482540109530417,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005482552243349658,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005482557764899642,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005482561177407986,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005482556507957977,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005482558393783982,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "grid",
+          "caller_line": 63,
+          "alpha": 1.0000000000000004e-06,
+          "converged": false,
+          "iterations": 100
+        }
+      ]
+    },
+    {
+      "index": 22,
+      "result": {
+        "valid": false,
+        "error": "NB2 IRLS did not converge"
+      },
+      "evaluations": [
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004718044999416486,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.02119521963278598,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 4.4923733528203697e-05,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00038225890549038315,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0013372024679768819,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0007023877128891897,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005963936702966153,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005949024822223366,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005962992876539971,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005963102564739902,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005963106923547201,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.000596311178301213,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005963105014904642,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005963108779697171,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005963106194510544,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "grid",
+          "caller_line": 63,
+          "alpha": 1.0000000000000004e-06,
+          "converged": false,
+          "iterations": 100
+        }
+      ]
+    },
+    {
+      "index": 25,
+      "result": {
+        "valid": false,
+        "error": "NB2 IRLS did not converge"
+      },
+      "evaluations": [
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004718044999416486,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.02119521963278598,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 4.4923733528203697e-05,
+          "converged": true,
+          "iterations": 5
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00031070977197977,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0008942451756386315,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004890592786354843,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005027985096685699,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005004398654131916,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005003920432794272,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005003968379044399,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.000500396296592433,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005004132725136502,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005004006569316122,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005003987094592956,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005003986513824679,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005003987675361299,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005003994892201437,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005003990431947711,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005003988895062999,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005003989475831524,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005003988314294539,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "grid",
+          "caller_line": 63,
+          "alpha": 1.0000000000000004e-06,
+          "converged": false,
+          "iterations": 100
+        }
+      ]
+    },
+    {
+      "index": 28,
+      "result": {
+        "valid": false,
+        "error": "NB2 IRLS did not converge"
+      },
+      "evaluations": [
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004718044999416486,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.02119521963278598,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 4.4923733528203697e-05,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0003399205086134459,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.001064648188532766,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005282665368073423,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005446199609177157,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005402302479993135,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005401475404088681,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005401548352279463,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005401541261341706,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005401836391007813,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005401658371470697,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005401590375606603,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005401563023101856,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005401554914077806,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005401545643781154,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005401550858662461,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005401552407692926,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.000540154990130921,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0005401551479447399,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "grid",
+          "caller_line": 63,
+          "alpha": 1.0000000000000004e-06,
+          "converged": false,
+          "iterations": 100
+        }
+      ]
+    },
+    {
+      "index": 29,
+      "result": {
+        "valid": false,
+        "error": "NB2 IRLS did not converge"
+      },
+      "evaluations": [
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004718044999416486,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.02119521963278598,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 4.4923733528203697e-05,
+          "converged": true,
+          "iterations": 3
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00026879116245538356,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0006348711726393505,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004267180910551352,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004365234884379138,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00043573308334610676,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00043580236104644946,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00043580377544007285,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00043580159105101026,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004357754221649695,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00043580083123811086,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00043580188516293637,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.0004358019410651808,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00043580177282215375,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "search",
+          "caller_line": 55,
+          "alpha": 0.00043580183368985195,
+          "converged": true,
+          "iterations": 4
+        },
+        {
+          "phase": "grid",
+          "caller_line": 63,
+          "alpha": 1.0000000000000004e-06,
+          "converged": false,
+          "iterations": 100
+        }
+      ]
+    }
+  ]
+}

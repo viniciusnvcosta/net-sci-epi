@@ -1,0 +1,179 @@
+[
+  {
+    "region": "PA",
+    "alpha": 0.0006885245969059602,
+    "converged": true,
+    "optimizer_converged": true,
+    "iterations": 8,
+    "pearson_ratio": 7.7024940200405085,
+    "mean": 8518.216666666667,
+    "variance": 241007.23638888894,
+    "warnings": []
+  },
+  {
+    "region": "ARAGUAIA",
+    "alpha": 0.015718675363184942,
+    "converged": true,
+    "optimizer_converged": true,
+    "iterations": 4,
+    "pearson_ratio": 1.5468772138389695,
+    "mean": 25.916666666666668,
+    "variance": 44.34305555555556,
+    "warnings": []
+  },
+  {
+    "region": "BAIXO AMAZONAS",
+    "alpha": null,
+    "converged": false,
+    "optimizer_converged": true,
+    "iterations": 27,
+    "pearson_ratio": 0.6770567675443077,
+    "mean": 255.2,
+    "variance": 345.8266666666667,
+    "warnings": [
+      "invalid value encountered in log"
+    ]
+  },
+  {
+    "region": "CARAJAS",
+    "alpha": null,
+    "converged": false,
+    "optimizer_converged": true,
+    "iterations": 20,
+    "pearson_ratio": 0.6347194506495383,
+    "mean": 169.98333333333332,
+    "variance": 159.84972222222228,
+    "warnings": [
+      "invalid value encountered in log"
+    ]
+  },
+  {
+    "region": "LAGO DE TUCURUI",
+    "alpha": 0.0006141659247922435,
+    "converged": true,
+    "optimizer_converged": true,
+    "iterations": 6,
+    "pearson_ratio": 1.7201343473377866,
+    "mean": 913.2333333333333,
+    "variance": 4993.045555555555,
+    "warnings": []
+  },
+  {
+    "region": "MARAJO I",
+    "alpha": null,
+    "converged": false,
+    "optimizer_converged": true,
+    "iterations": 2,
+    "pearson_ratio": 1.2109596431747993,
+    "mean": 368.55,
+    "variance": 1041.7808333333335,
+    "warnings": [
+      "invalid value encountered in log"
+    ]
+  },
+  {
+    "region": "MARAJO II",
+    "alpha": null,
+    "converged": false,
+    "optimizer_converged": true,
+    "iterations": 2,
+    "pearson_ratio": 2.737305955885974,
+    "mean": 3312.383333333333,
+    "variance": 39965.20305555556,
+    "warnings": [
+      "invalid value encountered in log"
+    ]
+  },
+  {
+    "region": "METROPOLITANA I",
+    "alpha": null,
+    "converged": false,
+    "optimizer_converged": true,
+    "iterations": 2,
+    "pearson_ratio": 0.6028516779795572,
+    "mean": 77.03333333333333,
+    "variance": 55.09888888888889,
+    "warnings": [
+      "invalid value encountered in log"
+    ]
+  },
+  {
+    "region": "METROPOLITANA II",
+    "alpha": null,
+    "converged": false,
+    "optimizer_converged": true,
+    "iterations": 2,
+    "pearson_ratio": 0.6841825720861402,
+    "mean": 47.45,
+    "variance": 37.347500000000004,
+    "warnings": [
+      "invalid value encountered in log"
+    ]
+  },
+  {
+    "region": "METROPOLITANA III",
+    "alpha": null,
+    "converged": false,
+    "optimizer_converged": true,
+    "iterations": 2,
+    "pearson_ratio": 0.8399803918740256,
+    "mean": 369.15,
+    "variance": 738.0941666666665,
+    "warnings": [
+      "invalid value encountered in log"
+    ]
+  },
+  {
+    "region": "RIO CAETES",
+    "alpha": null,
+    "converged": false,
+    "optimizer_converged": true,
+    "iterations": 2,
+    "pearson_ratio": 0.7813872272550474,
+    "mean": 53.666666666666664,
+    "variance": 50.25555555555557,
+    "warnings": [
+      "invalid value encountered in log"
+    ]
+  },
+  {
+    "region": "TAPAJOS",
+    "alpha": 0.0007876478928445578,
+    "converged": true,
+    "optimizer_converged": true,
+    "iterations": 5,
+    "pearson_ratio": 2.673415582143084,
+    "mean": 1795.75,
+    "variance": 16670.9875,
+    "warnings": []
+  },
+  {
+    "region": "TOCANTINS",
+    "alpha": null,
+    "converged": false,
+    "optimizer_converged": true,
+    "iterations": 24,
+    "pearson_ratio": 0.7054282785173998,
+    "mean": 366.23333333333335,
+    "variance": 644.4455555555555,
+    "warnings": [
+      "divide by zero encountered in log",
+      "invalid value encountered in divide",
+      "invalid value encountered in multiply",
+      "overflow encountered in exp"
+    ]
+  },
+  {
+    "region": "XINGU",
+    "alpha": null,
+    "converged": false,
+    "optimizer_converged": true,
+    "iterations": 2,
+    "pearson_ratio": 1.3577930295606029,
+    "mean": 763.6666666666666,
+    "variance": 2796.988888888888,
+    "warnings": [
+      "invalid value encountered in log"
+    ]
+  }
+]
