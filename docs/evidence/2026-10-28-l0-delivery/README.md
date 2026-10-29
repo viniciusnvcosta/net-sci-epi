@@ -148,6 +148,10 @@ runner e o piloto corrigido não foi executado.
 O [diagnóstico IRLS posterior](diagnostico-irls-20261029.md) localizou as dez
 falhas na grade de α pequeno. Um início com parâmetros Poisson passou no lote
 independente 804, mas falhou na regressão do lote 204; não foi integrado.
+O [ciclo seguinte](irls-parametros-20261029.md), pré-registrado em commit,
+testou convergência por parâmetros e passou nos lotes de regressão 204/804 e
+no lote independente 904. A candidata continua isolada e exige as demais
+verificações antes de qualquer uso no piloto.
 
 Em 29/10 o piloto foi repetido com a mesma seed e o contrato NB2 inalterado,
 após o teste independente Poisson e os testes do runner (11 aprovados). O novo
